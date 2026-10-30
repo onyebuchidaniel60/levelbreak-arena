@@ -1,31 +1,84 @@
-# LevelBreak Arena — Implementation Blueprint Package
+# LevelBreak Arena
 
-This package is the approved product and technical handoff for the LevelBreak Arena MVP. It is a planning/documentation package; it does not contain application implementation code.
+LevelBreak Arena is a three-level simulated DeFi learning game for Nimiq Mini Apps. This repository is the implementation workspace for the approved blueprint.
 
-## Read in this order
+**Current phase:** Phase 1 — skeletal, route-complete frontend and project foundation.
 
-1. `PROJECT_SPEC.md` — source of truth for product, MVP boundaries, user flows, requirements, state machines, data model, security, UX structure, payment rules, tests and audit.
-2. `ARCHITECTURE.md` — fixed stack, trust boundaries, Nimiq adapter, API contracts, database transaction rules, deployment and environment variables.
-3. `IMPLEMENTATION_PLAN.md` — phased work and mandatory stop/verification gates.
-4. `AGENTS.md` — persistent coding-agent instructions.
-5. `AI_HANDOFF.md` — actual current checkpoint. It intentionally says no preview/app implementation has been deployed yet.
-6. `docs/` — operational, test, deployment, security, design and user-facing docs for the implementation repository.
-7. `PROPER_VIBE_CODING_WORKFLOW.md` — the workflow reference supplied by the operator.
+Phase 1 intentionally does **not** implement wallet authentication, Nimiq SDK integration, funding verification, payouts, a database, or final visual design. No financial action is available in this phase.
 
-## Product in one paragraph
+## Stack
 
-LevelBreak Arena is a three-level simulated DeFi learning game. At each level-up the player sees one evidence-backed consultation request from a scripted requester. Players may answer or skip; each accepted response earns 0.005 NIM, while skipping earns zero. A maximum of three responses can earn 0.015 NIM per session. The requester’s session is unavailable until an ordinary NIM funding transfer to the operator treasury is verified on-chain. At session completion, the backend calculates the reward from the persisted answer ledger and the operator treasury sends an ordinary NIM transfer to the player's wallet. The MVP does **not** use HTLC; this is a treasury-custody model, not trustless escrow, and the scripted requester is not a real external AI agent.
+- Frontend: React + TypeScript + Vite + React Router + Tailwind CSS + TanStack Query
+- Backend: Node.js 24 + TypeScript + Fastify
+- Planned database: Supabase PostgreSQL
+- Planned Nimiq integration: `@nimiq/mini-app-sdk` and `@nimiq/core`
+- Tests: Vitest + Playwright
 
-## Non-negotiable workflow
+## Repository layout
 
-**Early skeletal frontend deployment → core functionality → end-to-end verification → references/mockups → explicit operator design approval → final UI implementation → frontend/docs/footer completeness → security and release.**
+```text
+apps/
+  web/                  Vite React frontend
+  api/                  Fastify API skeleton (/health/live only)
+packages/
+  contracts/            Shared-contract placeholder
+db/
+  migrations/           Database migration placeholder
+tests/
+  e2e/                  Playwright route smoke tests
+  integration/          Integration-test placeholder
+  testnet/              Testnet-test placeholder
+docs/                   Product, deployment, security and operations documentation
+```
 
-The coding agent implements one phase at a time, tests it, commits, updates `AI_HANDOFF.md`, verifies the deployed preview, reports evidence, and stops. It may not automatically proceed to the next phase.
+## Prerequisites
 
-## Current status
+- Node.js **24.22.1** (see `.nvmrc`)
+- pnpm **10.34.5** (pinned in `package.json`)
 
-No application repository or preview URL was provided or created while preparing this blueprint. Exact URL/commit fields are intentionally marked `NOT YET DEPLOYED`/`NONE` in `AI_HANDOFF.md`; do not fabricate them.
+## Commands
 
-## Competition-facing constraints
+```bash
+pnpm install
+pnpm dev          # run the web and API development servers
+pnpm lint
+pnpm typecheck
+pnpm test         # Vitest unit checks plus Playwright route smoke tests
+pnpm build
+```
 
-Cycle III rules require a working Mini App that meaningfully integrates Nimiq Pay, a public GitHub repo under MIT, and a written description of no more than 250 words. The current official rules include paid surveys, microtasks and learn-to-earn formats as possible earning-app patterns. See the source links in `PROJECT_SPEC.md` and `docs/DEPLOYMENT.md`. Verify current submission portal requirements before final submission.
+The API exposes `GET /health/live` and returns `{"status":"ok"}`. It has no database, auth, Nimiq, funding, or payout routes.
+
+## Phase 1 routes
+
+- `/` — landing and Play call to action
+- `/play` — lobby with an explicit no-funded-session state
+- `/play/:runId` — game shell with a not-connected state
+- `/history` — empty history state
+- `/how-it-works` — planned game rules and disclosures
+- `/privacy` — Phase 1 privacy notice
+- `/terms` — Phase 1 terms and risk disclosure
+- `/docs` — in-app documentation overview
+- `*` — not-found page with a working link home
+
+The wallet control is deliberately a disabled placeholder until Phase 2. No button or link claims that funding or payment is active.
+
+## Preview
+
+The verified preview URL and deployed commit SHA are recorded in [`AI_HANDOFF.md`](AI_HANDOFF.md) after deployment verification. No URL or SHA is fabricated in this repository.
+
+## Source documents
+
+- [`AGENTS.md`](AGENTS.md) — persistent implementation rules
+- [`PROJECT_SPEC.md`](PROJECT_SPEC.md) — product source of truth
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) — fixed architecture and API contracts
+- [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) — phased implementation and approval gates
+- [`docs/`](docs/) — deployment, operations, security, testing, design and user documentation
+- [`PROPER_VIBE_CODING_WORKFLOW.md`](PROPER_VIBE_CODING_WORKFLOW.md) — workflow reference
+
+## Safety and scope
+
+- Testnet only; no mainnet path is enabled.
+- No HTLC and no trustless-escrow claim. The planned MVP uses an operator-controlled treasury and ordinary NIM transfers.
+- The requester is planned as a scripted demo requester, not a live AI agent.
+- No secrets belong in the repository. `.env.example` contains blank placeholders only.

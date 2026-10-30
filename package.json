@@ -1,0 +1,31 @@
+{
+  "name": "levelbreak-arena",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LevelBreak Arena monorepo",
+  "packageManager": "pnpm@10.34.5",
+  "engines": {
+    "node": "24.22.1",
+    "pnpm": "10.34.5"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "build": "pnpm -r build",
+    "lint": "eslint .",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm test:unit && pnpm test:e2e",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test -c tests/e2e/playwright.config.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
+    "@types/node": "24.19.2",
+    "eslint": "10.13.0",
+    "globals": "17.13.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.1",
+    "vite": "7.3.7",
+    "vitest": "5.0.5"
+  }
+}
