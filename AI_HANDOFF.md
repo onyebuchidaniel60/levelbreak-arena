@@ -1,90 +1,82 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 3 November 2026
-**Current phase:** Phase 1 complete — skeletal frontend deployed and accepted
-**Status:** PASS — Phase 1 accepted; Phase 2 not started.
+**Current phase:** Phase 2 BLOCKED at Task 0 — Render TestAlbatross consensus check failed
+**Status:** BLOCKED — no Phase 2 application code, migrations, auth, or transfer proof started.
 
-## Current deployment
+## Current deployment and wallets
 
 - Preview URL: https://levelbreak-arena.vercel.app
-- Deployed commit: 612809c8fca37fa6deaac31dd2ec79634c13d87e
+- Vercel deployed commit: 612809c8fca37fa6deaac31dd2ec79634c13d87e (Phase 1, accepted)
 - Repository URL: https://github.com/onyebuchidaniel60/levelbreak-arena
-- Deployment ID: dpl_HhxZdomUrSFAHGAzYwegwbto1Ura
+- Vercel deployment ID: dpl_HhxZdomUrSFAHGAzYwegwbto1Ura
 - Vercel project: uhhh2/levelbreak-arena; Root Directory apps/web; Framework Vite; Node 24.x
-- CI: GitHub Actions run for 612809c8 succeeded
+- Render service: `levelbreak-arena`; normal start command restored to `node apps/api/dist/server.js`; `/health/live` verified `200 {"status":"ok"}` after restore.
+- Render service build currently at Phase 1 checkpoint commit `12d130a01fdf5519c1a4e9454fce6ceb5abb4bff`.
+- Demo-agent wallet: `NQ23 RSJF DP1Q 894D Q346 V1HK C8F5 GM4F 0J9T`
+- Treasury wallet: `NQ83 S85U 0B01 BVY2 RR74 C23E 845S NAKE 1YM3`
+- `NIMIQ_NETWORK`: `"testnet"`
 - Testnet funding transaction: **NOT YET RUN**
 - Testnet treasury payout: **NOT YET RUN**
 - Design references: not collected
 - Mockups: not created
 - Operator approval of final visual design: **NOT GIVEN**
 
-## Phase 1 checkpoint
+## Phase 2 checkpoint
 
 ```text
 Project: LevelBreak Arena
-Current phase: Phase 1 complete — skeletal frontend deployed and accepted
-Status: PASS
+Current phase: Phase 2 — BLOCKED at Task 0 (Render consensus check)
+Status: BLOCKED
 Preview URL: https://levelbreak-arena.vercel.app
 Deployed commit SHA: 612809c8fca37fa6deaac31dd2ec79634c13d87e
-What changed: pnpm monorepo scaffold (apps/web Vite+React+TS+Router+Tailwind+TanStack Query; apps/api Fastify /health/live; packages/contracts placeholder; db/migrations, tests/e2e|integration|testnet placeholders); root package.json with packageManager pnpm@10.34.5 and engines.node 24.22.1; pnpm-workspace.yaml; pnpm-lock.yaml; .nvmrc; .gitignore; blank .env.example; MIT LICENSE (2026 Buchi <onyebuchidaniel60@gmail.com>); implementation README; .github/workflows/ci.yml; all nine routes plus 404; responsive temporary UI; apps/web/vercel.json.
-What works on the deployed preview: all nine routes render at 320px and 1280px with HTTP 200, one page-level h1 each, no horizontal overflow; wallet control present and disabled with the exact Phase 1 label; no financial or wallet behavior active.
-What is intentionally incomplete: wallet authentication and Nimiq SDK integration; funding verification and treasury payout; database/Supabase schema; real frontend–API integration; scenario/consultation gameplay; final visual design; final Documentation/GitHub footer links; any payment evidence.
+What changed: No Phase 2 application source, Fastify code, migrations, auth routes, Nimiq adapter, or transfer proof was written. A temporary consensus-check script was created for Task 0, run locally, run once on the Render web service via a temporary start command, then deleted. Render's start command was restored and the normal service redeployed.
+What works on the deployed preview: Phase 1 remains accepted: all nine routes render at 320px and 1280px with HTTP 200, one page-level h1 each, no horizontal overflow; wallet control present and disabled with the exact Phase 1 label; no financial or wallet behavior active. The Render Phase 1 API health endpoint is restored and returns 200.
+What is intentionally incomplete: all Phase 2 work — Fastify skeleton expansion, schema/migrations, auth nonce/verify/logout/me, NimiqService adapter, and the testnet transfer proof. Phase 2 cannot proceed until chain consensus is resolved.
 Tests run and actual results:
-  Local commands:
-    $ pnpm install --frozen-lockfile
-    Lockfile is up to date, resolution step is skipped
-    Already up to date
-    Done in 2.1s using pnpm v10.34.5
+  Local baseline (@nimiq/core 2.23.0, Node 24.22.1):
+    consensus_check_result={"network":"TestAlbatross","networkId":5,"expectedTestnetNetworkId":5,"consensus":false,"headHeight":null,"peerCount":0,"attempts":36,"elapsedSeconds":181.9,"error":null}
+    consensus_check=FAILED
+    seed WSS dial attempts repeatedly closed with connections=0
 
-    $ pnpm lint
-    (no output; exit 0)
+  Render run:
+    Render one-off job API rejected: HTTP 400 "new paid services not allowed"
+    Fallback used: temporary Render web-service start command executing the same check
+    consensus_check_result={"network":"TestAlbatross","networkId":5,"expectedTestnetNetworkId":5,"consensus":false,"headHeight":null,"peerCount":0,"attempts":36,"elapsedSeconds":183.8,"error":null}
+    consensus_check=FAILED
+    NIMIQ_CONSENSUS_EXIT=1
+    Render log retrieval used the Render API; no public log URL is available without exposing the service ID.
 
-    $ pnpm typecheck
-    Scope: 3 of 4 workspace projects
-    packages/contracts typecheck: Done
-    apps/api typecheck: Done
-    apps/web typecheck: Done
+  Post-restore:
+    GET https://levelbreak-arena.onrender.com/health/live -> 200 {"status":"ok"}
 
-    $ pnpm test
-    Test Files  1 passed (1)
-    Tests       2 passed (2)
-    Playwright: 18 passed (10.1s)
+  Migrations: none created or applied.
+  Transfer proof: not attempted; no transaction hash.
 
-    $ pnpm build
-    apps/api build: Done
-    apps/web build: 98 modules transformed
-    apps/web build: built in 3.14s
-    apps/web build: dist/index.html 0.57 kB; dist/assets/index-CnGH-l17.css 11.32 kB; dist/assets/index-Czl9fQu3.js 301.40 kB
-
-  Local API checks:
-    GET /health/live -> HTTP 200 {"status":"ok"}
-    CORS Origin http://localhost:5173 -> access-control-allow-origin: http://localhost:5173
-    NODE_ENV=production without APP_ORIGIN -> exit code 1, "APP_ORIGIN is required when NODE_ENV=production"
-
-  Deployed Playwright run (before Vercel edge challenge activated):
-    Nine routes x two viewports: all PASS
-    Each route: HTTP 200, one h1, wallet control visible and disabled with
-    label "Wallet connection coming in Phase 2", no horizontal overflow
-    api_requests=0
-
-  CI:
-    GitHub Actions run for 612809c8fca37fa6deaac31dd2ec79634c13d87e succeeded
-    Check run: verify — completed / success
-
-  Vercel commit match:
-    githubCommitSha=612809c8fca37fa6deaac31dd2ec79634c13d87e
-    githubCommitRef=main
-    githubCommitRepo=levelbreak-arena
-Payment evidence (if applicable, testnet/mainnet stated clearly): NOT APPLICABLE — no payment code in Phase 1.
-Known issues/blockers: Vercel edge Security Checkpoint returns 403 to automation from this VPS after the successful Playwright run. Operator owns browser verification of the production alias. No application error; no code fix required.
+Payment evidence (if applicable, testnet/mainnet stated clearly): NOT APPLICABLE — no payment code or transfer proof was attempted.
+Known issues/blockers: @nimiq/core Web Client cannot reach TestAlbatross consensus from either the local VPS or the Render service. Both runs report networkId=5, consensus=false, peerCount=0, no thrown error, and repeated seed WSS disconnects. This is a blocking infrastructure/network issue, not an application-code failure. Render one-off jobs are unavailable on the current free service plan. Awaiting operator decision on (a) Render networking troubleshooting, (b) explicit approval of a hybrid sign-locally/broadcast-via-RPC adapter as a documented deviation, or (c) changing hosting.
 Design references/mockups status: none yet — Phase 6.
 Operator visual approval status: NOT GIVEN — Phase 6 gate.
 Documentation/footer-link status: docs/ present; footer Docs and GitHub links deferred to Phase 8.
-Security/configuration notes: no secrets in repo or in VITE_ vars; static Vite build with no API routes deployed; funding and payout absent; API CORS fails closed in production without APP_ORIGIN; testnet-only direction preserved.
-Git commit: 612809c8fca37fa6deaac31dd2ec79634c13d87e (deployed); checkpoint commit will be the new commit created below.
-Single next task: Awaiting operator approval to begin Phase 2 (backend/data/auth foundation + Nimiq testnet transfer proof).
+Security/configuration notes: no private keys in the repository; only public wallet addresses are recorded. Render wallet env vars were already set and were not changed during Task 0. No VITE_ secrets. The temporary consensus check used no private keys. The normal Render start command and service health were restored.
+Git commit: 612809c8fca37fa6deaac31dd2ec79634c13d87e (Vercel Phase 1 deployment); 12d130a01fdf5519c1a4e9454fce6ceb5abb4bff (Render Phase 1 checkpoint build); this Phase 2 checkpoint commit is the new docs commit.
+Single next task: Await operator decision on the Render/TestAlbatross consensus blocker before any further Phase 2 work.
 STOPPED awaiting operator approval: yes
 ```
+
+## Task 0 execution details
+
+- **Method:** The Render one-off job API was attempted but rejected with `HTTP 400 new paid services not allowed`. The authorized fallback was used: temporarily replace the web service start command with a command that installs `@nimiq/core@2.23.0` in `/tmp`, writes the check script, and runs it. The service was redeployed, logs were read via the Render API, and the normal start command was restored.
+- **Exact command shape used on Render:**
+  ```text
+  bash -lc 'set -u; rm -rf /tmp/lba-consensus; mkdir -p /tmp/lba-consensus; cd /tmp/lba-consensus; echo "<gzip-base64 script>" | base64 -d | gzip -d > check.cjs; npm init -y >/dev/null 2>&1; npm install @nimiq/core@2.23.0 --no-audit --no-fund >/dev/null 2>&1 || { echo NIMIQ_CONSENSUS_INSTALL_FAILED; exit 2; }; echo NIMIQ_CONSENSUS_START; NIMIQ_NETWORK=testnet NIMIQ_CONSENSUS_TIMEOUT_MS=180000 node check.cjs; code=$?; echo NIMIQ_CONSENSUS_EXIT=$code; exit $code'
+  ```
+- **Render network result:** `networkId=5`, `consensus=false`, `headHeight=null`, `peerCount=0`, `attempts=36`, `elapsedSeconds=183.8`, `error=null`.
+- **Peer discovery state:** zero connected peers; TestAlbatross seed WSS dials repeatedly closed. The local run showed the same behavior against the public Nimiq seed hosts.
+- **Render log URL:** No public log URL is available without exposing the Render service ID. Logs are available in the Render dashboard under the `levelbreak-arena` service's deploy logs; retrieval was performed through the Render API.
+- **Retries:** 36 polling attempts at 5-second intervals; no consensus reached within the 180-second limit.
+- **Restoration:** Normal `node apps/api/dist/server.js` start command restored; Render deployment completed live; `/health/live` returned 200 `{"status":"ok"}`.
+- **Not done:** No Fastify implementation, migrations, auth routes, NimiqService adapter, or transfer proof. No RPC broadcast substitution. No architecture change.
 
 ## Current product decisions
 
@@ -101,16 +93,16 @@ STOPPED awaiting operator approval: yes
 
 ## Critical blockers / risks
 
-1. Vercel edge Security Checkpoint currently returns 403 to automation from this VPS. The operator will verify the production alias in a normal browser. This is an edge bot challenge, not an application error, and requires no code change.
-2. Server-side normal NIM transfer build/sign/broadcast and chain verification must be proven on testnet before payment implementation proceeds.
-3. Wallet-signature authentication must be proven in the actual Nimiq Pay Mini App environment.
-4. Funding transactions must be matched to one session and verified before availability.
-5. Duplicate funding, claims, answers, and payout attempts must be rejected by DB constraints and reconciliation.
-6. No mainnet send path is allowed during preview/development. Any mainnet launch requires separate explicit operator authorization and a security/treasury review.
+1. **Render consensus failure:** The Web Client cannot establish TestAlbatross consensus from Render or the local VPS; zero peers and repeated seed WSS disconnects. This blocks the entire Phase 2 chain adapter and transfer proof.
+2. **No RPC substitution:** The verified RPC endpoint was used only for wallet balance preparation; it must not be silently substituted for Web Client broadcast/signing.
+3. Server-side normal NIM transfer build/sign/broadcast and chain verification remain unproven.
+4. Wallet-signature authentication in the actual Nimiq Pay environment remains unproven.
+5. Funding transaction matching and payout duplicate protections remain unimplemented.
+6. No mainnet send path is allowed during preview/development.
 
 ## Current task for coding agent
 
-**Phase 2 only after operator approval:** backend/data/auth foundation and Nimiq testnet transfer proof, per `IMPLEMENTATION_PLAN.md`. Do not begin Phase 2 without approval.
+**STOP.** Await the operator's decision on the Render/TestAlbatross consensus blocker. Do not implement Phase 2, Fastify changes, migrations, auth, or the Nimiq transfer proof until the operator chooses a path and explicitly authorizes it.
 
 ## Checkpoint requirements
 
