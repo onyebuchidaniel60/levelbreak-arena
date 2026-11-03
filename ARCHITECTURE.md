@@ -431,3 +431,17 @@ All NIMIQ private keys, session secrets, DB URLs and privileged DB credentials a
 - Device identifier warning (not an identity): https://nimiq.dev/mini-apps/features/device-identifier
 - Mini App FAQ including checking payment on backend: https://nimiq.dev/mini-apps/faq
 - Competition rules: https://miniappscompetition.com/rules
+
+## 15. Addendum — TestAlbatross seed configuration (3 November 2026)
+
+Operator-confirmed Phase 2 network configuration:
+
+- Seed list: `["/dns4/seed1.pos.nimiq-testnet.com/tcp/8443/wss"]`
+- `onlySecureWsConnections`: `true`
+- `desiredPeerCount`: `3`
+- Network: `TestAlbatross`
+- Network ID: `5`
+
+This configuration reached consensus with 3 peers locally and on Render. It is the required seed configuration for the Nimiq Web Client adapter. Future seed rotation must be a configuration change, not a code change.
+
+**Current implementation gap:** `apps/api/src/nimiq/web-client.ts` still contains the seed list as a literal constant. It has not yet been moved to environment/configuration input. This must be corrected before Phase 3 begins; it is a configuration refactor only and does not change the architecture.

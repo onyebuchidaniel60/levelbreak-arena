@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 3 November 2026
-**Current phase:** Phase 2 complete — backend/data/auth foundation + testnet transfer proof
-**Status:** PASS — Phase 2 awaiting operator acceptance; Phase 3 not started.
+**Current phase:** Phase 2 accepted — Phase 3 gate pending seed-configuration refactor
+**Status:** Phase 2 PASS / ACCEPTED; Phase 3 NOT STARTED.
 
 ## Current deployment and wallets
 
@@ -18,10 +18,21 @@
 - Treasury wallet: `NQ83 S85U 0B01 BVY2 RR74 C23E 845S NAKE 1YM3`
 - `NIMIQ_NETWORK`: `"testnet"`
 - Testnet transfer proof: `899823e284e64c1f8dd0671c85598ca739948a653f400ae87bc7dc8433db793e`
+- Testnet proof data reference: `LBA1:1bfa7f2473dd7fb9`
 - Testnet payout: **NOT YET RUN**
+- `NIMIQ_EXPLORER_BASE_URL`: **must be set before Phase 4** — `[operator to supply verified testnet explorer URL]`
 - Design references: not collected
 - Mockups: not created
 - Operator approval of final visual design: **NOT GIVEN**
+
+## Phase 2 acceptance and pre-Phase 3 gate
+
+- Operator accepted Phase 2 on 3 November 2026 and independently verified transfer `899823e284e64c1f8dd0671c85598ca739948a653f400ae87bc7dc8433db793e` through RPC/explorer: sender, recipient, value, network ID 5, inclusion, and the `LBA1` reference matched.
+- On-chain reference re-confirmed: `recipientData` hex `4c4241313a31626661376632343733646437666239` decodes exactly to `LBA1:1bfa7f2473dd7fb9`; block `15762500`, network ID `5`, 1,500 Luna, confirmed.
+- Seed configuration is recorded in `ARCHITECTURE.md` §15: `/dns4/seed1.pos.nimiq-testnet.com/tcp/8443/wss`, `onlySecureWsConnections=true`, `desiredPeerCount=3`, TestAlbatross network ID 5.
+- **Open gate:** `apps/api/src/nimiq/web-client.ts` currently contains the winning seed as a literal `TESTNET_SEED_NODES` constant. It does **not** yet read the seed from environment/configuration, so future seed rotation would still require a code change. Per the operator's "no new code" instruction, no code was changed in this acceptance task.
+- The seed must be moved to configuration and deployed before Phase 3 begins, or the operator must explicitly accept the hard-coded seed as a documented exception.
+- `NIMIQ_EXPLORER_BASE_URL` remains unset. It **must be set before Phase 4** using `[operator to supply verified testnet explorer URL]`; no explorer URL is guessed.
 
 ## Phase 2 checkpoint
 
@@ -112,13 +123,13 @@ Tests run and actual results:
     CI — completed / success
 
 Payment evidence (if applicable, testnet/mainnet stated clearly): TESTNET ONLY. Normal basic transfer from demo-agent to treasury, 1,500 Luna, confirmed at block 15762500 with reference LBA1:1bfa7f2473dd7fb9. No payout was attempted.
-Known issues/blockers: `@nimiq/core` emits benign Node warnings about IndexedDB and a WASM event listener; they do not block consensus or transfer proof. Vercel's edge Security Checkpoint remains an automation issue for the unrelated Phase 1 preview; the operator verified the production alias in a normal browser. `NIMIQ_EXPLORER_BASE_URL` is not configured, so no explorer link is claimed. Payout execution and Nimiq Pay in-WebView authentication remain unverified until later phases.
+Known issues/blockers: The Web Client adapter still hard-codes the verified seed and must be moved to configuration before Phase 3 (or explicitly accepted as an exception). `@nimiq/core` emits benign Node warnings about IndexedDB and a WASM event listener; they do not block consensus or transfer proof. Vercel's edge Security Checkpoint remains an automation issue for the unrelated Phase 1 preview; the operator verified the production alias in a normal browser. `NIMIQ_EXPLORER_BASE_URL` is not configured and must be set before Phase 4. Payout execution and Nimiq Pay in-WebView authentication remain unverified until later phases.
 Design references/mockups status: none yet — Phase 6.
 Operator visual approval status: NOT GIVEN — Phase 6 gate.
 Documentation/footer-link status: docs/ present; footer Docs and GitHub links deferred to Phase 8.
 Security/configuration notes: no private keys in the repository; only public wallet addresses and the public testnet proof hash are recorded. Wallet keys and AUTH_SESSION_SECRET are server-only Render environment variables. RLS is enabled on all 11 application tables with no public policies. CORS is bound to APP_ORIGIN; production fails closed without it. Auth uses one-time hashed nonces, real Ed25519 verification, hash-only session tokens, HttpOnly/Secure/SameSite cookies, and CSRF double-submit checks. The Web Client uses the verified TestAlbatross seed and no RPC endpoint for signing/broadcast.
 Git commit: 92cb7fddb0be07ca03d47c0584557b1db43e152e (Phase 2 code); this docs checkpoint is the new commit containing this file.
-Single next task: Await operator acceptance of Phase 2 before starting Phase 3 (core domain, funded-session gate, and APIs).
+Single next task: Move the TestAlbatross seed from the hard-coded adapter constant into configuration and deploy it, or obtain explicit operator acceptance of the hard-coded seed, before Phase 3 begins.
 STOPPED awaiting operator approval: yes
 ```
 
@@ -156,7 +167,7 @@ STOPPED awaiting operator approval: yes
 
 ## Current task for coding agent
 
-**STOP.** Phase 2 is submitted for operator acceptance. Do not start Phase 3, payout work, frontend integration, or final design until the operator gives the Phase 3 prompt.
+**STOP.** Phase 2 is accepted, but Phase 3 is gated on the seed-configuration refactor or explicit operator acceptance of the hard-coded seed. Do not start Phase 3, payout work, frontend integration, or final design until the operator resolves this gate and gives the Phase 3 prompt.
 
 ## Checkpoint requirements
 
