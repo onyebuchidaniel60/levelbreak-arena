@@ -1,16 +1,16 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 3 November 2026
-**Current phase:** Phase 3 accepted — CI integration coverage added; Phase 4 not started
-**Status:** Phase 3 PASS / ACCEPTED; Phase 4 NOT STARTED.
+**Current phase:** Phase 3 accepted — cross-origin cookie fix verified; Phase 4 not started
+**Status:** Phase 3 PASS / ACCEPTED; COOKIE GATE PASS; Phase 4 NOT STARTED.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed commit: 612809c8fca37fa6deaac31dd2ec79634c13d87e (Phase 1; unchanged in Phase 3)
+- Vercel deployed code commit: `9cf424882a934a482cdc749e51b786772fb7679f` (Vercel rewrite + relative API client); the docs commit containing this file is an identical web-code redeploy
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code commit: 92e0eacc3c37e23c1b3e3c41d4a704442c921fc5 (Phase 3)
-- Render deployment ID: `dep-dbkmps8ae00c73fnjqk0`
+- Render backend code unchanged from Phase 3 (commit `92e0eacc3c37e23c1b3e3c41d4a704442c921fc5`; `apps/api/` diff for the cookie fix is empty)
+- Render deployment ID: `dep-dbkmps8ae00c73fnjqk0` (Phase 3 code; same backend after cookie fix)
 - Repository URL: https://github.com/onyebuchidaniel60/levelbreak-arena
 - Render service: `levelbreak-arena`; `/health/ready` verified 200 after the Phase 3 deploy.
 - Demo-agent wallet: `NQ23 RSJF DP1Q 894D Q346 V1HK C8F5 GM4F 0J9T`
@@ -25,6 +25,22 @@
 - Mockups: not created
 - Operator approval of final visual design: **NOT GIVEN**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`
+
+## Cross-origin cookie decision (3 November 2026)
+
+- **Problem:** `levelbreak-arena.vercel.app` and `levelbreak-arena.onrender.com` are different registrable domains, so a browser treats API calls as cross-site. A `SameSite=Lax` session cookie is not attached to cross-site `fetch()` requests.
+- **Approach:** Vercel rewrite proxy. `apps/web/vercel.json` rewrites `/api/:path*` and `/health/:path*` to Render before the SPA catch-all, so the browser only talks to `https://levelbreak-arena.vercel.app`.
+- **Frontend configuration:** `VITE_API_BASE_URL` is set to an empty string in both Vercel Production and Preview. The new `apps/web/src/lib/api.ts` resolves an empty/unset value to relative `/api/...` paths and only prefixes an explicitly configured local base URL.
+- **No Render URL in frontend source or bundle:** the only Render URL is the required rewrite destination in `apps/web/vercel.json`; the deployed JS bundle contains no `onrender.com` string.
+- **Cookie attributes verified in Chromium/Playwright:**
+  - `lba_session=...; Max-Age=604800; Path=/; HttpOnly; Secure; SameSite=Lax`
+  - `lba_csrf=...; Max-Age=604800; Path=/; Secure; SameSite=Lax`
+  - Both cookies are host-only for `levelbreak-arena.vercel.app`; `SameSite=Lax`, not `None`.
+- **Verified flow (real browser, no `context.addCookies()`):** `/api/auth/nonce` 200 → real `/api/auth/verify` 200 with the Set-Cookie headers above → `/api/me` 200 with `Cookie: lba_session=...` → reload → `/api/me` 200 → logout 204 → `/api/me` 401.
+- **Verification auth path:** the real `/api/auth/verify` endpoint was used with a throwaway Nimiq key generated in the Playwright runner. No preview-mock-signin endpoint was added, so there is no preview-only auth surface to disable. `PREVIEW_MOCK_AUTH_ENABLED` remains false/unset; production must keep it false.
+- **CSRF:** Vercel forwards the browser `Origin` unchanged. `POST /api/auth/nonce` with `Origin: https://levelbreak-arena.vercel.app` returned 200; the same request with `Origin: https://evil.example.com` was rejected by the backend (`ORIGIN_MISMATCH`). The existing API contract returns **400** for this rejection, not 403; this was not changed because an API status change is outside this fix's approved scope.
+- **Proxy limits:** no rate-limit, timeout, or response-size errors were observed across the nonce, verify, me, reload, logout and post-logout requests.
+- **Scope:** `apps/api/` has no diff for this fix; no API contract, schema, game logic, cookie attribute, CSRF rule or `APP_ORIGIN` was changed.
 
 ## Phase 3 acceptance (3 November 2026)
 
@@ -207,7 +223,7 @@ STOPPED awaiting operator approval: yes
 
 ## Current task for coding agent
 
-**STOP.** Phase 3 is accepted and the CI integration gap is closed. Await the operator's Phase 4 prompt. Do not start Phase 4, wire the frontend, enable the payout worker, or enable demo funding on Render.
+**STOP.** Phase 3 is accepted and the cross-origin cookie fix is verified. Await operator confirmation that the cookie flow is accepted; only then may Phase 4 begin. Do not start Phase 4 UI work, wire the frontend, enable the payout worker, or enable demo funding on Render.
 
 ## Checkpoint requirements
 
