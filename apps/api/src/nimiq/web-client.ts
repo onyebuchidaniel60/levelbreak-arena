@@ -19,9 +19,29 @@ import type {
 } from "./types";
 
 export const TESTNET_NETWORK_ID = 5;
-export const TESTNET_SEED_NODES = [
+export const DEFAULT_TESTNET_SEED_NODES = [
   "/dns4/seed1.pos.nimiq-testnet.com/tcp/8443/wss",
 ];
+
+export function resolveSeedNodes(
+  value: string | undefined = process.env.NIMIQ_SEED_NODES,
+): string[] {
+  const seeds = (value ?? "")
+    .split(",")
+    .map((seed) => seed.trim())
+    .filter(Boolean);
+  return seeds.length > 0 ? seeds : [...DEFAULT_TESTNET_SEED_NODES];
+}
+
+type LoggerLike = {
+  info: (fields: object, message?: string) => void;
+};
+
+const defaultLogger: LoggerLike = {
+  info: (fields, message) => {
+    console.info(message ?? "Nimiq", fields);
+  },
+};
 
 function mapTransaction(details: PlainTransactionDetails): NimiqTransactionDetails {
   return {
@@ -41,6 +61,8 @@ export class NimiqWebClientService implements NimiqService {
   private client: Client | null = null;
   private starting: Promise<void> | null = null;
 
+  constructor(private readonly logger: LoggerLike = defaultLogger) {}
+
   async start(): Promise<void> {
     if (this.client) return;
     if (this.starting) return this.starting;
@@ -50,9 +72,15 @@ export class NimiqWebClientService implements NimiqService {
         throw new Error("NIMIQ_NETWORK must be testnet");
       }
 
+      const seeds = resolveSeedNodes();
+      this.logger.info(
+        { seedNodes: seeds },
+        "Nimiq Web Client resolved seed nodes",
+      );
+
       const config = new ClientConfiguration();
       config.network("TestAlbatross");
-      config.seedNodes(TESTNET_SEED_NODES);
+      config.seedNodes(seeds);
       config.desiredPeerCount(3);
       config.onlySecureWsConnections(true);
       config.logLevel("warn");

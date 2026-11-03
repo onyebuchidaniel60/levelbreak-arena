@@ -404,6 +404,7 @@ For MVP, structured Render logs and a protected operator status page are suffici
 - `OPERATOR_ALLOWLIST_ADDRESSES`
 - `OPERATOR_AUTH_SECRET`
 - `NIMIQ_NETWORK=testnet` (mandatory during MVP)
+- `NIMIQ_SEED_NODES` — Comma-separated seed node URLs for the Nimiq Web Client; server-only; defaults to the verified TestAlbatross seed if unset. Not a secret.
 - `NIMIQ_TREASURY_ADDRESS`
 - `NIMIQ_TREASURY_PRIVATE_KEY` or reviewed encrypted key-reference mechanism
 - `NIMIQ_DEMO_AGENT_ADDRESS`
@@ -444,4 +445,4 @@ Operator-confirmed Phase 2 network configuration:
 
 This configuration reached consensus with 3 peers locally and on Render. It is the required seed configuration for the Nimiq Web Client adapter. Future seed rotation must be a configuration change, not a code change.
 
-**Current implementation gap:** `apps/api/src/nimiq/web-client.ts` still contains the seed list as a literal constant. It has not yet been moved to environment/configuration input. This must be corrected before Phase 3 begins; it is a configuration refactor only and does not change the architecture.
+**Implementation:** The Web Client adapter reads `NIMIQ_SEED_NODES` (comma-separated), trims entries, ignores empty entries, and falls back to the verified default above when unset. Seed rotation is a configuration change; no code change is required.

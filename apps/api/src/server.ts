@@ -41,7 +41,7 @@ async function main(): Promise<void> {
     },
   });
 
-  const nimiq = new NimiqWebClientService();
+  const nimiq = new NimiqWebClientService(app.log);
 
   await app.register(cors, {
     origin: (origin, callback) => {
