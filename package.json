@@ -12,9 +12,9 @@
     "dev": "pnpm --parallel -r dev",
     "build": "pnpm -r build",
     "lint": "eslint .",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm --filter @levelbreak-arena/contracts build && pnpm -r typecheck",
     "test": "pnpm test:unit && pnpm test:e2e",
-    "test:unit": "vitest run",
+    "test:unit": "pnpm --filter @levelbreak-arena/contracts build && vitest run",
     "test:integration": "vitest run apps/api/src/services/phase3.integration.test.ts",
     "test:e2e": "playwright test -c tests/e2e/playwright.config.ts",
     "db:migrate": "node db/migrate.mjs"
