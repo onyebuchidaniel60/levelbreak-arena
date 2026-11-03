@@ -8,6 +8,9 @@ import { config } from "./config";
 import { checkDatabase, closeDatabase } from "./db";
 import { AppError } from "./errors";
 import { NimiqWebClientService } from "./nimiq/web-client";
+import { registerOperatorRoutes } from "./routes/operator";
+import { registerPlayerRoutes } from "./routes/player";
+import { startPayoutWorker } from "./services/payouts";
 
 async function main(): Promise<void> {
   const app = Fastify({
@@ -17,6 +20,8 @@ async function main(): Promise<void> {
         paths: [
           "req.headers.authorization",
           "req.headers.cookie",
+          "req.headers.x-operator-secret",
+          "req.headers[\"x-operator-secret\"]",
           "res.headers.set-cookie",
           "req.body.signature",
           "req.body.publicKey",
@@ -71,6 +76,9 @@ async function main(): Promise<void> {
       "content-security-policy",
       "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
     );
+    if (request.url.startsWith("/api/")) {
+      reply.header("cache-control", "no-store");
+    }
     if (config.isProduction || config.appEnv === "preview") {
       reply.header(
         "strict-transport-security",
@@ -152,9 +160,20 @@ async function main(): Promise<void> {
   }));
 
   await registerAuthRoutes(app);
+  await registerPlayerRoutes(app);
+  await registerOperatorRoutes(app, { nimiq, logger: app.log });
+
+  if (config.payoutWorkerEnabled && !config.nimiqTreasuryPrivateKey) {
+    throw new Error(
+      "PAYOUT_WORKER_ENABLED requires NIMIQ_TREASURY_PRIVATE_KEY",
+    );
+  }
+
+  let stopPayoutWorker: (() => void) | null = null;
 
   async function shutdown(signal: string): Promise<void> {
     app.log.info({ signal }, "shutting down");
+    stopPayoutWorker?.();
     await app.close();
     await nimiq.close();
     await closeDatabase();
@@ -175,6 +194,14 @@ async function main(): Promise<void> {
     });
 
   await app.listen({ port: config.port, host: "0.0.0.0" });
+
+  if (config.payoutWorkerEnabled) {
+    stopPayoutWorker = startPayoutWorker({ nimiq, logger: app.log });
+    app.log.info(
+      { event: "payout_worker_started" },
+      "Serialized payout worker started",
+    );
+  }
 }
 
 main().catch((error: unknown) => {

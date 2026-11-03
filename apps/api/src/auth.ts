@@ -74,7 +74,7 @@ function safeEqual(a: string, b: string): boolean {
   return left.length === right.length && timingSafeEqual(left, right);
 }
 
-function requireCsrf(request: FastifyRequest): void {
+export function requireCsrf(request: FastifyRequest): void {
   assertExactOrigin(request);
   const cookieToken = request.cookies[CSRF_COOKIE];
   const headerToken = request.headers["x-csrf-token"];

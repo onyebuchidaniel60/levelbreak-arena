@@ -19,6 +19,8 @@ export const errors = {
   conflict: (code: string, message: string) => new AppError(409, code, message),
   badRequest: (code: string, message: string) =>
     new AppError(400, code, message),
+  unprocessable: (code: string, message: string) =>
+    new AppError(422, code, message),
   rateLimited: (message = "Too many requests.") =>
     new AppError(429, "RATE_LIMITED", message),
   unavailable: (message = "Service unavailable.") =>

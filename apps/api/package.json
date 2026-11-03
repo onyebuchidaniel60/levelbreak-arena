@@ -8,7 +8,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "proof:testnet": "tsx src/proof.ts"
+    "proof:testnet": "tsx src/proof.ts",
+    "verify:tx": "tsx src/scripts/verify-transaction.ts"
   },
   "dependencies": {
     "@fastify/cookie": "11.1.5",

@@ -10,6 +10,8 @@ const EnvSchema = z.object({
   DATABASE_POOL_MAX: z.coerce.number().int().positive().default(10),
   AUTH_SESSION_SECRET: z.string().min(32),
   AUTH_NONCE_TTL_SECONDS: z.coerce.number().int().positive().default(300),
+  OPERATOR_AUTH_SECRET: z.string().min(32).optional(),
+  OPERATOR_ALLOWLIST_ADDRESSES: z.string().optional(),
   NIMIQ_NETWORK: z.literal("testnet"),
   NIMIQ_TREASURY_ADDRESS: z.string().min(1),
   NIMIQ_TREASURY_PRIVATE_KEY: z.string().min(1).optional(),
@@ -37,6 +39,20 @@ if (!parsed.success) {
 
 const env = parsed.data;
 
+const rewardPerAnswer = BigInt(env.REWARD_PER_ANSWER_LUNA);
+const maxLiability =
+  rewardPerAnswer * BigInt(env.MAX_CONSULTATIONS_PER_SESSION);
+
+if (
+  rewardPerAnswer !== 500n ||
+  env.MAX_CONSULTATIONS_PER_SESSION !== 3 ||
+  BigInt(env.FUNDING_MINIMUM_LUNA) < maxLiability
+) {
+  throw new Error(
+    "MVP financial configuration is fixed at 500 Luna per answer, 3 consultations, 1,500 Luna maximum liability and at least 1,500 Luna funding.",
+  );
+}
+
 export const config = {
   nodeEnv: env.NODE_ENV,
   appEnv: env.APP_ENV,
@@ -46,6 +62,11 @@ export const config = {
   databasePoolMax: env.DATABASE_POOL_MAX,
   authSessionSecret: env.AUTH_SESSION_SECRET,
   authNonceTtlSeconds: env.AUTH_NONCE_TTL_SECONDS,
+  operatorAuthSecret: env.OPERATOR_AUTH_SECRET,
+  operatorAllowlistAddresses: (env.OPERATOR_ALLOWLIST_ADDRESSES ?? "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean),
   nimiqNetwork: env.NIMIQ_NETWORK,
   nimiqTreasuryAddress: env.NIMIQ_TREASURY_ADDRESS,
   nimiqTreasuryPrivateKey: env.NIMIQ_TREASURY_PRIVATE_KEY,
@@ -53,8 +74,9 @@ export const config = {
   nimiqDemoAgentPrivateKey: env.NIMIQ_DEMO_AGENT_PRIVATE_KEY,
   nimiqExplorerBaseUrl: env.NIMIQ_EXPLORER_BASE_URL,
   fundingMinimumLuna: BigInt(env.FUNDING_MINIMUM_LUNA),
-  rewardPerAnswerLuna: BigInt(env.REWARD_PER_ANSWER_LUNA),
+  rewardPerAnswerLuna: rewardPerAnswer,
   maxConsultations: env.MAX_CONSULTATIONS_PER_SESSION,
+  maxRewardLiabilityLuna: maxLiability,
   payoutWorkerEnabled: env.PAYOUT_WORKER_ENABLED === "true",
   demoFundingEnabled: env.DEMO_FUNDING_ENABLED === "true",
   previewMockAuthEnabled: env.PREVIEW_MOCK_AUTH_ENABLED === "true",

@@ -8,6 +8,7 @@ import {
 } from "@nimiq/core";
 import type { PlainTransactionDetails } from "@nimiq/core";
 import { addressesEqual, normalizeAddress } from "./address";
+import { checkIncomingFunding } from "./funding-verification";
 import type {
   BasicTransferInput,
   BasicTransferResult,
@@ -49,8 +50,8 @@ function mapTransaction(details: PlainTransactionDetails): NimiqTransactionDetai
     state: details.state,
     sender: normalizeAddress(details.sender),
     recipient: normalizeAddress(details.recipient),
-    valueLuna: Number(details.value),
-    feeLuna: Number(details.fee),
+    valueLuna: details.value.toString(),
+    feeLuna: details.fee.toString(),
     network: details.network,
     blockHeight: details.blockHeight,
     dataHex: details.data?.raw ?? null,
@@ -140,7 +141,7 @@ export class NimiqWebClientService implements NimiqService {
     const account = await this.requireClient().getAccount(address);
     return {
       type: account.type,
-      balanceLuna: Number(account.balance),
+      balanceLuna: account.balance.toString(),
     };
   }
 
@@ -219,35 +220,7 @@ export class NimiqWebClientService implements NimiqService {
     expectedReference: string;
   }): Promise<VerifiedFunding> {
     const transaction = await this.getTransaction(input.txHash);
-
-    if (transaction.state !== "included" && transaction.state !== "confirmed") {
-      return { verified: false, reason: "NOT_INCLUDED", transaction, reference: null };
-    }
-
-    const network = transaction.network.toLowerCase();
-    if (!network.includes("testalbatross") && network !== "testnet" && network !== "5") {
-      return { verified: false, reason: "NETWORK_MISMATCH", transaction, reference: null };
-    }
-
-    if (!addressesEqual(transaction.sender, input.expectedSender)) {
-      return { verified: false, reason: "SENDER_MISMATCH", transaction, reference: null };
-    }
-
-    if (!addressesEqual(transaction.recipient, input.expectedRecipient)) {
-      return { verified: false, reason: "RECIPIENT_MISMATCH", transaction, reference: null };
-    }
-
-    if (BigInt(transaction.valueLuna) < input.minimumAmountLuna) {
-      return { verified: false, reason: "AMOUNT_TOO_LOW", transaction, reference: null };
-    }
-
-    const dataHex = transaction.dataHex ?? "";
-    const reference = Buffer.from(dataHex, "hex").toString("utf8");
-    if (reference !== input.expectedReference) {
-      return { verified: false, reason: "REFERENCE_MISMATCH", transaction, reference };
-    }
-
-    return { verified: true, reason: "VERIFIED", transaction, reference };
+    return checkIncomingFunding(transaction, input);
   }
 
   async getTransactionStatus(txHash: string): Promise<{

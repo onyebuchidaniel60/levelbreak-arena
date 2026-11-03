@@ -2,16 +2,16 @@
 
 LevelBreak Arena is a three-level simulated DeFi learning game for Nimiq Mini Apps. This repository is the implementation workspace for the approved blueprint.
 
-**Current phase:** Phase 1 — skeletal, route-complete frontend and project foundation.
+**Current phase:** Phase 3 — core domain, funded-session gate, and APIs.
 
-Phase 1 intentionally does **not** implement wallet authentication, Nimiq SDK integration, funding verification, payouts, a database, or final visual design. No financial action is available in this phase.
+Phase 3 implements the server-authoritative game/session/reward rules, the verified-funded-session gate, idempotent player APIs, the payout outbox in disabled-by-default mode, and protected operator inspection endpoints. The frontend remains intentionally skeletal until Phase 4. No payout worker or demo funding is enabled on the deployed Render service.
 
 ## Stack
 
 - Frontend: React + TypeScript + Vite + React Router + Tailwind CSS + TanStack Query
 - Backend: Node.js 24 + TypeScript + Fastify
-- Planned database: Supabase PostgreSQL
-- Planned Nimiq integration: `@nimiq/mini-app-sdk` and `@nimiq/core`
+- Database: PostgreSQL (Neon hosting; server-only access, RLS enabled)
+- Nimiq integration: `@nimiq/core` backend adapter on TestAlbatross; `@nimiq/mini-app-sdk` wallet auth in Phase 4
 - Tests: Vitest + Playwright
 
 ## Repository layout
@@ -19,11 +19,11 @@ Phase 1 intentionally does **not** implement wallet authentication, Nimiq SDK in
 ```text
 apps/
   web/                  Vite React frontend
-  api/                  Fastify API skeleton (/health/live only)
+  api/                  Fastify API, domain services and worker
 packages/
-  contracts/            Shared-contract placeholder
+  contracts/            Shared-contract placeholder (Phase 4)
 db/
-  migrations/           Database migration placeholder
+  migrations/           Versioned PostgreSQL migrations
 tests/
   e2e/                  Playwright route smoke tests
   integration/          Integration-test placeholder
@@ -45,9 +45,19 @@ pnpm lint
 pnpm typecheck
 pnpm test         # Vitest unit checks plus Playwright route smoke tests
 pnpm build
+pnpm db:migrate   # requires DATABASE_URL_UNPOOLED
 ```
 
-The API exposes `GET /health/live` and returns `{"status":"ok"}`. It has no database, auth, Nimiq, funding, or payout routes.
+Phase 3 integration/concurrency tests run only when
+`LBA_INTEGRATION_DATABASE_URL` points at a migrated test database:
+
+```bash
+LBA_INTEGRATION_DATABASE_URL="$DATABASE_URL" pnpm exec vitest run apps/api/src/services/phase3.integration.test.ts
+```
+
+The API exposes health routes plus auth, player game, and protected operator
+routes documented in `ARCHITECTURE.md`. The payout worker and demo funding are
+disabled by default (`PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`).
 
 ## Phase 1 routes
 
@@ -61,7 +71,7 @@ The API exposes `GET /health/live` and returns `{"status":"ok"}`. It has no data
 - `/docs` — in-app documentation overview
 - `*` — not-found page with a working link home
 
-The wallet control is deliberately a disabled placeholder until Phase 2. No button or link claims that funding or payment is active.
+The frontend is still intentionally skeletal in Phase 3. Player API integration, wallet signing in the browser, and real payout status display are Phase 4 work. No button or link claims that funding or payment is active.
 
 ## Preview
 

@@ -1,6 +1,7 @@
 export interface NimiqAccount {
   type: "basic" | "vesting" | "htlc" | "staking";
-  balanceLuna: number;
+  /** Decimal integer Luna string. */
+  balanceLuna: string;
 }
 
 export interface NimiqTransactionDetails {
@@ -8,8 +9,10 @@ export interface NimiqTransactionDetails {
   state: "new" | "pending" | "included" | "confirmed" | "invalidated" | "expired";
   sender: string;
   recipient: string;
-  valueLuna: number;
-  feeLuna: number;
+  /** Decimal integer Luna string. */
+  valueLuna: string;
+  /** Decimal integer Luna string. */
+  feeLuna: string;
   network: string;
   blockHeight?: number;
   dataHex: string | null;

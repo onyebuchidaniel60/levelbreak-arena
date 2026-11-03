@@ -4,6 +4,29 @@
 
 The implementation agent must add and document working scripts for lint, typecheck, unit tests, integration tests, E2E tests and build. Do not claim a test ran unless its actual output was observed.
 
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test        # Vitest unit tests + Playwright route smoke tests
+pnpm build
+```
+
+Phase 3 integration/concurrency tests are opt-in and must use a migrated test
+database. They are skipped in CI unless the database URL is provided:
+
+```bash
+pnpm db:migrate
+LBA_INTEGRATION_DATABASE_URL="$DATABASE_URL" \
+  pnpm exec vitest run apps/api/src/services/phase3.integration.test.ts
+```
+
+The testnet proof reader independently checks a transaction hash:
+
+```bash
+EXPECTED_REFERENCE="LBA1:<publicRef>" \
+  pnpm --filter @levelbreak-arena/api verify:tx -- <txHash>
+```
+
 ## Unit tests
 
 - Challenge creation/expiry/single-use/signature verification helpers.
@@ -22,6 +45,21 @@ The implementation agent must add and document working scripts for lint, typeche
 - Funding validation for wrong network/sender/recipient/value/reference and missing inclusion.
 - Outbox/payout state transitions and reconciliation with a mocked chain adapter.
 - Player ownership checks and auth session revocation.
+
+## Phase 3 executed coverage
+
+- Requester-session, player-run, consultation and payout state-machine guards.
+- All six signed scenario branches and the fixed virtual-portfolio arithmetic.
+- Three bundled consultations: one per level, evidence before question,
+  `Can't tell` allowed, fixed 500-Luna reward, no hidden correct answer.
+- Incoming funding validation for inclusion, network, sender, recipient,
+  amount and `LBA1:` reference.
+- Two simultaneous claims: exactly one succeeds.
+- Two simultaneous answers: exactly one response and one reward ledger row.
+- Two simultaneous finishes: exactly one payout row.
+- Ledger arithmetic: 3 answers = 1,500 Luna; 1 skip + 2 answers = 1,000 Luna;
+  0 answers = zero payout and a 1,500-Luna unused-credit entry.
+- Payout worker with a mocked adapter, while `PAYOUT_WORKER_ENABLED=false`.
 
 ## Testnet proof (must be executed, not inferred)
 

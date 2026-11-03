@@ -23,8 +23,10 @@
 - Cookie authentication uses HttpOnly/Secure/SameSite settings with CSRF and Origin defenses.
 - Server derives the player identity; never trust client player ID, reward amount, payout recipient, or transaction state.
 - Strict request validation and parameterized SQL; ownership scopes on every resource lookup.
-- Unique funding tx hash, unique session run, unique response per question, unique payout per run and unique idempotency keys.
+- Unique funding tx hash, unique session run, unique response per question/level, unique payout per run and unique idempotency keys.
 - Row locks/version checks for concurrent state transitions, transactional ledger updates, serialized treasury sender and reconciliation before retry.
+- Rewards are always recomputed from persisted `consultation_responses` rows; the API never accepts a reward amount, recipient or owner ID from the client.
+- Operator routes require a server-only `OPERATOR_AUTH_SECRET` header and write audit events; there is no arbitrary treasury-send endpoint.
 - Incoming transfers verified by actual network/sender/destination/value/reference/inclusion; hash alone is insufficient.
 - Outgoing transaction confirmed only from actual chain facts matching stored payout.
 - Operator endpoints are protected, logged and limited; no arbitrary unaudited payout tool.
