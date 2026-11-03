@@ -1,10 +1,16 @@
 /**
  * Deterministic test environment. Integration tests opt in separately by
  * setting LBA_INTEGRATION_DATABASE_URL; normal unit/E2E runs never touch a
- * real database.
+ * real database. GitHub Actions provides DATABASE_URL_UNPOOLED for its
+ * ephemeral Postgres service, which this setup uses only when CI=true.
  */
-if (process.env.LBA_INTEGRATION_DATABASE_URL) {
-  process.env.DATABASE_URL = process.env.LBA_INTEGRATION_DATABASE_URL;
+const integrationDatabaseUrl =
+  process.env.LBA_INTEGRATION_DATABASE_URL ??
+  (process.env.CI === "true" ? process.env.DATABASE_URL_UNPOOLED : undefined);
+
+if (integrationDatabaseUrl) {
+  process.env.LBA_INTEGRATION_DATABASE_URL = integrationDatabaseUrl;
+  process.env.DATABASE_URL = integrationDatabaseUrl;
   process.env.DEMO_FUNDING_ENABLED = "true";
 }
 

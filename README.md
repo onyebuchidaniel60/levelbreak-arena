@@ -48,11 +48,12 @@ pnpm build
 pnpm db:migrate   # requires DATABASE_URL_UNPOOLED
 ```
 
-Phase 3 integration/concurrency tests run only when
-`LBA_INTEGRATION_DATABASE_URL` points at a migrated test database:
+Phase 3 integration/concurrency tests run locally when
+`LBA_INTEGRATION_DATABASE_URL` points at a migrated test database, and in CI
+against an ephemeral Postgres service through `DATABASE_URL_UNPOOLED`:
 
 ```bash
-LBA_INTEGRATION_DATABASE_URL="$DATABASE_URL" pnpm exec vitest run apps/api/src/services/phase3.integration.test.ts
+LBA_INTEGRATION_DATABASE_URL="$DATABASE_URL" pnpm test:integration
 ```
 
 The API exposes health routes plus auth, player game, and protected operator

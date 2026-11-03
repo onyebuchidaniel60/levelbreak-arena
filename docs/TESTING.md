@@ -11,14 +11,18 @@ pnpm test        # Vitest unit tests + Playwright route smoke tests
 pnpm build
 ```
 
-Phase 3 integration/concurrency tests are opt-in and must use a migrated test
-database. They are skipped in CI unless the database URL is provided:
+Phase 3 integration/concurrency tests must use a migrated test database:
 
 ```bash
 pnpm db:migrate
-LBA_INTEGRATION_DATABASE_URL="$DATABASE_URL" \
-  pnpm exec vitest run apps/api/src/services/phase3.integration.test.ts
+LBA_INTEGRATION_DATABASE_URL="$DATABASE_URL" pnpm test:integration
 ```
+
+GitHub Actions runs the same suite in the `integration` job against an
+ephemeral `postgres:16` service container. The workflow provides
+`DATABASE_URL_UNPOOLED`; the Vitest setup uses it only when `CI=true`, so local
+unit/E2E runs never touch a database. The production Neon database is never
+used by CI.
 
 The testnet proof reader independently checks a transaction hash:
 
