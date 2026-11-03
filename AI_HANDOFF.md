@@ -1,7 +1,7 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 3 November 2026
-**Current phase:** Phase 2 accepted — Phase 3 gate pending seed-configuration refactor
+**Current phase:** Phase 2 accepted — seed configuration cleanup complete; Phase 3 not started
 **Status:** Phase 2 PASS / ACCEPTED; Phase 3 NOT STARTED.
 
 ## Current deployment and wallets
@@ -9,7 +9,7 @@
 - Vercel preview URL: https://levelbreak-arena.vercel.app
 - Vercel deployed commit: 612809c8fca37fa6deaac31dd2ec79634c13d87e (Phase 1, accepted)
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed commit: 92cb7fddb0be07ca03d47c0584557b1db43e152e
+- Render deployed commit: fc9dba6c83f1e2e8dc768bf65d56131691acb4d0 (Phase 2 code plus seed-config cleanup)
 - Repository URL: https://github.com/onyebuchidaniel60/levelbreak-arena
 - Vercel deployment ID: dpl_HhxZdomUrSFAHGAzYwegwbto1Ura
 - Vercel project: uhhh2/levelbreak-arena; Root Directory apps/web; Framework Vite; Node 24.x
@@ -25,13 +25,13 @@
 - Mockups: not created
 - Operator approval of final visual design: **NOT GIVEN**
 
-## Phase 2 acceptance and pre-Phase 3 gate
+## Phase 2 — accepted
 
 - Operator accepted Phase 2 on 3 November 2026 and independently verified transfer `899823e284e64c1f8dd0671c85598ca739948a653f400ae87bc7dc8433db793e` through RPC/explorer: sender, recipient, value, network ID 5, inclusion, and the `LBA1` reference matched.
 - On-chain reference re-confirmed: `recipientData` hex `4c4241313a31626661376632343733646437666239` decodes exactly to `LBA1:1bfa7f2473dd7fb9`; block `15762500`, network ID `5`, 1,500 Luna, confirmed.
 - Seed configuration is recorded in `ARCHITECTURE.md` §15: `/dns4/seed1.pos.nimiq-testnet.com/tcp/8443/wss`, `onlySecureWsConnections=true`, `desiredPeerCount=3`, TestAlbatross network ID 5.
-- **Open gate:** `apps/api/src/nimiq/web-client.ts` currently contains the winning seed as a literal `TESTNET_SEED_NODES` constant. It does **not** yet read the seed from environment/configuration, so future seed rotation would still require a code change. Per the operator's "no new code" instruction, no code was changed in this acceptance task.
-- The seed must be moved to configuration and deployed before Phase 3 begins, or the operator must explicitly accept the hard-coded seed as a documented exception.
+- Seed config now env-driven (`NIMIQ_SEED_NODES` with the verified default); the adapter no longer hard-codes the seed. Read-only verification after the change: local `headHeight=15764468`, `balance=10,999,998,500 Luna` (109,999.985 NIM); Render `headHeight=15764577`, `balance=10,999,998,500 Luna` (109,999.985 NIM). The Render check ran with `NIMIQ_SEED_NODES` unset and logged the default seed.
+- The transfer-proof evidence above is unchanged; the proof transaction was generated before this config cleanup and remains valid.
 - `NIMIQ_EXPLORER_BASE_URL` remains unset. It **must be set before Phase 4** using `[operator to supply verified testnet explorer URL]`; no explorer URL is guessed.
 
 ## Phase 2 checkpoint
@@ -41,7 +41,7 @@ Project: LevelBreak Arena
 Current phase: Phase 2 complete — backend/data/auth foundation + testnet transfer proof
 Status: PASS
 Preview URL: https://levelbreak-arena.vercel.app
-Deployed commit SHA: 92cb7fddb0be07ca03d47c0584557b1db43e152e (Render API); Vercel remains 612809c8fca37fa6deaac31dd2ec79634c13d87e
+Deployed commit SHA: fc9dba6c83f1e2e8dc768bf65d56131691acb4d0 (Render API after seed-config cleanup); Vercel remains 612809c8fca37fa6deaac31dd2ec79634c13d87e
 What changed: Added the Fastify backend foundation (request IDs, safe error envelopes, Pino redacted logging, security headers, strict APP_ORIGIN CORS, rate limiting, graceful shutdown); added /health/live, /health/ready, /api/config/public; added auth nonce/verify/logout and /api/me with real @nimiq/core Ed25519 signature verification and hash-only session tokens; added the initial Postgres/Neon schema and migration runner; added the NimiqService interface and Web Client adapter with the verified TestAlbatross seed; added the guarded TESTNET_PROOF_ENABLED transfer proof; pinned @nimiq/core 2.23.0. No payout path or Phase 3 game/session APIs were added.
 What works on the deployed preview: Phase 1 routes remain accepted. The Render API is live at commit 92cb7fd; /health/live returns 200, /health/ready returns 200, and /api/config/public returns rewardPerAnswerLuna="500", maxConsultations=3, demoMode=true. Real signed auth succeeds against the deployed API, including session creation, /api/me, CSRF logout, and post-logout 401.
 What is intentionally incomplete: Phase 3 game/session/consultation APIs; frontend-to-API integration; payout worker and treasury payout path; operator UI; final visual design; final Documentation/GitHub footer links. No payout evidence exists.
@@ -123,13 +123,13 @@ Tests run and actual results:
     CI — completed / success
 
 Payment evidence (if applicable, testnet/mainnet stated clearly): TESTNET ONLY. Normal basic transfer from demo-agent to treasury, 1,500 Luna, confirmed at block 15762500 with reference LBA1:1bfa7f2473dd7fb9. No payout was attempted.
-Known issues/blockers: The Web Client adapter still hard-codes the verified seed and must be moved to configuration before Phase 3 (or explicitly accepted as an exception). `@nimiq/core` emits benign Node warnings about IndexedDB and a WASM event listener; they do not block consensus or transfer proof. Vercel's edge Security Checkpoint remains an automation issue for the unrelated Phase 1 preview; the operator verified the production alias in a normal browser. `NIMIQ_EXPLORER_BASE_URL` is not configured and must be set before Phase 4. Payout execution and Nimiq Pay in-WebView authentication remain unverified until later phases.
+Known issues/blockers: `@nimiq/core` emits benign Node warnings about IndexedDB and a WASM event listener; they do not block consensus or transfer proof. Vercel's edge Security Checkpoint remains an automation issue for the unrelated Phase 1 preview; the operator verified the production alias in a normal browser. `NIMIQ_EXPLORER_BASE_URL` is not configured and must be set before Phase 4. Payout execution and Nimiq Pay in-WebView authentication remain unverified until later phases.
 Design references/mockups status: none yet — Phase 6.
 Operator visual approval status: NOT GIVEN — Phase 6 gate.
 Documentation/footer-link status: docs/ present; footer Docs and GitHub links deferred to Phase 8.
 Security/configuration notes: no private keys in the repository; only public wallet addresses and the public testnet proof hash are recorded. Wallet keys and AUTH_SESSION_SECRET are server-only Render environment variables. RLS is enabled on all 11 application tables with no public policies. CORS is bound to APP_ORIGIN; production fails closed without it. Auth uses one-time hashed nonces, real Ed25519 verification, hash-only session tokens, HttpOnly/Secure/SameSite cookies, and CSRF double-submit checks. The Web Client uses the verified TestAlbatross seed and no RPC endpoint for signing/broadcast.
-Git commit: 92cb7fddb0be07ca03d47c0584557b1db43e152e (Phase 2 code); this docs checkpoint is the new commit containing this file.
-Single next task: Move the TestAlbatross seed from the hard-coded adapter constant into configuration and deploy it, or obtain explicit operator acceptance of the hard-coded seed, before Phase 3 begins.
+Git commit: 92cb7fddb0be07ca03d47c0584557b1db43e152e (Phase 2 code); fc9dba6c83f1e2e8dc768bf65d56131691acb4d0 (seed-config cleanup); this docs checkpoint is the new commit containing this file.
+Single next task: Await the operator's Phase 3 prompt; no Phase 3 work has started.
 STOPPED awaiting operator approval: yes
 ```
 
@@ -167,7 +167,7 @@ STOPPED awaiting operator approval: yes
 
 ## Current task for coding agent
 
-**STOP.** Phase 2 is accepted, but Phase 3 is gated on the seed-configuration refactor or explicit operator acceptance of the hard-coded seed. Do not start Phase 3, payout work, frontend integration, or final design until the operator resolves this gate and gives the Phase 3 prompt.
+**STOP.** Phase 2 and the seed-configuration cleanup are complete and accepted. Do not start Phase 3, payout work, frontend integration, or final design until the operator gives the Phase 3 prompt.
 
 ## Checkpoint requirements
 
