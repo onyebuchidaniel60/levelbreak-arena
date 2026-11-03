@@ -1,6 +1,6 @@
 {
   "framework": "vite",
-  "buildCommand": "pnpm build",
+  "buildCommand": "pnpm --filter @levelbreak-arena/contracts build && pnpm build",
   "outputDirectory": "dist",
   "rewrites": [
     {

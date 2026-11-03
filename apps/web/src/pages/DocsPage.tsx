@@ -27,8 +27,8 @@ export function DocsPage() {
           ))}
         </ul>
         <p className="max-w-3xl text-slate-700">
-          The final public documentation link and GitHub repository link are deferred to Phase 8.
-          No local filesystem path is presented as a working web link.
+          Public documentation and GitHub links in the home footer are deferred to
+          Phase 8. No local filesystem path is presented as a working web link.
         </p>
       </section>
 
@@ -37,8 +37,11 @@ export function DocsPage() {
           Current implementation status
         </h2>
         <p className="max-w-3xl text-slate-700">
-          Phase 1 is a route-complete skeletal frontend. Wallet authentication, the Nimiq adapter,
-          funding verification, the database, reward accounting and payouts are not implemented.
+          Phase 4 connects the functional frontend to the Phase 3 APIs: wallet
+          authentication, funded-session lobby, three-level game, evidence-backed
+          consultations, reward display, finish/payout status and player history.
+          Final visual design, Nimiq Pay device verification and real payout-worker
+          confirmation are later phase work.
         </p>
       </section>
 

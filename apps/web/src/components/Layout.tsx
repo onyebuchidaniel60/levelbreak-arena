@@ -1,11 +1,111 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { primaryNav } from "../routes";
+import { useAuth } from "../providers/AuthProvider";
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return [
     "rounded px-2 py-1",
-    isActive ? "bg-slate-200 font-semibold text-slate-900" : "text-slate-700 hover:bg-slate-100",
+    isActive
+      ? "bg-slate-200 font-semibold text-slate-900"
+      : "text-slate-700 hover:bg-slate-100",
   ].join(" ");
+}
+
+function WalletPanel() {
+  const {
+    me,
+    meLoading,
+    wallet,
+    signIn,
+    isSigningIn,
+    signInError,
+    logout,
+    isLoggingOut,
+    logoutError,
+    retryWallet,
+  } = useAuth();
+
+  if (meLoading) {
+    return <p className="text-xs text-slate-600">Checking wallet session…</p>;
+  }
+
+  if (me) {
+    return (
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <p className="break-all text-xs text-slate-700" aria-live="polite">
+          Signed in: <span className="font-mono">{me.player.address}</span>
+        </p>
+        <button
+          type="button"
+          onClick={() => void logout()}
+          disabled={isLoggingOut}
+          className="w-fit rounded border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800 hover:bg-slate-100 disabled:opacity-60"
+        >
+          {isLoggingOut ? "Signing out…" : "Sign out"}
+        </button>
+        {logoutError ? (
+          <p role="alert" className="text-xs text-red-800">
+            {logoutError}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
+  if (wallet.status === "detecting") {
+    return <p className="text-xs text-slate-600">Checking for Nimiq Pay…</p>;
+  }
+
+  if (wallet.status === "ready") {
+    return (
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <p className="break-all text-xs text-slate-700">
+          Wallet: <span className="font-mono">{wallet.address}</span>
+        </p>
+        <button
+          type="button"
+          onClick={() => void signIn()}
+          disabled={isSigningIn}
+          className="w-fit rounded border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800 hover:bg-slate-100 disabled:opacity-60"
+        >
+          {isSigningIn ? "Waiting for wallet…" : "Sign in with Nimiq Pay"}
+        </button>
+        {signInError ? (
+          <p role="alert" className="text-xs text-red-800">
+            {signInError}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
+  const message =
+    wallet.status === "unavailable"
+      ? "Open this app in Nimiq Pay to connect your wallet."
+      : wallet.status === "denied"
+        ? wallet.message
+        : wallet.status === "no-account"
+          ? "Nimiq Pay did not return a wallet account."
+          : wallet.status === "error"
+            ? wallet.message
+            : "Open this app in Nimiq Pay to connect your wallet.";
+
+  return (
+    <div className="flex flex-col gap-1">
+      <p className="text-xs text-slate-700" aria-live="polite">
+        {message}
+      </p>
+      {wallet.status !== "unavailable" ? (
+        <button
+          type="button"
+          onClick={retryWallet}
+          className="w-fit rounded border border-slate-300 bg-white px-2 py-1 text-xs font-medium text-slate-800 hover:bg-slate-100"
+        >
+          Retry wallet
+        </button>
+      ) : null}
+    </div>
+  );
 }
 
 export function Layout() {
@@ -33,18 +133,8 @@ export function Layout() {
             </nav>
           </div>
 
-          <div className="mt-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <span id="wallet-status" className="text-xs text-slate-600">
-              Wallet not connected
-            </span>
-            <button
-              type="button"
-              disabled
-              aria-describedby="wallet-status"
-              className="w-fit max-w-full cursor-not-allowed rounded border border-slate-300 bg-slate-100 px-2 py-1 text-left text-xs text-slate-600 sm:text-sm"
-            >
-              Wallet connection coming in Phase 2
-            </button>
+          <div className="mt-3">
+            <WalletPanel />
           </div>
         </div>
       </header>
@@ -58,7 +148,10 @@ export function Layout() {
 
       <footer className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-2 px-4 py-6 text-sm text-slate-600 sm:px-6">
-          <p>Phase 1 skeletal preview. Wallet, funding and payouts are not implemented.</p>
+          <p>
+            Phase 4 functional preview. Simulated DeFi scenarios on Nimiq testnet.
+            Rewards are treasury-funded testnet transfers; this is not investment advice.
+          </p>
           <nav aria-label="Footer" className="flex flex-wrap gap-x-4 gap-y-2">
             <Link className="hover:text-slate-900 hover:underline" to="/how-it-works">
               How it works

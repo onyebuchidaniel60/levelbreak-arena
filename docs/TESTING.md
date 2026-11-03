@@ -65,6 +65,23 @@ EXPECTED_REFERENCE="LBA1:<publicRef>" \
   0 answers = zero payout and a 1,500-Luna unused-credit entry.
 - Payout worker with a mocked adapter, while `PAYOUT_WORKER_ENABLED=false`.
 
+## Phase 4 deployed frontend E2E
+
+The deployed journey uses real Ed25519 authentication with a generated test key
+and the real Nimiq testnet backend. It is intentionally opt-in because it claims
+the single funded demo session once:
+
+```bash
+PHASE4_E2E_BASE_URL=https://levelbreak-arena.vercel.app \
+PHASE4_EXPECTED_PUBLIC_REF=fa4f30a2d178b6da \
+  pnpm exec playwright test -c tests/e2e/playwright.deployed.config.ts
+```
+
+The test covers unauthenticated provider messaging, real nonce → signature →
+verify, lobby claim, all three levels, answer/skip, refresh/resume, finish,
+payout status, history and responsive overflow checks. Do not run it twice
+against the same funded session.
+
 ## Testnet proof (must be executed, not inferred)
 
 - Testnet-only demo-agent to treasury funding transfer.

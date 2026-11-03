@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@nimiq/core": "2.23.0",
     "@playwright/test": "1.64.1",
     "@types/node": "24.19.2",
     "eslint": "10.13.0",

@@ -76,6 +76,23 @@ function portfolioValue(row: RunRow): bigint {
   return toLuna(row.portfolio_state?.value ?? "0");
 }
 
+function scenarioDTO(levelIndex: number) {
+  const scenario = getScenario(levelIndex);
+  return {
+    id: scenario.id,
+    version: scenario.version,
+    levelIndex: scenario.levelIndex,
+    title: scenario.title,
+    setting: scenario.setting,
+    situation: scenario.situation,
+    prompt: scenario.prompt,
+    choices: scenario.choices.map((choice) => ({
+      decisionKey: choice.key,
+      label: choice.label,
+    })),
+  };
+}
+
 function decisionDTO(row: DecisionRow) {
   return {
     decisionId: row.id,
@@ -210,7 +227,7 @@ export async function getRunDetail(runId: string, playerId: string) {
 
   const scenario =
     run.state === "IN_PROGRESS" || run.state === "CONSULTATION_PENDING"
-      ? getScenario(run.level_index)
+      ? scenarioDTO(run.level_index)
       : null;
   const question =
     run.state === "CONSULTATION_PENDING"

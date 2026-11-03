@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { KeyPair } from "@nimiq/core";
+import Fastify from "fastify";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { query, closeDatabase } from "../db";
 import { AppError } from "../errors";
@@ -22,6 +23,7 @@ import {
 } from "./sessions";
 import {
   finishRun,
+  getRunDetail,
   submitConsultationResponse,
   submitDecision,
 } from "./game";
@@ -639,5 +641,37 @@ integration("Phase 3 domain integration", () => {
     );
     expect(ledger.rows[0].count).toBe("1");
     expect(ledger.rows[0].total).toBe("500");
+  });
+
+  it("serializes run detail without BigInt and strips scenario outcomes", async () => {
+    const nimiq = new FakeNimiq();
+    const session = await createAvailableSession(nimiq);
+    const player = await makePlayer();
+    const run = await claim(player, session.sessionId);
+
+    const detail = await getRunDetail(run.runId, player);
+    const app = Fastify({ logger: false });
+    app.get("/api/runs/:runId", async () => detail);
+    const response = await app.inject({
+      method: "GET",
+      url: `/api/runs/${run.runId}`,
+    });
+    await app.close();
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json();
+    expect(body.scenario).toBeTruthy();
+    expect(Array.isArray(body.scenario.choices)).toBe(true);
+    expect(body.scenario.choices.length).toBeGreaterThan(0);
+    for (const choice of body.scenario.choices) {
+      expect(Object.keys(choice).sort()).toEqual(["decisionKey", "label"]);
+    }
+
+    const serialized = JSON.stringify(body);
+    expect(() => JSON.stringify(body)).not.toThrow();
+    expect(serialized).not.toContain("outcomes");
+    expect(serialized).not.toContain("resultingPortfolio");
+    expect(serialized).not.toContain("explanation");
+    expect(serialized).not.toContain("basisPoints");
   });
 });

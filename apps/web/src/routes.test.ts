@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { appRoutePaths, primaryNav } from "./routes";
 
 describe("route inventory", () => {
-  it("contains the nine Phase 1 route entries", () => {
+  it("contains the nine application route entries", () => {
     expect(appRoutePaths).toHaveLength(9);
     expect(new Set(appRoutePaths).size).toBe(9);
   });
