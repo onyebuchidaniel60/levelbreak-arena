@@ -24,7 +24,7 @@ test("Phase 4 real-auth play-through on the deployed preview", async ({
   try {
     await page.goto("/", { waitUntil: "networkidle" });
     await expect(
-      page.getByText("Open this app in Nimiq Pay to connect your wallet."),
+      page.getByText("Open this app in Nimiq Pay to connect your wallet.").first(),
     ).toBeVisible({ timeout: 10_000 });
     console.log("STEP 1 PASS: unauthenticated prompt shown");
 
