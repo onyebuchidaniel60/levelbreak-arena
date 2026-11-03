@@ -1,23 +1,24 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 3 November 2026
-**Current phase:** Phase 2 BLOCKED at Task 0 — Render TestAlbatross consensus check failed
-**Status:** BLOCKED — no Phase 2 application code, migrations, auth, or transfer proof started.
+**Current phase:** Phase 2 complete — backend/data/auth foundation + testnet transfer proof
+**Status:** PASS — Phase 2 awaiting operator acceptance; Phase 3 not started.
 
 ## Current deployment and wallets
 
-- Preview URL: https://levelbreak-arena.vercel.app
+- Vercel preview URL: https://levelbreak-arena.vercel.app
 - Vercel deployed commit: 612809c8fca37fa6deaac31dd2ec79634c13d87e (Phase 1, accepted)
+- Render API URL: https://levelbreak-arena.onrender.com
+- Render deployed commit: 92cb7fddb0be07ca03d47c0584557b1db43e152e
 - Repository URL: https://github.com/onyebuchidaniel60/levelbreak-arena
 - Vercel deployment ID: dpl_HhxZdomUrSFAHGAzYwegwbto1Ura
 - Vercel project: uhhh2/levelbreak-arena; Root Directory apps/web; Framework Vite; Node 24.x
-- Render service: `levelbreak-arena`; normal start command restored to `node apps/api/dist/server.js`; `/health/live` verified `200 {"status":"ok"}` after restore.
-- Render service build currently at Phase 1 checkpoint commit `12d130a01fdf5519c1a4e9454fce6ceb5abb4bff`.
+- Render service: `levelbreak-arena`; normal start command `node apps/api/dist/server.js`; `/health/ready` verified 200.
 - Demo-agent wallet: `NQ23 RSJF DP1Q 894D Q346 V1HK C8F5 GM4F 0J9T`
 - Treasury wallet: `NQ83 S85U 0B01 BVY2 RR74 C23E 845S NAKE 1YM3`
 - `NIMIQ_NETWORK`: `"testnet"`
-- Testnet funding transaction: **NOT YET RUN**
-- Testnet treasury payout: **NOT YET RUN**
+- Testnet transfer proof: `899823e284e64c1f8dd0671c85598ca739948a653f400ae87bc7dc8433db793e`
+- Testnet payout: **NOT YET RUN**
 - Design references: not collected
 - Mockups: not created
 - Operator approval of final visual design: **NOT GIVEN**
@@ -26,57 +27,110 @@
 
 ```text
 Project: LevelBreak Arena
-Current phase: Phase 2 — BLOCKED at Task 0 (Render consensus check)
-Status: BLOCKED
+Current phase: Phase 2 complete — backend/data/auth foundation + testnet transfer proof
+Status: PASS
 Preview URL: https://levelbreak-arena.vercel.app
-Deployed commit SHA: 612809c8fca37fa6deaac31dd2ec79634c13d87e
-What changed: No Phase 2 application source, Fastify code, migrations, auth routes, Nimiq adapter, or transfer proof was written. A temporary consensus-check script was created for Task 0, run locally, run once on the Render web service via a temporary start command, then deleted. Render's start command was restored and the normal service redeployed.
-What works on the deployed preview: Phase 1 remains accepted: all nine routes render at 320px and 1280px with HTTP 200, one page-level h1 each, no horizontal overflow; wallet control present and disabled with the exact Phase 1 label; no financial or wallet behavior active. The Render Phase 1 API health endpoint is restored and returns 200.
-What is intentionally incomplete: all Phase 2 work — Fastify skeleton expansion, schema/migrations, auth nonce/verify/logout/me, NimiqService adapter, and the testnet transfer proof. Phase 2 cannot proceed until chain consensus is resolved.
+Deployed commit SHA: 92cb7fddb0be07ca03d47c0584557b1db43e152e (Render API); Vercel remains 612809c8fca37fa6deaac31dd2ec79634c13d87e
+What changed: Added the Fastify backend foundation (request IDs, safe error envelopes, Pino redacted logging, security headers, strict APP_ORIGIN CORS, rate limiting, graceful shutdown); added /health/live, /health/ready, /api/config/public; added auth nonce/verify/logout and /api/me with real @nimiq/core Ed25519 signature verification and hash-only session tokens; added the initial Postgres/Neon schema and migration runner; added the NimiqService interface and Web Client adapter with the verified TestAlbatross seed; added the guarded TESTNET_PROOF_ENABLED transfer proof; pinned @nimiq/core 2.23.0. No payout path or Phase 3 game/session APIs were added.
+What works on the deployed preview: Phase 1 routes remain accepted. The Render API is live at commit 92cb7fd; /health/live returns 200, /health/ready returns 200, and /api/config/public returns rewardPerAnswerLuna="500", maxConsultations=3, demoMode=true. Real signed auth succeeds against the deployed API, including session creation, /api/me, CSRF logout, and post-logout 401.
+What is intentionally incomplete: Phase 3 game/session/consultation APIs; frontend-to-API integration; payout worker and treasury payout path; operator UI; final visual design; final Documentation/GitHub footer links. No payout evidence exists.
 Tests run and actual results:
-  Local baseline (@nimiq/core 2.23.0, Node 24.22.1):
-    consensus_check_result={"network":"TestAlbatross","networkId":5,"expectedTestnetNetworkId":5,"consensus":false,"headHeight":null,"peerCount":0,"attempts":36,"elapsedSeconds":181.9,"error":null}
-    consensus_check=FAILED
-    seed WSS dial attempts repeatedly closed with connections=0
+  Task 0 connectivity:
+    $ getent hosts seed1.pos.nimiq-testnet.com
+    157.90.145.49   seed1.pos.nimiq-testnet.com
+    $ nc -vz seed1.pos.nimiq-testnet.com 8443
+    Connection to seed1.pos.nimiq-testnet.com (157.90.145.49) 8443 port [tcp/*] succeeded!
+    openssl: CONNECTION ESTABLISHED, TLSv1.3, verification OK
+    $ getent hosts seed.nimiqchina.com
+    (no address)
+    nc: getaddrinfo for host "seed.nimiqchina.com" port 8443: No address associated with hostname
 
-  Render run:
-    Render one-off job API rejected: HTTP 400 "new paid services not allowed"
-    Fallback used: temporary Render web-service start command executing the same check
-    consensus_check_result={"network":"TestAlbatross","networkId":5,"expectedTestnetNetworkId":5,"consensus":false,"headHeight":null,"peerCount":0,"attempts":36,"elapsedSeconds":183.8,"error":null}
-    consensus_check=FAILED
-    NIMIQ_CONSENSUS_EXIT=1
-    Render log retrieval used the Render API; no public log URL is available without exposing the service ID.
+    Local winning config:
+    diag_result={"network":"TestAlbatross","seeds":["/dns4/seed1.pos.nimiq-testnet.com/tcp/8443/wss"],"onlySecureWsConnections":true,"consensus":true,"networkId":5,"headHeight":15761316,"connectedPeers":3,"attempts":3,"elapsedSeconds":10.5,"error":null}
+    diag_verdict=PASS
 
-  Post-restore:
-    GET https://levelbreak-arena.onrender.com/health/live -> 200 {"status":"ok"}
+    Local China seed:
+    diag_result={"network":"TestAlbatross","seeds":["/dns4/seed.nimiqchina.com/tcp/8443/wss"],"onlySecureWsConnections":true,"consensus":false,"networkId":5,"headHeight":null,"connectedPeers":0,"attempts":6,"elapsedSeconds":30.4,"error":null}
+    diag_verdict=FAIL
 
-  Migrations: none created or applied.
-  Transfer proof: not attempted; no transaction hash.
+    Local default seeds + insecure config:
+    diag_result={"network":"TestAlbatross","seeds":"<client-default>","onlySecureWsConnections":false,"consensus":false,"networkId":5,"headHeight":null,"connectedPeers":0,"attempts":60,"elapsedSeconds":300.8,"error":null}
+    diag_verdict=FAIL
 
-Payment evidence (if applicable, testnet/mainnet stated clearly): NOT APPLICABLE — no payment code or transfer proof was attempted.
-Known issues/blockers: @nimiq/core Web Client cannot reach TestAlbatross consensus from either the local VPS or the Render service. Both runs report networkId=5, consensus=false, peerCount=0, no thrown error, and repeated seed WSS disconnects. This is a blocking infrastructure/network issue, not an application-code failure. Render one-off jobs are unavailable on the current free service plan. Awaiting operator decision on (a) Render networking troubleshooting, (b) explicit approval of a hybrid sign-locally/broadcast-via-RPC adapter as a documented deviation, or (c) changing hosting.
+    Render winning config:
+    diag_result={"network":"TestAlbatross","seeds":["/dns4/seed1.pos.nimiq-testnet.com/tcp/8443/wss"],"onlySecureWsConnections":true,"consensus":true,"networkId":5,"headHeight":15761492,"connectedPeers":3,"attempts":3,"elapsedSeconds":17.4,"error":null}
+    diag_verdict=PASS
+
+  Local API:
+    GET /health/live -> 200 {"status":"ok"}
+    GET /health/ready -> 200 {"status":"ready"}
+    GET /api/config/public -> 200 {"productName":"LevelBreak Arena","networkLabel":"Nimiq Testnet","rewardPerAnswerLuna":"500","maxConsultations":3,"demoMode":true}
+    POST /api/auth/nonce -> 200
+    POST /api/auth/verify (real signature) -> 200
+    GET /api/me -> 200
+    POST /api/auth/logout with CSRF -> 204
+    GET /api/me after logout -> 401
+
+  Deployed Render API:
+    GET /health/live -> 200 {"status":"ok"}
+    GET /health/ready -> 200 {"status":"ready"}
+    GET /api/config/public -> 200 with expected values
+    Auth: nonce 200, verify 200, me 200, logout 204, me-after-logout 401
+    Negative auth: invalid signature 401, replay 409, expired nonce 410,
+    origin mismatch 400, logout without CSRF 403
+
+  Database:
+    Migration applied: 001_initial_schema.sql
+    Tables created: players, auth_nonces, auth_sessions, requester_sessions,
+    funding_transactions, player_runs, scenario_decisions,
+    consultation_responses, ledger_entries, payouts, audit_events
+    RLS enabled on all 11 application tables; public policies = 0
+    Test auth rows were removed after verification; no seed data remains.
+
+  Testnet transfer proof:
+    txHash: 899823e284e64c1f8dd0671c85598ca739948a653f400ae87bc7dc8433db793e
+    sender: NQ23 RSJF DP1Q 894D Q346 V1HK C8F5 GM4F 0J9T
+    recipient: NQ83 S85U 0B01 BVY2 RR74 C23E 845S NAKE 1YM3
+    valueLuna: 1500
+    feeLuna: 0
+    network: testalbatross
+    state: confirmed
+    blockHeight: 15762500
+    reference: LBA1:1bfa7f2473dd7fb9
+    proof=PASS
+    explorerBaseUrl: null (NIMIQ_EXPLORER_BASE_URL was not configured)
+
+  Full suite:
+    $ pnpm install --frozen-lockfile -> success
+    $ pnpm lint -> passed
+    $ pnpm typecheck -> apps/api, apps/web, packages/contracts passed
+    $ pnpm test -> 2 unit tests passed; 18 Playwright route tests passed
+    $ pnpm build -> apps/api and apps/web built successfully
+
+  CI:
+    GitHub Actions run for 92cb7fddb0be07ca03d47c0584557b1db43e152e:
+    CI — completed / success
+
+Payment evidence (if applicable, testnet/mainnet stated clearly): TESTNET ONLY. Normal basic transfer from demo-agent to treasury, 1,500 Luna, confirmed at block 15762500 with reference LBA1:1bfa7f2473dd7fb9. No payout was attempted.
+Known issues/blockers: `@nimiq/core` emits benign Node warnings about IndexedDB and a WASM event listener; they do not block consensus or transfer proof. Vercel's edge Security Checkpoint remains an automation issue for the unrelated Phase 1 preview; the operator verified the production alias in a normal browser. `NIMIQ_EXPLORER_BASE_URL` is not configured, so no explorer link is claimed. Payout execution and Nimiq Pay in-WebView authentication remain unverified until later phases.
 Design references/mockups status: none yet — Phase 6.
 Operator visual approval status: NOT GIVEN — Phase 6 gate.
 Documentation/footer-link status: docs/ present; footer Docs and GitHub links deferred to Phase 8.
-Security/configuration notes: no private keys in the repository; only public wallet addresses are recorded. Render wallet env vars were already set and were not changed during Task 0. No VITE_ secrets. The temporary consensus check used no private keys. The normal Render start command and service health were restored.
-Git commit: 612809c8fca37fa6deaac31dd2ec79634c13d87e (Vercel Phase 1 deployment); 12d130a01fdf5519c1a4e9454fce6ceb5abb4bff (Render Phase 1 checkpoint build); this Phase 2 checkpoint commit is the new docs commit.
-Single next task: Await operator decision on the Render/TestAlbatross consensus blocker before any further Phase 2 work.
+Security/configuration notes: no private keys in the repository; only public wallet addresses and the public testnet proof hash are recorded. Wallet keys and AUTH_SESSION_SECRET are server-only Render environment variables. RLS is enabled on all 11 application tables with no public policies. CORS is bound to APP_ORIGIN; production fails closed without it. Auth uses one-time hashed nonces, real Ed25519 verification, hash-only session tokens, HttpOnly/Secure/SameSite cookies, and CSRF double-submit checks. The Web Client uses the verified TestAlbatross seed and no RPC endpoint for signing/broadcast.
+Git commit: 92cb7fddb0be07ca03d47c0584557b1db43e152e (Phase 2 code); this docs checkpoint is the new commit containing this file.
+Single next task: Await operator acceptance of Phase 2 before starting Phase 3 (core domain, funded-session gate, and APIs).
 STOPPED awaiting operator approval: yes
 ```
 
-## Task 0 execution details
+## Task 0 winning configuration
 
-- **Method:** The Render one-off job API was attempted but rejected with `HTTP 400 new paid services not allowed`. The authorized fallback was used: temporarily replace the web service start command with a command that installs `@nimiq/core@2.23.0` in `/tmp`, writes the check script, and runs it. The service was redeployed, logs were read via the Render API, and the normal start command was restored.
-- **Exact command shape used on Render:**
-  ```text
-  bash -lc 'set -u; rm -rf /tmp/lba-consensus; mkdir -p /tmp/lba-consensus; cd /tmp/lba-consensus; echo "<gzip-base64 script>" | base64 -d | gzip -d > check.cjs; npm init -y >/dev/null 2>&1; npm install @nimiq/core@2.23.0 --no-audit --no-fund >/dev/null 2>&1 || { echo NIMIQ_CONSENSUS_INSTALL_FAILED; exit 2; }; echo NIMIQ_CONSENSUS_START; NIMIQ_NETWORK=testnet NIMIQ_CONSENSUS_TIMEOUT_MS=180000 node check.cjs; code=$?; echo NIMIQ_CONSENSUS_EXIT=$code; exit $code'
-  ```
-- **Render network result:** `networkId=5`, `consensus=false`, `headHeight=null`, `peerCount=0`, `attempts=36`, `elapsedSeconds=183.8`, `error=null`.
-- **Peer discovery state:** zero connected peers; TestAlbatross seed WSS dials repeatedly closed. The local run showed the same behavior against the public Nimiq seed hosts.
-- **Render log URL:** No public log URL is available without exposing the Render service ID. Logs are available in the Render dashboard under the `levelbreak-arena` service's deploy logs; retrieval was performed through the Render API.
-- **Retries:** 36 polling attempts at 5-second intervals; no consensus reached within the 180-second limit.
-- **Restoration:** Normal `node apps/api/dist/server.js` start command restored; Render deployment completed live; `/health/live` returned 200 `{"status":"ok"}`.
-- **Not done:** No Fastify implementation, migrations, auth routes, NimiqService adapter, or transfer proof. No RPC broadcast substitution. No architecture change.
+- Seed list: `["/dns4/seed1.pos.nimiq-testnet.com/tcp/8443/wss"]`
+- `onlySecureWsConnections: true`
+- `desiredPeerCount: 3`
+- Network: `TestAlbatross`, network ID `5`
+- Local: 3 peers, consensus, 10.5s
+- Render: 3 peers, consensus, 17.4s
+- The default client seed set and `seed.nimiqchina.com` did not connect; `onlySecureWsConnections(false)` with default seeds also failed.
 
 ## Current product decisions
 
@@ -88,21 +142,21 @@ STOPPED awaiting operator approval: yes
 - Payout: ordinary NIM transfer from operator-controlled treasury to player's verified wallet address. **No HTLC in the MVP.** The funds are treasury-custodied; database reservations do not lock them on-chain.
 - Reward: 500 Luna (0.005 NIM) per accepted response; skip earns zero; one consultation per each of three levels; max per session 1,500 Luna (0.015 NIM).
 - Scenario content and evidence are static/bundled; no live market data and no real trades.
-- Stack: React + TypeScript + Vite; Node 24 + TypeScript + Fastify; Supabase PostgreSQL; `@nimiq/mini-app-sdk` for player wallet identity/signature; `@nimiq/core` for server-side ordinary transfers; Vercel frontend; Render persistent API/worker.
+- Stack: React + TypeScript + Vite; Node 24 + TypeScript + Fastify; PostgreSQL; `@nimiq/mini-app-sdk` for player wallet identity/signature; `@nimiq/core` for server-side ordinary transfers; Vercel frontend; Render persistent API/worker.
+- PostgreSQL is deployed on Neon per operator preparation; the application uses the DATABASE_URL/DATABASE_URL_UNPOOLED configuration defined by the architecture. This is the operator-approved database hosting deviation from the blueprint's Supabase hosting; the Postgres schema and connection contract are unchanged.
 - Node 24.22.1 and pnpm 10.34.5 are pinned in the repository.
 
 ## Critical blockers / risks
 
-1. **Render consensus failure:** The Web Client cannot establish TestAlbatross consensus from Render or the local VPS; zero peers and repeated seed WSS disconnects. This blocks the entire Phase 2 chain adapter and transfer proof.
-2. **No RPC substitution:** The verified RPC endpoint was used only for wallet balance preparation; it must not be silently substituted for Web Client broadcast/signing.
-3. Server-side normal NIM transfer build/sign/broadcast and chain verification remain unproven.
-4. Wallet-signature authentication in the actual Nimiq Pay environment remains unproven.
-5. Funding transaction matching and payout duplicate protections remain unimplemented.
-6. No mainnet send path is allowed during preview/development.
+1. Payout worker and treasury payout verification are not implemented; do not claim payment completion.
+2. Nimiq Pay in-WebView wallet signature authentication still needs end-to-end verification in Phase 4.
+3. Funding transaction-to-session matching and duplicate protections are Phase 3 work.
+4. The Web Client requires the explicit TestAlbatross seed; do not revert to the client default seed list.
+5. No mainnet send path is allowed during preview/development. Any mainnet launch requires separate explicit operator authorization and a security/treasury review.
 
 ## Current task for coding agent
 
-**STOP.** Await the operator's decision on the Render/TestAlbatross consensus blocker. Do not implement Phase 2, Fastify changes, migrations, auth, or the Nimiq transfer proof until the operator chooses a path and explicitly authorizes it.
+**STOP.** Phase 2 is submitted for operator acceptance. Do not start Phase 3, payout work, frontend integration, or final design until the operator gives the Phase 3 prompt.
 
 ## Checkpoint requirements
 
