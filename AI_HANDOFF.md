@@ -1,26 +1,26 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 3 November 2026
-**Current phase:** Phase 3 accepted — cross-origin cookie fix verified; Phase 4 not started
-**Status:** Phase 3 PASS / ACCEPTED; COOKIE GATE PASS; Phase 4 NOT STARTED.
+**Current phase:** Phase 4 complete — functional frontend integrated
+**Status:** Phase 4 PASS; awaiting operator acceptance before Phase 5.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed code commit: `9cf424882a934a482cdc749e51b786772fb7679f` (Vercel rewrite + relative API client); the docs commit containing this file is an identical web-code redeploy
+- Vercel deployed code commit: `7ad825690c6cb55798d8036631bcce7dd01286e4` (Phase 4 frontend + run-detail fix); final `9764b770bf65f4b143299f981f0b51d4541d42a5` is a script-only CI ordering fix with identical app code
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render backend code unchanged from Phase 3 (commit `92e0eacc3c37e23c1b3e3c41d4a704442c921fc5`; `apps/api/` diff for the cookie fix is empty)
-- Render deployment ID: `dep-dbkmps8ae00c73fnjqk0` (Phase 3 code; same backend after cookie fix)
+- Render deployed code commit: `9764b770bf65f4b143299f981f0b51d4541d42a5`; backend includes the `7ad8256` scenario serialization fix
 - Repository URL: https://github.com/onyebuchidaniel60/levelbreak-arena
-- Render service: `levelbreak-arena`; `/health/ready` verified 200 after the Phase 3 deploy.
+- Render service: `levelbreak-arena`; `/health/live` and `/health/ready` verified 200 after the Phase 4 deploy.
 - Demo-agent wallet: `NQ23 RSJF DP1Q 894D Q346 V1HK C8F5 GM4F 0J9T`
 - Treasury wallet: `NQ83 S85U 0B01 BVY2 RR74 C23E 845S NAKE 1YM3`
 - `NIMIQ_NETWORK`: `"testnet"`
 - Phase 2 transfer proof: `899823e284e64c1f8dd0671c85598ca739948a653f400ae87bc7dc8433db793e`
 - Phase 3 funded-session proof: `82c8c1f977fa2a743059a494efc1d1a962944fc090f6d1e18fcce7569854d55e`
 - Phase 3 proof session: `d242581a-2590-4ac0-944a-6b41fc626f80`, public ref `fa4f30a2d178b6da`
-- Testnet payout: **NOT YET RUN**
-- `NIMIQ_EXPLORER_BASE_URL`: **still unset** — must be supplied before Phase 4; no explorer URL was guessed.
+- Phase 4 E2E run: `087f39ee-6bcc-492b-a062-ebc04ea14a4c`; session now `PAYOUT_PENDING`, run `PAYOUT_QUEUED`, payout `b00c882f-72e1-4fb1-acc1-0cde06dcaedf` for `1000` Luna (`QUEUED`)
+- Testnet payout: **NOT YET RUN** — payout worker disabled, so the Phase 4 payout remains `QUEUED`
+- `NIMIQ_EXPLORER_BASE_URL`: **still unset**; no explorer URL was fabricated. Payout UI shows the tx hash text and "Explorer link not available" when a hash exists without a configured explorer.
 - Design references: not collected
 - Mockups: not created
 - Operator approval of final visual design: **NOT GIVEN**
@@ -42,13 +42,106 @@
 - **Proxy limits:** no rate-limit, timeout, or response-size errors were observed across the nonce, verify, me, reload, logout and post-logout requests.
 - **Scope:** `apps/api/` has no diff for this fix; no API contract, schema, game logic, cookie attribute, CSRF rule or `APP_ORIGIN` was changed.
 
+## Phase 4 checkpoint
+
+```text
+Project: LevelBreak Arena
+Current phase: Phase 4 complete — functional frontend integrated
+Status: PASS
+Preview URL: https://levelbreak-arena.vercel.app
+Deployed commit SHA: 7ad825690c6cb55798d8036631bcce7dd01286e4 (Phase 4 frontend + run-detail fix, tested by E2E); final 9764b770bf65f4b143299f981f0b51d4541d42a5 is a script-only CI ordering fix with identical app code
+What changed:
+  - Added @levelbreak-arena/contracts with Zod schemas for every frontend API response.
+  - Added a typed relative-path API client with credentials: "include", CSRF header from lba_csrf, typed ApiError/request ID handling and 401 redirect behaviour.
+  - Added TanStack Query hooks with cache invalidation, one retry after 2s for 503, and typed mutations.
+  - Added Nimiq Pay provider detection and real nonce → sign → verify authentication; provider absence shows "Open this app in Nimiq Pay to connect your wallet."
+  - Wired the lobby, claim conflict handling, three-level game, scenario decisions, all four evidence renderers, answer/skip, reward flash, finish, payout status, history and logout.
+  - Fixed GET /api/runs/:runId BigInt serialization by returning a safe scenario projection with decisions only ({decisionKey,label}); outcome math remains server-side and is returned by the decision endpoint.
+  - Added permanent serialization regression coverage to the Postgres integration suite.
+  - Updated support pages and README for the functional Phase 4 testnet preview; styling remains temporary Tailwind.
+What works on the deployed preview:
+  - / — unauthenticated Nimiq Pay prompt; authenticated wallet summary, play/resume and history links.
+  - /play — available funded session listing, no-session empty state, claim; ACTIVE_RUN_EXISTS falls back to GET /api/me.activeRunId per the approved Option A.
+  - /play/:runId — authoritative state, portfolio, level progress, scenario decisions, evidence-first consultation, answer/skip, reward message, finish and payout status. 404/401/error/loading states are implemented.
+  - /history — completed runs, earned NIM/Luna, payout status and tx hash/explorer handling.
+  - /how-it-works, /privacy, /terms, /docs and 404 remain reachable with updated truthful copy.
+  - Logout clears local query state and redirects home; CSRF is required and verified.
+What is intentionally incomplete:
+  - Final visual design (Phase 6/7) — temporary Tailwind defaults only.
+  - Nimiq Pay device-level wallet verification (Phase 5). The deployed browser E2E used a generated Ed25519 key because this environment has no Nimiq Pay provider.
+  - Real payout confirmation: PAYOUT_WORKER_ENABLED=false, so the Phase 4 payout is QUEUED. Phase 5 owns worker enablement and confirmation.
+  - NIMIQ_EXPLORER_BASE_URL is unset, so no explorer links are shown; tx hashes are text with "Explorer link not available" where applicable.
+Tests run and actual results:
+  $ pnpm lint -> passed
+  $ pnpm typecheck -> passed (contracts build + apps/api/apps/web/contracts)
+  $ pnpm test -> 35 unit tests passed; 18 Playwright route tests passed; 2 deployed-E2E entries skipped without env
+  $ pnpm build -> contracts, apps/api and apps/web built successfully
+  $ pnpm exec vitest run apps/api/src/services/phase3.integration.test.ts --reporter=verbose
+    9 integration tests passed, including "serializes run detail without BigInt and strips scenario outcomes"
+  Local UI E2E against a local API + local Postgres test session: all 10 journey steps passed, including logout and 320–1440px overflow checks.
+  Deployed Playwright E2E against https://levelbreak-arena.vercel.app:
+    STEP 1 PASS: unauthenticated prompt shown
+    STEP 2 PASS: real auth and session cookie established
+    STEP 3 PASS: claimed fa4f30a2d178b6da, run 087f39ee-6bcc-492b-a062-ebc04ea14a4c
+    STEP 4 PASS: level 1 decision and answer
+    STEP 9 PASS: refresh resumed level 2 unchanged
+    STEP 5 PASS: level 2 decision and skip
+    STEP 6 PASS: level 3 decision and answer
+    Payout status observed: Payout queued
+    STEP 7 PASS: finish created or reused a payout record
+    STEP 8 PASS: history shows 1,000 Luna earned
+    STEP 10 PASS: no horizontal overflow at 320–1440px
+    PHASE4_DEPLOYED_E2E_PASS (1 passed)
+Payment evidence (if applicable, testnet/mainnet stated clearly):
+  TESTNET ONLY. The E2E claimed the funded session and created exactly one payout record:
+  run 087f39ee-6bcc-492b-a062-ebc04ea14a4c; earned 1000 Luna (2 answers + 1 skip);
+  payout b00c882f-72e1-4fb1-acc1-0cde06dcaedf; status QUEUED; no treasury transaction hash exists.
+  No payout transaction was fabricated or claimed as paid. Phase 5 must enable/verify the worker.
+Known issues/blockers:
+  - Render cold-start/Nimiq readiness can still return 503 on /health/ready; /health/live is the configured health check. No 503 retry was required during the final E2E.
+  - Vercel Security Checkpoint did not block the Playwright E2E. A direct curl to /health/live returned the checkpoint HTML once; health was therefore verified against Render directly.
+  - NIMIQ_EXPLORER_BASE_URL is unset in Render; payout UI never fabricates a URL.
+  - The funded session's original 30-minute funding_deadline had expired before the E2E; the operator-designated session deadline was extended once in the database (state/funding unchanged) so the approved E2E could run. No reward/API/schema change.
+  - The final E2E player/run/payout are retained for history inspection. A failed E2E pre-claim player was removed.
+Design references/mockups status: none yet — Phase 6.
+Operator visual approval status: NOT GIVEN — Phase 6 hard gate.
+Documentation/footer-link status: docs/ updated; footer Docs/GitHub links remain Phase 8.
+Security/configuration notes:
+  - No private keys, mnemonics, DB URLs or auth tokens are in the repository or this checkpoint.
+  - DEMO_FUNDING_ENABLED=false and PAYOUT_WORKER_ENABLED=false remain set on Render.
+  - All financial values are integer Luna from the API; the client never submits a reward amount or recipient.
+  - The frontend uses relative /api paths and the Vercel rewrite; VITE_API_BASE_URL remains "" in Production/Preview.
+  - No preview-mock auth endpoint exists.
+Git commit:
+  7ad825690c6cb55798d8036631bcce7dd01286e4 — feat: wire frontend to Phase 3 APIs
+  9764b770bf65f4b143299f981f0b51d4541d42a5 — fix: build contracts before typecheck and tests
+  This docs checkpoint is the new commit containing this file.
+Single next task: Await operator acceptance of Phase 4 before starting Phase 5 (end-to-end completion and hard functionality gate).
+STOPPED awaiting operator approval: yes
+```
+
+## Known issues resolved during Phase 4
+
+- **BigInt serialization in `GET /api/runs/:runId`:** `getRunDetail()` passed the full scenario definition, whose `outcomes` contained `bigint basisPoints`. Fastify returned 500 `Do not know how to serialize a BigInt`. The endpoint now returns a `scenarioDTO` projection containing only `id`, `version`, `levelIndex`, `title`, `setting`, `situation`, `prompt` and `choices: [{decisionKey,label}]`. No outcome math is exposed before a decision.
+- **Audit of Phase 3 response paths:**
+  - `GET /api/runs/:runId` — FIXED (safe projection).
+  - `GET /api/sessions/available` — PASS (all Luna values stringified).
+  - `POST /api/runs/:runId/decision` — PASS (evaluation result fields are decimal strings; verified by E2E).
+  - `POST /api/runs/:runId/consultations/:questionId/respond` — PASS (strings).
+  - `POST /api/runs/:runId/finish` — PASS (strings).
+  - `GET /api/runs/:runId/payout` — PASS (strings).
+  - `GET /api/history` — PASS (strings).
+  - Operator session/payout/audit endpoints — PASS (no scenario/question content; Luna values stringified).
+- **Regression test:** `apps/api/src/services/phase3.integration.test.ts` now starts a real Fastify instance with the run-detail result, asserts 200, asserts choices contain exactly `decisionKey`/`label`, and asserts the serialized body contains no `outcomes`, `resultingPortfolio`, `explanation` or `basisPoints`. It ran against a fresh local PostgreSQL 16 database and in the CI ephemeral Postgres job.
+- When CI initially failed, the cause was contracts package build ordering for web typecheck; scripts now build `@levelbreak-arena/contracts` before typecheck and unit tests.
+
 ## Phase 3 acceptance (3 November 2026)
 
 - Operator accepted Phase 3 after independently verifying `82c8c1f977fa2a743059a494efc1d1a962944fc090f6d1e18fcce7569854d55e` via RPC: network ID 5, demo-agent sender, treasury recipient, 1,500 Luna, `LBA1:fa4f30a2d178b6da` reference, included at block `15766696`. All fields matched.
 - Option A selected for CI coverage: the **integration** GitHub Actions job now runs the 8 concurrency/ledger tests against an ephemeral `postgres:16` service container. It applies migrations 001 and 002 with `DATABASE_URL_UNPOOLED`, then runs `pnpm test:integration`. The production Neon database is not used in CI.
 - CI run for commit `0e253c8778ddcb8aaf4e3c2f6775e9c1b59ba002`: https://github.com/onyebuchidaniel60/levelbreak-arena/actions/runs/41584226010 — `verify` passed and `integration` passed (8/8 tests, job ID `125745865580`).
 - Test-record cleanup check (last 2 hours): players `0`, player_runs `0`, requester_sessions `1`. The only session is `d242581a-2590-4ac0-944a-6b41fc626f80`; it remains `AVAILABLE` with funding `VERIFIED`, tx `82c8c1f977fa2a743059a494efc1d1a962944fc090f6d1e18fcce7569854d55e`, reference `LBA1:fa4f30a2d178b6da`, and the `FUNDING_CONFIRMED` ledger entry of 1,500 Luna. No test players or runs remain.
-- The funded session is intentionally preserved for Phase 4 E2E use.
+- The funded session was preserved for Phase 4 E2E and was consumed by the Phase 4 deployed run (see the Phase 4 checkpoint above).
 
 ## Phase 3 checkpoint
 
@@ -223,7 +316,7 @@ STOPPED awaiting operator approval: yes
 
 ## Current task for coding agent
 
-**STOP.** Phase 3 is accepted and the cross-origin cookie fix is verified. Await operator confirmation that the cookie flow is accepted; only then may Phase 4 begin. Do not start Phase 4 UI work, wire the frontend, enable the payout worker, or enable demo funding on Render.
+**STOP.** Phase 4 is complete and awaiting operator acceptance. Do not start Phase 5, enable the payout worker, enable demo funding on Render, or begin final visual design. Phase 5 owns the treasury payout worker and the hard end-to-end payment gate.
 
 ## Checkpoint requirements
 
