@@ -15,7 +15,8 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm test:unit && pnpm test:e2e",
     "test:unit": "vitest run",
-    "test:e2e": "playwright test -c tests/e2e/playwright.config.ts"
+    "test:e2e": "playwright test -c tests/e2e/playwright.config.ts",
+    "db:migrate": "node db/migrate.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -23,6 +24,7 @@
     "@types/node": "24.19.2",
     "eslint": "10.13.0",
     "globals": "17.13.0",
+    "pg": "8.23.1",
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.1",
     "vite": "7.3.7",

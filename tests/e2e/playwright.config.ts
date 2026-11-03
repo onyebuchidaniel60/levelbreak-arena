@@ -1,5 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
+const port = Number(process.env.PLAYWRIGHT_PORT ?? 4310);
+const baseURL = `http://127.0.0.1:${port}`;
+
 export default defineConfig({
   testDir: ".",
   fullyParallel: true,
@@ -7,7 +10,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: "list",
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL,
   },
   projects: [
     {
@@ -24,8 +27,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm --filter @levelbreak-arena/web exec vite --host 127.0.0.1 --port 4173 --strictPort",
-    url: "http://127.0.0.1:4173",
+    command: `pnpm --filter @levelbreak-arena/web exec vite --host 127.0.0.1 --port ${port} --strictPort`,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
