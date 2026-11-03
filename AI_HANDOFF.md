@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 3 November 2026
-**Current phase:** Phase 3 complete — core domain, funded-session gate and APIs
-**Status:** Phase 3 PASS; Phase 4 NOT STARTED.
+**Current phase:** Phase 3 accepted — CI integration coverage added; Phase 4 not started
+**Status:** Phase 3 PASS / ACCEPTED; Phase 4 NOT STARTED.
 
 ## Current deployment and wallets
 
@@ -26,14 +26,22 @@
 - Operator approval of final visual design: **NOT GIVEN**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`
 
+## Phase 3 acceptance (3 November 2026)
+
+- Operator accepted Phase 3 after independently verifying `82c8c1f977fa2a743059a494efc1d1a962944fc090f6d1e18fcce7569854d55e` via RPC: network ID 5, demo-agent sender, treasury recipient, 1,500 Luna, `LBA1:fa4f30a2d178b6da` reference, included at block `15766696`. All fields matched.
+- Option A selected for CI coverage: the **integration** GitHub Actions job now runs the 8 concurrency/ledger tests against an ephemeral `postgres:16` service container. It applies migrations 001 and 002 with `DATABASE_URL_UNPOOLED`, then runs `pnpm test:integration`. The production Neon database is not used in CI.
+- CI run for commit `0e253c8778ddcb8aaf4e3c2f6775e9c1b59ba002`: https://github.com/onyebuchidaniel60/levelbreak-arena/actions/runs/41584226010 — `verify` passed and `integration` passed (8/8 tests, job ID `125745865580`).
+- Test-record cleanup check (last 2 hours): players `0`, player_runs `0`, requester_sessions `1`. The only session is `d242581a-2590-4ac0-944a-6b41fc626f80`; it remains `AVAILABLE` with funding `VERIFIED`, tx `82c8c1f977fa2a743059a494efc1d1a962944fc090f6d1e18fcce7569854d55e`, reference `LBA1:fa4f30a2d178b6da`, and the `FUNDING_CONFIRMED` ledger entry of 1,500 Luna. No test players or runs remain.
+- The funded session is intentionally preserved for Phase 4 E2E use.
+
 ## Phase 3 checkpoint
 
 ```text
 Project: LevelBreak Arena
-Current phase: Phase 3 complete — core domain, funded-session gate and APIs
-Status: PASS
+Current phase: Phase 3 accepted — core domain, funded-session gate and APIs
+Status: PASS / ACCEPTED
 Preview URL: https://levelbreak-arena.vercel.app (unchanged Phase 1 shell; Phase 3 did not wire the frontend)
-Deployed commit SHA: 92e0eacc3c37e23c1b3e3c41d4a704442c921fc5 (Render API code deploy, verified live); this docs checkpoint is the new commit containing this file
+Deployed commit SHA: 92e0eacc3c37e23c1b3e3c41d4a704442c921fc5 (Phase 3 code, Render live); 0e253c8778ddcb8aaf4e3c2f6775e9c1b59ba002 (CI integration coverage); this docs checkpoint is the new commit containing this file
 What changed:
   - Added migration 002_phase3_domain.sql: creation/funding idempotency fields, claim/finish idempotency keys, per-level consultation responses with a unique (run, level) guard, fixed 500-Luna reward constraint, 1,500-Luna run/payout caps, attempted_at for payouts, LBA1 reference format constraint.
   - Added domain state machines for requester sessions, player runs, consultations and payouts; all transitions are checked in domain services inside DB transactions.
@@ -76,6 +84,12 @@ Tests run and actual results:
     ✓ confirms a payout through the disabled-by-default worker with a mocked adapter
     Test Files 1 passed; Tests 8 passed.
 
+  CI integration job (commit 0e253c8, ephemeral postgres:16):
+    https://github.com/onyebuchidaniel60/levelbreak-arena/actions/runs/41584226010
+    verify: success; integration: success (8/8 tests, job 125745865580).
+    Migrations 001 and 002 applied with CI-provided DATABASE_URL_UNPOOLED.
+    No production Neon database was used in CI.
+
   Concurrency evidence:
     - Two simultaneous claims: exactly one fulfilled; the other returned AppError status 409 SESSION_UNAVAILABLE; player_runs count for the session = 1.
     - Two simultaneous answers with different idempotency keys: exactly one response row and one REWARD_RESERVED ledger row (500 Luna); the other returned 409 QUESTION_ALREADY_RESOLVED.
@@ -109,6 +123,7 @@ Known issues/blockers:
   - NIMIQ_EXPLORER_BASE_URL remains unset, so payout explorer links stay null.
   - @nimiq/core continues to emit benign IndexedDB/WASM listener warnings; consensus and transfer proof still succeed.
   - Vercel still serves the Phase 1 shell at 612809c8fca37fa6deaac31dd2ec79634c13d87e because Phase 3 was backend-only.
+  - The previously manual-only concurrency test gap is closed: CI now runs the 8 DB integration tests against ephemeral Postgres on every push/PR.
 Design references/mockups status: none yet — Phase 6.
 Operator visual approval status: NOT GIVEN — Phase 6 hard gate.
 Documentation/footer-link status: docs/ present and updated for Phase 3; footer Docs and GitHub links remain Phase 8.
@@ -121,8 +136,9 @@ Security/configuration notes:
   - No HTLC, mainnet send path, live LLM, evidence fetching or real DeFi execution was added.
 Git commit:
   92e0eacc3c37e23c1b3e3c41d4a704442c921fc5 — feat: add funded-session gate and core game domain APIs
-  This docs checkpoint is the second commit containing this file.
-Single next task: Await operator acceptance of Phase 3. Do not start Phase 4 or wire the frontend until the operator gives the Phase 4 prompt.
+  0e253c8778ddcb8aaf4e3c2f6775e9c1b59ba002 — ci: run Phase 3 concurrency tests against ephemeral Postgres
+  This docs checkpoint is the new commit containing this file.
+Single next task: Await the operator's Phase 4 prompt. Do not start Phase 4, wire the frontend, or enable demo funding/payout worker.
 STOPPED awaiting operator approval: yes
 ```
 
@@ -191,7 +207,7 @@ STOPPED awaiting operator approval: yes
 
 ## Current task for coding agent
 
-**STOP.** Phase 3 is complete and awaiting operator acceptance. Do not start Phase 4, wire the frontend, enable the payout worker, or enable demo funding on Render.
+**STOP.** Phase 3 is accepted and the CI integration gap is closed. Await the operator's Phase 4 prompt. Do not start Phase 4, wire the frontend, enable the payout worker, or enable demo funding on Render.
 
 ## Checkpoint requirements
 
