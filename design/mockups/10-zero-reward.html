@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LevelBreak Arena — Zero reward</title>
+  <meta name="description" content="LevelBreak Arena Trading Terminal design mockup — completed session with zero reward.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23FBBF24'/%3E%3Ctext x='16' y='21' font-family='monospace' font-size='12' font-weight='700' text-anchor='middle' fill='%230A0E14'%3ELB%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="_shared/tokens.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="01-landing.html">
+          <span class="brand-mark">LB</span>
+          <span class="brand-word">LEVELBREAK <em>ARENA</em></span>
+        </a>
+        <nav class="topnav" aria-label="Primary">
+          <a href="03-lobby-available.html" aria-current="page">Play</a>
+          <a href="11-history.html">History</a>
+          <a href="01-landing.html#how-it-works">How it works</a>
+        </nav>
+        <div class="wallet-zone">
+          <span class="wallet-chip">
+            <span class="dot dot-green"></span>
+            <span class="addr-full">NQ98 54S9 … PHEQ</span>
+            <span class="addr-compact">NQ98…PHEQ</span>
+            <a class="disconnect" href="01-landing.html">Disconnect</a>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <div class="ticker">
+      <div class="ticker-inner">
+        <span class="ticker-item"><span class="dot dot-amber"></span>Session complete / zero reward</span>
+        <span class="ticker-sep">/</span>
+        <span class="ticker-item">No payout record created</span>
+        <span class="ticker-spacer"></span>
+        <span class="ticker-item ticker-right">Earned <strong style="color: var(--secondary);">0 Luna</strong></span>
+      </div>
+    </div>
+
+    <main class="main main-narrow">
+      <div class="zero-wrap">
+        <div class="page-head">
+          <div>
+            <span class="eyebrow">Settlement / <strong>Completed run</strong></span>
+            <h1>Session finish</h1>
+          </div>
+          <div class="page-head-side">
+            <span class="pill pill-grey">No payout</span>
+            <span class="micro">Terminal state</span>
+          </div>
+        </div>
+
+        <section class="panel zero-card" aria-labelledby="zero-title">
+          <div class="panel-head">
+            <span class="panel-title"><strong>Session</strong> / complete</span>
+            <span class="micro">0 / 3 accepted</span>
+          </div>
+
+          <div class="zero-body">
+            <div class="zero-hero">
+              <span class="label">Total earned</span>
+              <div class="zero-amount">0 <span class="unit">LUNA</span></div>
+              <h1 id="zero-title">Session complete. No reward earned.</h1>
+              <p class="zero-copy">All three consultations were skipped. Skipped consultations earn zero. No treasury transfer was created for this run.</p>
+            </div>
+
+            <div class="answer-ledger" aria-label="Consultation outcomes">
+              <div class="answer-line">
+                <span class="level">L1</span>
+                <span class="status">SKIPPED</span>
+                <span class="amount">0 Luna</span>
+              </div>
+              <div class="answer-line">
+                <span class="level">L2</span>
+                <span class="status">SKIPPED</span>
+                <span class="amount">0 Luna</span>
+              </div>
+              <div class="answer-line">
+                <span class="level">L3</span>
+                <span class="status">SKIPPED</span>
+                <span class="amount">0 Luna</span>
+              </div>
+              <div class="answer-total">
+                <span>Total earned</span>
+                <strong>0 Luna / 0.00000 NIM</strong>
+              </div>
+            </div>
+
+            <div class="payout-not-created">
+              Payout status — NOT APPLICABLE. No payout record, transaction hash or block was generated for a zero-reward run.
+            </div>
+          </div>
+
+          <div class="zero-cta">
+            <a class="btn btn-secondary" href="04-lobby-empty.html">Return to lobby</a>
+            <a class="btn btn-ghost" href="01-landing.html#how-it-works">Read reward rules</a>
+            <span class="micro" style="margin-left: auto;">A skip is valid. It is not an error.</span>
+          </div>
+        </section>
+
+        <p class="micro" style="margin-top: 14px; text-align: center;">This is a real product state. The terminal does not fabricate a success receipt or a payment for skipped work.</p>
+      </div>
+    </main>
+
+    <footer class="footer footer-slim">
+      <div class="footer-inner">
+        <span>LevelBreak Arena / zero reward</span>
+        <span class="mono">Nimiq Testnet · Network 5</span>
+        <span>No payout created</span>
+      </div>
+    </footer>
+  </div>
+
+  <div class="watermark">Mockup — not implemented</div>
+</body>
+</html>

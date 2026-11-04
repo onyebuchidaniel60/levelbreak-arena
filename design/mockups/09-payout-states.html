@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LevelBreak Arena — Payout states</title>
+  <meta name="description" content="LevelBreak Arena Trading Terminal design mockup — queued, submitted and confirmed payout states.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23FBBF24'/%3E%3Ctext x='16' y='21' font-family='monospace' font-size='12' font-weight='700' text-anchor='middle' fill='%230A0E14'%3ELB%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="_shared/tokens.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="01-landing.html">
+          <span class="brand-mark">LB</span>
+          <span class="brand-word">LEVELBREAK <em>ARENA</em></span>
+        </a>
+        <nav class="topnav" aria-label="Primary">
+          <a href="03-lobby-available.html" aria-current="page">Play</a>
+          <a href="11-history.html">History</a>
+          <a href="01-landing.html#how-it-works">How it works</a>
+        </nav>
+        <div class="wallet-zone">
+          <span class="wallet-chip">
+            <span class="dot dot-green"></span>
+            <span class="addr-full">NQ15 UQ1C … 2623</span>
+            <span class="addr-compact">NQ15…2623</span>
+            <a class="disconnect" href="01-landing.html">Disconnect</a>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <div class="ticker">
+      <div class="ticker-inner">
+        <span class="ticker-item"><span class="dot dot-green"></span>Session 685638bc / finished</span>
+        <span class="ticker-sep">/</span>
+        <span class="ticker-item">Settlement state comparison</span>
+        <span class="ticker-spacer"></span>
+        <span class="ticker-item ticker-right">Payout amount <strong>1,500 Luna</strong></span>
+      </div>
+    </div>
+
+    <main class="main">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Settlement / <strong>Payout lifecycle</strong></span>
+          <h1>Session finish</h1>
+          <p class="lead">Earned is not paid. These three states show the same completed run moving from queued to chain-verified.</p>
+        </div>
+        <div class="page-head-side">
+          <span class="pill pill-green">3 / 3 accepted</span>
+          <span class="micro">Testnet · Network 5</span>
+        </div>
+      </div>
+
+      <div class="finish-summary">
+        <div class="finish-summary-main">
+          <span class="agent-avatar" aria-hidden="true" style="width: 36px; height: 36px;">B</span>
+          <div>
+            <h2>Session 685638bc542dad71</h2>
+            <div class="micro">Run 03de2187 · three accepted consultations · no skips</div>
+          </div>
+        </div>
+        <div class="finish-amount">
+          <strong>1,500 Luna</strong>
+          <span>0.015 NIM earned</span>
+        </div>
+      </div>
+
+      <div class="payout-grid">
+        <article class="panel payout-card" aria-labelledby="state-queued">
+          <div class="payout-top">
+            <span class="payout-letter">State A / queued</span>
+            <span class="pill pill-amber"><span class="dot dot-amber dot-live"></span>Payout queued</span>
+          </div>
+          <div class="payout-body">
+            <div class="payout-state-title" id="state-queued">
+              <span class="spinner" aria-hidden="true"></span>
+              Queued
+            </div>
+            <div class="payout-amount">1,500 <span style="font-size: 11px; color: var(--muted);">Luna</span>
+              <small>0.015 NIM</small>
+            </div>
+
+            <div class="payout-detail">
+              <div class="kv-row"><span class="kv-key">Recipient</span><span class="kv-value">NQ15 UQ1C … 2623</span></div>
+              <div class="kv-row"><span class="kv-key">Network</span><span class="kv-value">Testnet / 5</span></div>
+              <div class="kv-row"><span class="kv-key">Reference</span><span class="kv-value">LBA1:685638bc542dad71</span></div>
+              <div class="kv-row"><span class="kv-key">Tx hash</span><span class="kv-value muted">None returned</span></div>
+            </div>
+
+            <div class="payout-status-copy">
+              <span class="line">Treasury worker is processing this settlement.</span>
+              <span class="line">No transaction hash yet. No client-side resubmit path.</span>
+              <span class="line">Reconciliation is required before any retry.</span>
+            </div>
+
+            <div class="payout-steps" aria-hidden="true">
+              <span class="payout-step active-amber">01 Queued</span>
+              <span class="payout-step">02 Submitted</span>
+              <span class="payout-step">03 Confirmed</span>
+            </div>
+          </div>
+          <div class="payout-foot">
+            <span>Awaiting submission</span>
+            <span>1 / 3</span>
+          </div>
+        </article>
+
+        <article class="panel payout-card" aria-labelledby="state-submitted">
+          <div class="payout-top">
+            <span class="payout-letter">State B / submitted</span>
+            <span class="pill pill-blue"><span class="dot dot-blue dot-live"></span>Submitted</span>
+          </div>
+          <div class="payout-body">
+            <div class="payout-state-title" id="state-submitted">
+              <span class="spinner spinner-blue" aria-hidden="true"></span>
+              Submitted
+            </div>
+            <div class="payout-amount">1,500 <span style="font-size: 11px; color: var(--muted);">Luna</span>
+              <small>0.015 NIM</small>
+            </div>
+
+            <div class="payout-detail">
+              <div class="kv-row"><span class="kv-key">Recipient</span><span class="kv-value">NQ15 UQ1C … 2623</span></div>
+              <div class="kv-row"><span class="kv-key">Network</span><span class="kv-value">Testnet / 5</span></div>
+              <div class="kv-row"><span class="kv-key">Reference</span><span class="kv-value">LBA1:685638bc542dad71</span></div>
+              <div class="kv-row"><span class="kv-key">Block</span><span class="kv-value muted">Awaiting inclusion</span></div>
+            </div>
+
+            <div class="hash-block" style="margin-top: 12px;">
+              <span class="tx" title="b693acd38fdac38008b7faabe921056e5b3ebbae02b36207031faee4435250bf">b693acd3…435250bf</span>
+              <span class="copy" aria-hidden="true"></span>
+            </div>
+            <div style="margin-top: 7px;">
+              <a class="tx-link mono" style="font-size: 9px;" href="https://test.nimiq.watch/#b693acd38fdac38008b7faabe921056e5b3ebbae02b36207031faee4435250bf" target="_blank" rel="noreferrer">View on explorer ↗</a>
+            </div>
+
+            <div class="payout-status-copy">
+              <span class="line">Broadcast recorded. Waiting for chain inclusion.</span>
+              <span class="line">The hash is persisted; reconciliation checks this transaction before any retry.</span>
+            </div>
+
+            <div class="payout-steps" aria-hidden="true">
+              <span class="payout-step done">01 Queued</span>
+              <span class="payout-step active-blue">02 Submitted</span>
+              <span class="payout-step">03 Confirmed</span>
+            </div>
+          </div>
+          <div class="payout-foot">
+            <span>Confirming with chain</span>
+            <span>2 / 3</span>
+          </div>
+        </article>
+
+        <article class="panel payout-card confirm-flash" aria-labelledby="state-confirmed">
+          <div class="payout-top">
+            <span class="payout-letter">State C / confirmed</span>
+            <span class="pill pill-green"><span class="dot dot-green"></span>Paid</span>
+          </div>
+          <div class="payout-body">
+            <div class="payout-state-title" id="state-confirmed">
+              <span class="dot dot-green" aria-hidden="true"></span>
+              Paid
+            </div>
+            <div class="payout-amount" style="color: var(--green);">1,500 <span style="font-size: 11px; color: rgba(16, 185, 129, 0.65);">Luna</span>
+              <small style="color: var(--muted);">0.015 NIM</small>
+            </div>
+
+            <div class="payout-detail">
+              <div class="kv-row"><span class="kv-key">Recipient</span><span class="kv-value">NQ15 UQ1C … 2623</span></div>
+              <div class="kv-row"><span class="kv-key">Network</span><span class="kv-value">Testnet / 5</span></div>
+              <div class="kv-row"><span class="kv-key">Reference</span><span class="kv-value">LBA1:685638bc542dad71</span></div>
+              <div class="kv-row"><span class="kv-key">Block</span><span class="kv-value strong">15839460</span></div>
+            </div>
+
+            <div class="hash-block" style="margin-top: 12px; border-color: var(--green-line);">
+              <span class="tx" title="b693acd38fdac38008b7faabe921056e5b3ebbae02b36207031faee4435250bf">b693acd3…435250bf</span>
+              <span class="copy" aria-hidden="true"></span>
+            </div>
+            <div style="margin-top: 7px;">
+              <a class="tx-link mono" style="font-size: 9px;" href="https://test.nimiq.watch/#b693acd38fdac38008b7faabe921056e5b3ebbae02b36207031faee4435250bf" target="_blank" rel="noreferrer">View on explorer ↗</a>
+            </div>
+
+            <div class="confirm-copy">This transaction is confirmed on Nimiq Testnet. Recipient, amount, network and inclusion matched the payout record.</div>
+
+            <div class="payout-steps" aria-hidden="true">
+              <span class="payout-step done">01 Queued</span>
+              <span class="payout-step done">02 Submitted</span>
+              <span class="payout-step done">03 Confirmed</span>
+            </div>
+          </div>
+          <div class="payout-foot">
+            <span class="green">Final / chain-verified</span>
+            <span>3 / 3</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="payout-disclaimer">
+        <strong class="secondary" style="font-weight: 500;">Settlement rule —</strong> The payout is a normal NIM transfer from the operator treasury, not HTLC escrow. A returned hash alone is not proof. “Paid” requires independently verified recipient, amount, network and chain inclusion.
+      </div>
+    </main>
+
+    <footer class="footer footer-slim">
+      <div class="footer-inner">
+        <span>LevelBreak Arena / settlement</span>
+        <span class="mono">Nimiq Testnet · Network 5</span>
+        <span>Phase 5 evidence / real tx</span>
+      </div>
+    </footer>
+  </div>
+
+  <div class="watermark">Mockup — not implemented</div>
+</body>
+</html>

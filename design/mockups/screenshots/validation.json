@@ -1,0 +1,1037 @@
+{
+  "screenshots": [
+    {
+      "file": "01-landing.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "viewport",
+      "path": "screenshots/desktop/01-landing.png",
+      "imageWidth": 1440,
+      "pageHeight": 1240,
+      "viewportHeight": 900
+    },
+    {
+      "file": "01-landing.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "full-page",
+      "path": "screenshots/desktop/01-landing-full.png",
+      "imageWidth": 1440,
+      "pageHeight": 1240,
+      "viewportHeight": 900
+    },
+    {
+      "file": "01-landing.html",
+      "width": 375,
+      "height": 812,
+      "capture": "viewport",
+      "path": "screenshots/mobile/01-landing.png",
+      "imageWidth": 375,
+      "pageHeight": 2474,
+      "viewportHeight": 812
+    },
+    {
+      "file": "01-landing.html",
+      "width": 375,
+      "height": 812,
+      "capture": "full-page",
+      "path": "screenshots/mobile/01-landing-full.png",
+      "imageWidth": 375,
+      "pageHeight": 2474,
+      "viewportHeight": 812
+    },
+    {
+      "file": "02-wallet-connect.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "viewport",
+      "path": "screenshots/desktop/02-wallet-connect.png",
+      "imageWidth": 1440,
+      "pageHeight": 1045,
+      "viewportHeight": 900
+    },
+    {
+      "file": "02-wallet-connect.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "full-page",
+      "path": "screenshots/desktop/02-wallet-connect-full.png",
+      "imageWidth": 1440,
+      "pageHeight": 1045,
+      "viewportHeight": 900
+    },
+    {
+      "file": "02-wallet-connect.html",
+      "width": 375,
+      "height": 812,
+      "capture": "viewport",
+      "path": "screenshots/mobile/02-wallet-connect.png",
+      "imageWidth": 375,
+      "pageHeight": 1836,
+      "viewportHeight": 812
+    },
+    {
+      "file": "02-wallet-connect.html",
+      "width": 375,
+      "height": 812,
+      "capture": "full-page",
+      "path": "screenshots/mobile/02-wallet-connect-full.png",
+      "imageWidth": 375,
+      "pageHeight": 1836,
+      "viewportHeight": 812
+    },
+    {
+      "file": "03-lobby-available.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "viewport",
+      "path": "screenshots/desktop/03-lobby-available.png",
+      "imageWidth": 1440,
+      "pageHeight": 992,
+      "viewportHeight": 900
+    },
+    {
+      "file": "03-lobby-available.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "full-page",
+      "path": "screenshots/desktop/03-lobby-available-full.png",
+      "imageWidth": 1440,
+      "pageHeight": 992,
+      "viewportHeight": 900
+    },
+    {
+      "file": "03-lobby-available.html",
+      "width": 375,
+      "height": 812,
+      "capture": "viewport",
+      "path": "screenshots/mobile/03-lobby-available.png",
+      "imageWidth": 375,
+      "pageHeight": 1704,
+      "viewportHeight": 812
+    },
+    {
+      "file": "03-lobby-available.html",
+      "width": 375,
+      "height": 812,
+      "capture": "full-page",
+      "path": "screenshots/mobile/03-lobby-available-full.png",
+      "imageWidth": 375,
+      "pageHeight": 1704,
+      "viewportHeight": 812
+    },
+    {
+      "file": "04-lobby-empty.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "viewport",
+      "path": "screenshots/desktop/04-lobby-empty.png",
+      "imageWidth": 1440,
+      "pageHeight": 933,
+      "viewportHeight": 900
+    },
+    {
+      "file": "04-lobby-empty.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "full-page",
+      "path": "screenshots/desktop/04-lobby-empty-full.png",
+      "imageWidth": 1440,
+      "pageHeight": 933,
+      "viewportHeight": 900
+    },
+    {
+      "file": "04-lobby-empty.html",
+      "width": 375,
+      "height": 812,
+      "capture": "viewport",
+      "path": "screenshots/mobile/04-lobby-empty.png",
+      "imageWidth": 375,
+      "pageHeight": 1164,
+      "viewportHeight": 812
+    },
+    {
+      "file": "04-lobby-empty.html",
+      "width": 375,
+      "height": 812,
+      "capture": "full-page",
+      "path": "screenshots/mobile/04-lobby-empty-full.png",
+      "imageWidth": 375,
+      "pageHeight": 1164,
+      "viewportHeight": 812
+    },
+    {
+      "file": "05-game-level1.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "viewport",
+      "path": "screenshots/desktop/05-game-level1.png",
+      "imageWidth": 1440,
+      "pageHeight": 900,
+      "viewportHeight": 900
+    },
+    {
+      "file": "05-game-level1.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "full-page",
+      "path": "screenshots/desktop/05-game-level1-full.png",
+      "imageWidth": 1440,
+      "pageHeight": 900,
+      "viewportHeight": 900
+    },
+    {
+      "file": "05-game-level1.html",
+      "width": 375,
+      "height": 812,
+      "capture": "viewport",
+      "path": "screenshots/mobile/05-game-level1.png",
+      "imageWidth": 375,
+      "pageHeight": 1439,
+      "viewportHeight": 812
+    },
+    {
+      "file": "05-game-level1.html",
+      "width": 375,
+      "height": 812,
+      "capture": "full-page",
+      "path": "screenshots/mobile/05-game-level1-full.png",
+      "imageWidth": 375,
+      "pageHeight": 1439,
+      "viewportHeight": 812
+    },
+    {
+      "file": "05-game-level1.html",
+      "width": 320,
+      "height": 568,
+      "capture": "viewport",
+      "path": "screenshots/mobile/05-game-level1-320.png",
+      "imageWidth": 320,
+      "pageHeight": 1550,
+      "viewportHeight": 568
+    },
+    {
+      "file": "05-game-level1.html",
+      "width": 320,
+      "height": 568,
+      "capture": "full-page",
+      "path": "screenshots/mobile/05-game-level1-320-full.png",
+      "imageWidth": 320,
+      "pageHeight": 1550,
+      "viewportHeight": 568
+    },
+    {
+      "file": "06-game-consequence.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "viewport",
+      "path": "screenshots/desktop/06-game-consequence.png",
+      "imageWidth": 1440,
+      "pageHeight": 900,
+      "viewportHeight": 900
+    },
+    {
+      "file": "06-game-consequence.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "full-page",
+      "path": "screenshots/desktop/06-game-consequence-full.png",
+      "imageWidth": 1440,
+      "pageHeight": 900,
+      "viewportHeight": 900
+    },
+    {
+      "file": "06-game-consequence.html",
+      "width": 375,
+      "height": 812,
+      "capture": "viewport",
+      "path": "screenshots/mobile/06-game-consequence.png",
+      "imageWidth": 375,
+      "pageHeight": 1396,
+      "viewportHeight": 812
+    },
+    {
+      "file": "06-game-consequence.html",
+      "width": 375,
+      "height": 812,
+      "capture": "full-page",
+      "path": "screenshots/mobile/06-game-consequence-full.png",
+      "imageWidth": 375,
+      "pageHeight": 1396,
+      "viewportHeight": 812
+    },
+    {
+      "file": "07-consultation.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "viewport",
+      "path": "screenshots/desktop/07-consultation.png",
+      "imageWidth": 1440,
+      "pageHeight": 1072,
+      "viewportHeight": 900
+    },
+    {
+      "file": "07-consultation.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "full-page",
+      "path": "screenshots/desktop/07-consultation-full.png",
+      "imageWidth": 1440,
+      "pageHeight": 1072,
+      "viewportHeight": 900
+    },
+    {
+      "file": "07-consultation.html",
+      "width": 375,
+      "height": 812,
+      "capture": "viewport",
+      "path": "screenshots/mobile/07-consultation.png",
+      "imageWidth": 375,
+      "pageHeight": 1762,
+      "viewportHeight": 812
+    },
+    {
+      "file": "07-consultation.html",
+      "width": 375,
+      "height": 812,
+      "capture": "full-page",
+      "path": "screenshots/mobile/07-consultation-full.png",
+      "imageWidth": 375,
+      "pageHeight": 1762,
+      "viewportHeight": 812
+    },
+    {
+      "file": "07-consultation.html",
+      "width": 320,
+      "height": 568,
+      "capture": "viewport",
+      "path": "screenshots/mobile/07-consultation-320.png",
+      "imageWidth": 320,
+      "pageHeight": 1932,
+      "viewportHeight": 568
+    },
+    {
+      "file": "07-consultation.html",
+      "width": 320,
+      "height": 568,
+      "capture": "full-page",
+      "path": "screenshots/mobile/07-consultation-320-full.png",
+      "imageWidth": 320,
+      "pageHeight": 1932,
+      "viewportHeight": 568
+    },
+    {
+      "file": "08-consultation-answered.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "viewport",
+      "path": "screenshots/desktop/08-consultation-answered.png",
+      "imageWidth": 1440,
+      "pageHeight": 900,
+      "viewportHeight": 900
+    },
+    {
+      "file": "08-consultation-answered.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "full-page",
+      "path": "screenshots/desktop/08-consultation-answered-full.png",
+      "imageWidth": 1440,
+      "pageHeight": 900,
+      "viewportHeight": 900
+    },
+    {
+      "file": "08-consultation-answered.html",
+      "width": 375,
+      "height": 812,
+      "capture": "viewport",
+      "path": "screenshots/mobile/08-consultation-answered.png",
+      "imageWidth": 375,
+      "pageHeight": 1248,
+      "viewportHeight": 812
+    },
+    {
+      "file": "08-consultation-answered.html",
+      "width": 375,
+      "height": 812,
+      "capture": "full-page",
+      "path": "screenshots/mobile/08-consultation-answered-full.png",
+      "imageWidth": 375,
+      "pageHeight": 1248,
+      "viewportHeight": 812
+    },
+    {
+      "file": "09-payout-states.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "viewport",
+      "path": "screenshots/desktop/09-payout-states.png",
+      "imageWidth": 1440,
+      "pageHeight": 1046,
+      "viewportHeight": 900
+    },
+    {
+      "file": "09-payout-states.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "full-page",
+      "path": "screenshots/desktop/09-payout-states-full.png",
+      "imageWidth": 1440,
+      "pageHeight": 1046,
+      "viewportHeight": 900
+    },
+    {
+      "file": "09-payout-states.html",
+      "width": 375,
+      "height": 812,
+      "capture": "viewport",
+      "path": "screenshots/mobile/09-payout-states.png",
+      "imageWidth": 375,
+      "pageHeight": 2200,
+      "viewportHeight": 812
+    },
+    {
+      "file": "09-payout-states.html",
+      "width": 375,
+      "height": 812,
+      "capture": "full-page",
+      "path": "screenshots/mobile/09-payout-states-full.png",
+      "imageWidth": 375,
+      "pageHeight": 2200,
+      "viewportHeight": 812
+    },
+    {
+      "file": "10-zero-reward.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "viewport",
+      "path": "screenshots/desktop/10-zero-reward.png",
+      "imageWidth": 1440,
+      "pageHeight": 930,
+      "viewportHeight": 900
+    },
+    {
+      "file": "10-zero-reward.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "full-page",
+      "path": "screenshots/desktop/10-zero-reward-full.png",
+      "imageWidth": 1440,
+      "pageHeight": 930,
+      "viewportHeight": 900
+    },
+    {
+      "file": "10-zero-reward.html",
+      "width": 375,
+      "height": 812,
+      "capture": "viewport",
+      "path": "screenshots/mobile/10-zero-reward.png",
+      "imageWidth": 375,
+      "pageHeight": 1072,
+      "viewportHeight": 812
+    },
+    {
+      "file": "10-zero-reward.html",
+      "width": 375,
+      "height": 812,
+      "capture": "full-page",
+      "path": "screenshots/mobile/10-zero-reward-full.png",
+      "imageWidth": 375,
+      "pageHeight": 1072,
+      "viewportHeight": 812
+    },
+    {
+      "file": "11-history.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "viewport",
+      "path": "screenshots/desktop/11-history.png",
+      "imageWidth": 1440,
+      "pageHeight": 900,
+      "viewportHeight": 900
+    },
+    {
+      "file": "11-history.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "full-page",
+      "path": "screenshots/desktop/11-history-full.png",
+      "imageWidth": 1440,
+      "pageHeight": 900,
+      "viewportHeight": 900
+    },
+    {
+      "file": "11-history.html",
+      "width": 375,
+      "height": 812,
+      "capture": "viewport",
+      "path": "screenshots/mobile/11-history.png",
+      "imageWidth": 375,
+      "pageHeight": 1477,
+      "viewportHeight": 812
+    },
+    {
+      "file": "11-history.html",
+      "width": 375,
+      "height": 812,
+      "capture": "full-page",
+      "path": "screenshots/mobile/11-history-full.png",
+      "imageWidth": 375,
+      "pageHeight": 1477,
+      "viewportHeight": 812
+    },
+    {
+      "file": "12-states-composite.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "viewport",
+      "path": "screenshots/desktop/12-states-composite.png",
+      "imageWidth": 1440,
+      "pageHeight": 1142,
+      "viewportHeight": 900
+    },
+    {
+      "file": "12-states-composite.html",
+      "width": 1440,
+      "height": 900,
+      "capture": "full-page",
+      "path": "screenshots/desktop/12-states-composite-full.png",
+      "imageWidth": 1440,
+      "pageHeight": 1142,
+      "viewportHeight": 900
+    },
+    {
+      "file": "12-states-composite.html",
+      "width": 375,
+      "height": 812,
+      "capture": "viewport",
+      "path": "screenshots/mobile/12-states-composite.png",
+      "imageWidth": 375,
+      "pageHeight": 1914,
+      "viewportHeight": 812
+    },
+    {
+      "file": "12-states-composite.html",
+      "width": 375,
+      "height": 812,
+      "capture": "full-page",
+      "path": "screenshots/mobile/12-states-composite-full.png",
+      "imageWidth": 375,
+      "pageHeight": 1914,
+      "viewportHeight": 812
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "overflow": [],
+  "checks": [
+    {
+      "file": "01-landing.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Landing"
+    },
+    {
+      "file": "01-landing.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Landing"
+    },
+    {
+      "file": "01-landing.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Landing"
+    },
+    {
+      "file": "01-landing.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Landing"
+    },
+    {
+      "file": "01-landing.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Landing"
+    },
+    {
+      "file": "02-wallet-connect.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Wallet connect states"
+    },
+    {
+      "file": "02-wallet-connect.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Wallet connect states"
+    },
+    {
+      "file": "02-wallet-connect.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Wallet connect states"
+    },
+    {
+      "file": "02-wallet-connect.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Wallet connect states"
+    },
+    {
+      "file": "02-wallet-connect.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Wallet connect states"
+    },
+    {
+      "file": "03-lobby-available.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Lobby with funded session"
+    },
+    {
+      "file": "03-lobby-available.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Lobby with funded session"
+    },
+    {
+      "file": "03-lobby-available.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Lobby with funded session"
+    },
+    {
+      "file": "03-lobby-available.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Lobby with funded session"
+    },
+    {
+      "file": "03-lobby-available.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Lobby with funded session"
+    },
+    {
+      "file": "04-lobby-empty.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Lobby empty"
+    },
+    {
+      "file": "04-lobby-empty.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Lobby empty"
+    },
+    {
+      "file": "04-lobby-empty.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Lobby empty"
+    },
+    {
+      "file": "04-lobby-empty.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Lobby empty"
+    },
+    {
+      "file": "04-lobby-empty.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Lobby empty"
+    },
+    {
+      "file": "05-game-level1.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 decision"
+    },
+    {
+      "file": "05-game-level1.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 decision"
+    },
+    {
+      "file": "05-game-level1.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 decision"
+    },
+    {
+      "file": "05-game-level1.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 decision"
+    },
+    {
+      "file": "05-game-level1.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 decision"
+    },
+    {
+      "file": "05-game-level1.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 decision"
+    },
+    {
+      "file": "06-game-consequence.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 consequence"
+    },
+    {
+      "file": "06-game-consequence.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 consequence"
+    },
+    {
+      "file": "06-game-consequence.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 consequence"
+    },
+    {
+      "file": "06-game-consequence.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 consequence"
+    },
+    {
+      "file": "06-game-consequence.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 consequence"
+    },
+    {
+      "file": "07-consultation.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 consultation"
+    },
+    {
+      "file": "07-consultation.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 consultation"
+    },
+    {
+      "file": "07-consultation.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 consultation"
+    },
+    {
+      "file": "07-consultation.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 consultation"
+    },
+    {
+      "file": "07-consultation.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 consultation"
+    },
+    {
+      "file": "07-consultation.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Level 1 consultation"
+    },
+    {
+      "file": "08-consultation-answered.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Consultation answered"
+    },
+    {
+      "file": "08-consultation-answered.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Consultation answered"
+    },
+    {
+      "file": "08-consultation-answered.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Consultation answered"
+    },
+    {
+      "file": "08-consultation-answered.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Consultation answered"
+    },
+    {
+      "file": "08-consultation-answered.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Consultation answered"
+    },
+    {
+      "file": "09-payout-states.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Payout states"
+    },
+    {
+      "file": "09-payout-states.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Payout states"
+    },
+    {
+      "file": "09-payout-states.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Payout states"
+    },
+    {
+      "file": "09-payout-states.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Payout states"
+    },
+    {
+      "file": "09-payout-states.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Payout states"
+    },
+    {
+      "file": "10-zero-reward.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Zero reward"
+    },
+    {
+      "file": "10-zero-reward.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Zero reward"
+    },
+    {
+      "file": "10-zero-reward.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Zero reward"
+    },
+    {
+      "file": "10-zero-reward.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Zero reward"
+    },
+    {
+      "file": "10-zero-reward.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Zero reward"
+    },
+    {
+      "file": "11-history.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — History"
+    },
+    {
+      "file": "11-history.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — History"
+    },
+    {
+      "file": "11-history.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — History"
+    },
+    {
+      "file": "11-history.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — History"
+    },
+    {
+      "file": "11-history.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — History"
+    },
+    {
+      "file": "12-states-composite.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Loading, error and not-found states"
+    },
+    {
+      "file": "12-states-composite.html",
+      "width": 1440,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Loading, error and not-found states"
+    },
+    {
+      "file": "12-states-composite.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Loading, error and not-found states"
+    },
+    {
+      "file": "12-states-composite.html",
+      "width": 375,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Loading, error and not-found states"
+    },
+    {
+      "file": "12-states-composite.html",
+      "width": 320,
+      "scripts": 0,
+      "imagesOk": true,
+      "title": "LevelBreak Arena — Loading, error and not-found states"
+    }
+  ],
+  "staticChecks": [
+    {
+      "file": "01-landing.html",
+      "scriptTags": 0,
+      "externalImages": 0,
+      "hasWatermark": true
+    },
+    {
+      "file": "02-wallet-connect.html",
+      "scriptTags": 0,
+      "externalImages": 0,
+      "hasWatermark": true
+    },
+    {
+      "file": "03-lobby-available.html",
+      "scriptTags": 0,
+      "externalImages": 0,
+      "hasWatermark": true
+    },
+    {
+      "file": "04-lobby-empty.html",
+      "scriptTags": 0,
+      "externalImages": 0,
+      "hasWatermark": true
+    },
+    {
+      "file": "05-game-level1.html",
+      "scriptTags": 0,
+      "externalImages": 0,
+      "hasWatermark": true
+    },
+    {
+      "file": "06-game-consequence.html",
+      "scriptTags": 0,
+      "externalImages": 0,
+      "hasWatermark": true
+    },
+    {
+      "file": "07-consultation.html",
+      "scriptTags": 0,
+      "externalImages": 0,
+      "hasWatermark": true
+    },
+    {
+      "file": "08-consultation-answered.html",
+      "scriptTags": 0,
+      "externalImages": 0,
+      "hasWatermark": true
+    },
+    {
+      "file": "09-payout-states.html",
+      "scriptTags": 0,
+      "externalImages": 0,
+      "hasWatermark": true
+    },
+    {
+      "file": "10-zero-reward.html",
+      "scriptTags": 0,
+      "externalImages": 0,
+      "hasWatermark": true
+    },
+    {
+      "file": "11-history.html",
+      "scriptTags": 0,
+      "externalImages": 0,
+      "hasWatermark": true
+    },
+    {
+      "file": "12-states-composite.html",
+      "scriptTags": 0,
+      "externalImages": 0,
+      "hasWatermark": true
+    }
+  ]
+}

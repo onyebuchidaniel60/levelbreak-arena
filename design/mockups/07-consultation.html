@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LevelBreak Arena — Level 1 consultation</title>
+  <meta name="description" content="LevelBreak Arena Trading Terminal design mockup — Level 1 consultation with evidence and question.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23FBBF24'/%3E%3Ctext x='16' y='21' font-family='monospace' font-size='12' font-weight='700' text-anchor='middle' fill='%230A0E14'%3ELB%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="_shared/tokens.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="01-landing.html">
+          <span class="brand-mark">LB</span>
+          <span class="brand-word">LEVELBREAK <em>ARENA</em></span>
+        </a>
+        <nav class="topnav" aria-label="Primary">
+          <a href="03-lobby-available.html" aria-current="page">Play</a>
+          <a href="11-history.html">History</a>
+          <a href="01-landing.html#how-it-works">How it works</a>
+        </nav>
+        <div class="wallet-zone">
+          <span class="wallet-chip">
+            <span class="dot dot-green"></span>
+            <span class="addr-full">NQ98 54S9 … PHEQ</span>
+            <span class="addr-compact">NQ98…PHEQ</span>
+            <a class="disconnect" href="01-landing.html">Disconnect</a>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <div class="ticker">
+      <div class="ticker-inner">
+        <span class="ticker-item"><span class="dot dot-amber"></span>Agent request / awaiting response</span>
+        <span class="ticker-sep">/</span>
+        <span class="ticker-item">Evidence loaded · 3 rows</span>
+        <span class="ticker-spacer"></span>
+        <span class="ticker-item ticker-right">Accepted response <strong>500 Luna</strong></span>
+      </div>
+    </div>
+
+    <main class="main">
+      <div class="run-layout">
+        <aside class="run-rail" aria-label="Run status">
+          <section class="panel rail-panel">
+            <div class="panel-head">
+              <span class="panel-title"><strong>Run state</strong></span>
+              <span class="pill pill-amber"><span class="dot dot-amber dot-live"></span>Consultation</span>
+            </div>
+            <div class="rail-body">
+              <div class="level-line">
+                <span>LEVEL</span>
+                <strong>01 / 03</strong>
+                <span>CONSULT</span>
+              </div>
+
+              <div class="step-dots" aria-hidden="true">
+                <span class="step-dot active"></span>
+                <span class="step-dot"></span>
+                <span class="step-dot"></span>
+              </div>
+              <div class="level-labels">
+                <span class="active">01 / Peg</span>
+                <span>02 / Pool</span>
+                <span>03 / Yield</span>
+              </div>
+
+              <div class="portfolio-block">
+                <span class="label">Virtual portfolio</span>
+                <div class="portfolio-value">800.00 <span class="unit">vUSDT</span></div>
+                <div class="portfolio-delta delta-down"><span>−200.00</span><span>−20.00%</span></div>
+              </div>
+
+              <div class="rail-stats">
+                <div class="rail-stat">
+                  <span class="label">Earned</span>
+                  <value>0 NIM</value>
+                </div>
+                <div class="rail-stat">
+                  <span class="label">Status</span>
+                  <value class="muted" style="color: var(--muted); font-size: 10px;">Pending payout</value>
+                </div>
+                <div class="rail-stat">
+                  <span class="label">Max payout</span>
+                  <value>1,500 Luna</value>
+                </div>
+                <div class="rail-stat">
+                  <span class="label">Answers</span>
+                  <value>0 / 3</value>
+                </div>
+              </div>
+            </div>
+            <div class="panel-foot">
+              <span>Simulation only</span>
+              <span>L1 / consultation</span>
+            </div>
+          </section>
+
+          <div class="panel rail-note">
+            The evidence is bundled with the scenario and is not live market data. Read it before selecting a classification.
+          </div>
+        </aside>
+
+        <section class="run-main" aria-labelledby="question-title">
+          <div class="run-head">
+            <div class="run-id">
+              <span>Run</span>
+              <strong class="hash">4b1e2889-2e1e-476e-a957-042c4b5b69c3</strong>
+              <span class="pill pill-amber">Awaiting response</span>
+            </div>
+            <a class="text-link-muted" href="03-lobby-available.html">Exit to lobby</a>
+          </div>
+
+          <div class="consultation">
+            <article class="panel agent-card" aria-labelledby="agent-title">
+              <div class="agent-head">
+                <div class="agent-id">
+                  <span class="agent-avatar" aria-hidden="true">SR</span>
+                  <div>
+                    <strong id="agent-title">Agent / scripted demo requester</strong>
+                    <small>Scripted demo requester · simulated stablecoin review</small>
+                  </div>
+                </div>
+                <div class="agent-meta">
+                  <span class="pill pill-amber">Confidence: medium</span>
+                  <span class="micro">No live model</span>
+                </div>
+              </div>
+              <div class="agent-body">
+                <p>I am reviewing a simulated stablecoin opportunity. Use the evidence, then give me your risk read. There is no hidden correct answer.</p>
+              </div>
+              <div class="agent-foot">
+                <span>Bundled prompt / version 1</span>
+                <span>Evidence follows before the question</span>
+              </div>
+            </article>
+
+            <article class="panel evidence-card" aria-labelledby="evidence-title">
+              <div class="evidence-head">
+                <div class="evidence-title">
+                  <span class="pill pill-blue">Evidence</span>
+                  <strong id="evidence-title">Simulated stablecoin facts</strong>
+                </div>
+                <span class="micro">Data card / 3 rows</span>
+              </div>
+              <div class="evidence-body">
+                <div class="evidence-row">
+                  <span class="evidence-key">New token</span>
+                  <span class="evidence-value">12% advertised APY</span>
+                </div>
+                <div class="evidence-row">
+                  <span class="evidence-key">Established token</span>
+                  <span class="evidence-value">long operating history in the simulation</span>
+                </div>
+                <div class="evidence-row">
+                  <span class="evidence-key">Reserve attestations</span>
+                  <span class="evidence-value">none shown</span>
+                </div>
+              </div>
+              <div class="evidence-foot">
+                <span>Bundled training scenario · not live market data</span>
+                <span>evidence-2026-11-01</span>
+              </div>
+            </article>
+
+            <article class="panel question-card" aria-labelledby="question-title">
+              <div class="panel-head">
+                <span class="panel-title"><strong>Question</strong> / L1 classification</span>
+                <span class="pill pill-green">+500 Luna / accepted</span>
+              </div>
+              <div class="question-body">
+                <div class="question-kicker">
+                  <span class="micro">Select one classification · response is final for this level</span>
+                  <span class="micro">Reward fixed / 500 Luna</span>
+                </div>
+                <h2 id="question-title">How would you classify the new 12% APY stablecoin?</h2>
+
+                <div class="option-list" role="group" aria-label="Classification options">
+                  <button class="option" type="button">
+                    <span class="option-key">01</span>
+                    <span>
+                      <span class="option-label">Safe enough</span>
+                      <span class="option-desc">The advertised yield justifies moving the balance.</span>
+                    </span>
+                    <span class="option-tag">SAFE</span>
+                  </button>
+                  <button class="option" type="button">
+                    <span class="option-key">02</span>
+                    <span>
+                      <span class="option-label">Risky</span>
+                      <span class="option-desc">The untested peg and missing attestations are material risks.</span>
+                    </span>
+                    <span class="option-tag">RISKY</span>
+                  </button>
+                  <button class="option" type="button">
+                    <span class="option-key">03</span>
+                    <span>
+                      <span class="option-label">Can't tell</span>
+                      <span class="option-desc">The evidence is not sufficient to classify it.</span>
+                    </span>
+                    <span class="option-tag">CAN'T TELL</span>
+                  </button>
+                </div>
+
+                <div class="skip-row">
+                  <a class="text-link-muted" href="08-consultation-answered.html">Skip — no reward</a>
+                  <span class="micro">Skipped tasks earn zero</span>
+                </div>
+
+                <p class="question-note">No hidden correct answer. A valid submitted classification earns the fixed reward. Rewards stay pending until the session payout is confirmed on-chain.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer footer-slim">
+      <div class="footer-inner">
+        <span>Simulation / consultation L1</span>
+        <span class="mono">Nimiq Testnet · Network 5</span>
+        <span>Evidence before question</span>
+      </div>
+    </footer>
+  </div>
+
+  <div class="watermark">Mockup — not implemented</div>
+</body>
+</html>

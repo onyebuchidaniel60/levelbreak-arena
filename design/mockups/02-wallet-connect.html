@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LevelBreak Arena — Wallet connect states</title>
+  <meta name="description" content="LevelBreak Arena Trading Terminal design mockup — wallet connection states.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23FBBF24'/%3E%3Ctext x='16' y='21' font-family='monospace' font-size='12' font-weight='700' text-anchor='middle' fill='%230A0E14'%3ELB%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="_shared/tokens.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="01-landing.html">
+          <span class="brand-mark">LB</span>
+          <span class="brand-word">LEVELBREAK <em>ARENA</em></span>
+        </a>
+        <nav class="topnav" aria-label="Primary">
+          <a href="02-wallet-connect.html" aria-current="page">Play</a>
+          <a href="11-history.html">History</a>
+          <a href="01-landing.html#how-it-works">How it works</a>
+        </nav>
+        <div class="wallet-zone">
+          <span class="network-chip"><span class="dot dot-amber"></span>Not connected</span>
+          <a class="btn btn-secondary btn-sm" href="02-wallet-connect.html">Connect</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="ticker">
+      <div class="ticker-inner">
+        <span class="ticker-item"><span class="dot dot-green"></span>Nimiq Testnet · Network 5</span>
+        <span class="ticker-sep">/</span>
+        <span class="ticker-item">Authentication / signed challenge only</span>
+        <span class="ticker-spacer"></span>
+        <span class="ticker-item ticker-right">No transaction is signed at login</span>
+      </div>
+    </div>
+
+    <main class="main main-narrow">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Access / <strong>Wallet handshake</strong></span>
+          <h1>Connect terminal</h1>
+          <p class="lead">One short-lived signature proves wallet ownership. Both entry states are shown here: provider detected and provider unavailable.</p>
+        </div>
+        <div class="page-head-side">
+          <span class="pill pill-blue">State comparison</span>
+          <span class="micro">No private key leaves wallet</span>
+        </div>
+      </div>
+
+      <div class="state-grid">
+        <section class="panel provider-panel" aria-labelledby="state-a-title">
+          <div class="panel-head">
+            <span class="panel-title"><strong>State A</strong> / provider detected</span>
+            <span class="pill pill-green"><span class="dot dot-green dot-live"></span>Ready</span>
+          </div>
+
+          <div class="provider-status">
+            <div class="provider-name">
+              <span class="provider-icon" aria-hidden="true">NQ</span>
+              <div>
+                <strong>Nimiq Pay</strong>
+                <small>Mini App provider / testnet</small>
+              </div>
+            </div>
+            <span class="micro">Provider OK</span>
+          </div>
+
+          <div class="panel-body">
+            <div class="provider-copy">
+              <span class="label">Detected account</span>
+              <div class="session-ref" style="margin-top: 6px;">
+                <span class="mono">NQ98 54S9 LBJR JUH9 MKL3 YACQ TD3T JBXJ PHEQ</span>
+                <span class="copy" aria-hidden="true"></span>
+              </div>
+              <p>Sign a one-time challenge to start a session. The signature proves wallet ownership; it does not move funds.</p>
+            </div>
+
+            <div class="auth-log" aria-label="Sign-in sequence">
+              <span><b>&gt; provider.init</b> <span class="ok">OK</span></span>
+              <span><b>&gt; account.detected</b> NQ98 54S9 … PHEQ</span>
+              <span><b>&gt; challenge.issue</b> <span class="wait">AWAITING SIGNATURE</span></span>
+              <span><b>&gt; nonce.ttl</b> short-lived / single use</span>
+            </div>
+
+            <div class="provider-spacer"></div>
+
+            <div class="cta-row" style="margin-top: 18px;">
+              <a class="btn btn-primary" href="03-lobby-available.html">Sign in with Nimiq Pay <span class="arrow">→</span></a>
+              <a class="btn btn-secondary" href="01-landing.html#how-it-works">How auth works</a>
+            </div>
+            <p class="provider-foot">The wallet address alone is not a login. The backend verifies the signed challenge, expiry and single use before creating an HttpOnly player session.</p>
+          </div>
+        </section>
+
+        <section class="panel provider-panel" aria-labelledby="state-b-title">
+          <div class="panel-head">
+            <span class="panel-title"><strong>State B</strong> / provider unavailable</span>
+            <span class="pill pill-amber"><span class="dot dot-amber"></span>Action required</span>
+          </div>
+
+          <div class="provider-status">
+            <div class="provider-name">
+              <span class="provider-icon provider-icon-lg" aria-hidden="true">NQ</span>
+              <div>
+                <strong>Nimiq Pay</strong>
+                <small>App icon placeholder / not provided</small>
+              </div>
+            </div>
+            <span class="micro">No provider</span>
+          </div>
+
+          <div class="panel-body">
+            <div class="provider-copy">
+              <h2 id="state-b-title">Open this app<br>in Nimiq Pay.</h2>
+              <p>This browser does not expose a Nimiq wallet provider. Wallet authentication is only available inside the Nimiq Pay Mini App environment.</p>
+            </div>
+
+            <div class="provider-steps">
+              <div class="provider-step"><span>01</span><span>Open <strong>Nimiq Pay</strong> on your phone.</span></div>
+              <div class="provider-step"><span>02</span><span>Open the LevelBreak Arena Mini App or paste the URL below.</span></div>
+              <div class="provider-step"><span>03</span><span>Return to this screen, then connect your wallet.</span></div>
+            </div>
+
+            <div class="url-box">
+              <span>levelbreak-arena.vercel.app</span>
+              <span class="copy" aria-hidden="true"></span>
+            </div>
+
+            <div class="provider-spacer"></div>
+
+            <div class="cta-row" style="margin-top: 18px;">
+              <a class="btn btn-primary" href="https://levelbreak-arena.vercel.app" target="_blank" rel="noreferrer">Open app URL <span class="arrow">↗</span></a>
+              <span class="pill pill-grey">Testnet only</span>
+            </div>
+            <p class="provider-foot">Do not install a wallet or enter a seed phrase from this screen. The terminal never asks for private key material.</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="callout callout-info" style="margin-top: 18px;">
+        <div style="display: flex; align-items: flex-start; gap: 10px;">
+          <span class="pill pill-blue">Auth note</span>
+          <p class="secondary" style="font-size: 11px; line-height: 1.6;">A wallet signature is used only for authentication. No player transaction is required to receive a payout; the treasury sends a normal testnet NIM transfer after the run finishes.</p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer footer-slim">
+      <div class="footer-inner">
+        <span>LevelBreak Arena / access</span>
+        <span class="mono">Nimiq Testnet · Network 5</span>
+        <span>Mockup — simulated states</span>
+      </div>
+    </footer>
+  </div>
+
+  <div class="watermark">Mockup — not implemented</div>
+</body>
+</html>

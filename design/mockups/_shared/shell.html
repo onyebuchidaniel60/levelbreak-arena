@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LevelBreak Arena — Mockup shell</title>
+  <meta name="description" content="Base layout shell for the LevelBreak Arena Trading Terminal design mockups.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23FBBF24'/%3E%3Ctext x='16' y='21' font-family='monospace' font-size='12' font-weight='700' text-anchor='middle' fill='%230A0E14'%3ELB%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./tokens.css">
+</head>
+<body>
+  <!--
+    BASE SHELL — not a product screen.
+    Screen files copy this frame and link ../_shared/tokens.css.
+    Header/footer links point at other mockup files so the review set is navigable.
+  -->
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="../01-landing.html">
+          <span class="brand-mark">LB</span>
+          <span class="brand-word">LEVELBREAK <em>ARENA</em></span>
+        </a>
+        <nav class="topnav" aria-label="Primary">
+          <a href="../03-lobby-available.html">Play</a>
+          <a href="../11-history.html">History</a>
+          <a href="../01-landing.html#how-it-works">How it works</a>
+        </nav>
+        <div class="wallet-zone">
+          <span class="network-chip"><span class="dot dot-green"></span>Testnet</span>
+          <span class="wallet-chip">
+            <span class="dot dot-green"></span>
+            <span class="addr-full">NQ98 54S9 … PHEQ</span>
+            <span class="addr-compact">NQ98…PHEQ</span>
+            <a class="disconnect" href="../01-landing.html">Disconnect</a>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <div class="ticker">
+      <div class="ticker-inner">
+        <span class="ticker-item"><span class="dot dot-green"></span>Nimiq Testnet · Network 5</span>
+        <span class="ticker-sep">/</span>
+        <span class="ticker-item">Simulation only — no real DeFi execution</span>
+        <span class="ticker-spacer"></span>
+        <span class="ticker-item ticker-right">Accepted response <strong>500 Luna</strong></span>
+      </div>
+    </div>
+
+    <main class="main main-narrow">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Design system / <strong>Base shell</strong></span>
+          <h1>Mockup shell</h1>
+          <p class="lead">This page documents the shared frame used by the Trading Terminal screen set. It is a design artifact, not an implemented route.</p>
+        </div>
+        <div class="page-head-side">
+          <span class="pill pill-gold">Reference only</span>
+          <span class="micro">1440 / 375 / 320</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title"><strong>Shell anatomy</strong> / 01</span>
+          <span class="panel-meta">Static HTML · no JavaScript</span>
+        </div>
+        <div class="panel-body-lg">
+          <div class="kv">
+            <div class="kv-row"><span class="kv-key">Background</span><span class="kv-value">#0A0E14</span></div>
+            <div class="kv-row"><span class="kv-key">Elevated surface</span><span class="kv-value">#131820</span></div>
+            <div class="kv-row"><span class="kv-key">Border</span><span class="kv-value">#1F2937</span></div>
+            <div class="kv-row"><span class="kv-key">Primary text</span><span class="kv-value">#E5E7EB</span></div>
+            <div class="kv-row"><span class="kv-key">Numeric text</span><span class="kv-value">JetBrains Mono / tabular</span></div>
+            <div class="kv-row"><span class="kv-key">Primary CTA</span><span class="kv-value">#FBBF24</span></div>
+          </div>
+          <div class="callout callout-info" style="margin-top: 18px;">
+            <span class="micro-strong">Use the screen files</span>
+            <p class="secondary" style="margin-top: 4px; font-size: 12px; line-height: 1.6;">Open <span class="mono">../01-landing.html</span> through <span class="mono">../12-states-composite.html</span>. Each file is standalone and imports <span class="mono">../_shared/tokens.css</span>.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer footer-slim">
+      <div class="footer-inner">
+        <span>LevelBreak Arena / simulation</span>
+        <span class="mono">Nimiq Testnet · Network 5</span>
+        <span>Not financial advice.</span>
+      </div>
+    </footer>
+  </div>
+
+  <div class="watermark">Mockup — not implemented</div>
+</body>
+</html>
