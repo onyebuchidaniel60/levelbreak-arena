@@ -9,7 +9,7 @@
 - Vercel preview URL: https://levelbreak-arena.vercel.app
 - Vercel deployed app-code commit: `cb816dad405138b13dbb1a3035485b43fbab9d01` (Phase 7). Production deployment `dpl_FDgg3Nf6vD1DvxrobDVDqo27HTyG`, alias ready.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `cb816dad405138b13dbb1a3035485b43fbab9d01`, deploy `dep-dbljmac9v7es73d8btmg`, live 2026-11-04T14:04:18Z. `/health/live` 200, `/health/ready` 200.
+- Render deployed code: `e680d82e` (docs/cleanup commit; app code is `cb816dad`), deploy `dep-dbljojo473hc73bah340`, live 2026-11-04T14:08:57Z. `/health/live` 200; `/health/ready` returned 503 during the post-deploy Nimiq resync and returned 200 after a service restart at approximately 2026-11-04T14:15Z.
 - Phase 7 database migration: `003_phase7_five_levels.sql` applied to Supabase at 2026-11-04T14:02:25.437Z.
 - Phase 7 Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`. `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`.
 - Phase 7 LLM env: `LLM_API_KEY` is NOT provisioned. The deployed preview therefore uses the scripted agent-message fallback; the LLM path is implemented and unit-tested with a mocked OpenAI-compatible provider.
@@ -40,7 +40,7 @@
 - **Preview:** https://levelbreak-arena.vercel.app
 - **App-code commit:** `cb816dad405138b13dbb1a3035485b43fbab9d01`.
 - **Vercel deployment:** `dpl_FDgg3Nf6vD1DvxrobDVDqo27HTyG`; production alias ready.
-- **Render deploy:** `dep-dbljmac9v7es73d8btmg`, commit `cb816dad`, live 2026-11-04T14:04:18Z.
+- **Render deploy:** `dep-dbljojo473hc73bah340`, commit `e680d82e` (docs/cleanup; app code `cb816dad`), live 2026-11-04T14:08:57Z. A manual restart restored `/health/ready` to 200 after a transient Nimiq resync.
 - **DB migration:** `003_phase7_five_levels.sql` applied to Supabase at 2026-11-04T14:02:25.437Z.
 - **Render env:** `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; worker and demo funding remain disabled.
 - **Source-of-truth updates:** `PROJECT_SPEC.md`, `ARCHITECTURE.md`, `AGENTS.md`, and `IMPLEMENTATION_PLAN.md` now record the operator-approved five-level / 2,500 Luna / LLM-assisted / demo off-ramp scope. `docs/DESIGN_DECISIONS.md` records Direction 1 as approved and Directions 2, 3, and 4 as rejected and removed.
@@ -79,7 +79,7 @@ $ DATABASE_URL_UNPOOLED=... pnpm db:migrate
 ### Deployed verification
 
 - `GET https://levelbreak-arena.onrender.com/api/config/public` -> `maxConsultations: 5`, reward 500 Luna.
-- `/health/live` -> 200 `{"status":"ok"}`; `/health/ready` -> 200 `{"status":"ready"}`.
+- `/health/live` -> 200 `{"status":"ok"}`; `/health/ready` -> 200 `{"status":"ready"}` after a service restart. The docs-only redeploy briefly returned 503 while the Nimiq Web Client resynced; this is the known reconnect behaviour, not an application failure.
 - Deployed landing page: title `LevelBreak Arena — DeFi judgment terminal`; H1 `Learn DeFi by breaking it.`; body background `rgb(10, 14, 20)`; Inter and JetBrains Mono loaded; no horizontal overflow at 1440 and 390.
 - Deployed game UI with a mocked consultation response: `Level 3 of 5`, `03 / 05`, `LLM DRAFT` badge, five-level run preview, and static evidence panel render correctly.
 - Deployed confirmed-payout UI: **Withdraw to Fiat** opens the `Nimiq Pay Off-Ramp` dialog and the demo success state.
