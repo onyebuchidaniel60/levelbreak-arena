@@ -1,10 +1,11 @@
-# LevelBreak Arena — Direction 3 v3
+# LevelBreak Arena — Direction 4: The Conquest RPG
 
-**Interactive orbital prototype.** React + TypeScript + Vite + Three.js.
+**Cartoonish, animated 12-planet conquest prototype.** React + TypeScript + Vite +
+Three.js + `@react-three/fiber` + `@react-three/drei`.
 
-This is a standalone design prototype for operator review. It is not wired into
-`apps/web`, `apps/api`, the database, Nimiq Pay, or the payout worker. No wallet
-or API connection exists, and no funds can move from this directory.
+This is a standalone design prototype in `design/mockups-direction3-interactive/`.
+It is not wired into `apps/web`, `apps/api`, the database, Nimiq Pay, or the payout
+worker. No wallet, API or funds are connected, and nothing here can move money.
 
 ## Run it
 
@@ -16,144 +17,158 @@ npm run dev
 
 Open `http://localhost:5173`. Requires a WebGL-capable browser.
 
-Production build:
-
 ```bash
-npm run build
-npm run preview
+npm run build     # TypeScript + Vite production build
+npm run lint      # oxlint
+npm run verify    # 23 Playwright assertions, 0 console/page errors
+npm run capture   # screenshots + screenshot evidence
 ```
 
-## Review flow
+For `npm run verify` / `npm run capture`, keep the dev server running on
+`http://127.0.0.1:5173`. If Chromium is not installed:
+`npx playwright install chromium`.
 
-1. **Orbit map.** Sector 01 is active and slowly rotating. Sectors 02 and 03 are
-   dimmed with floating padlock markers. Three raster planet textures, custom
-   rim-light shaders, glowing dotted routes and a Three.js starfield carry the
-   navigation. The top-right **TESTNET — NOT REAL MONEY** badge is permanent.
-2. **Sector briefing.** Click the active planet, its label, or **Open Sector 01**.
-   The camera zooms in and a glass overlay shows the scenario, the 1,000 vUSDT
-   virtual portfolio and the two decisions.
-3. **Consequence.** Choosing a position updates the simulated portfolio and
-   shows the outcome and lesson. **Open the consultation** continues.
-4. **Consultation.** Evidence comes first. A scripted requester header, fixed
-   500 Luna fee and the three risk options follow. Skip earns zero.
-5. **Reward.** A valid answer seals +500 Luna and +100 run XP, fills the HUD XP
-   bar, and fires the CSS burst / floating +500 label and in-scene sparkles.
-6. **Sector clear.** The overlay closes, the camera reframes the new active
-   sector, the cleared planet gains rings, the dotted path lights up, and the
-   **SECTOR 01 CLEARED** banner offers Sector 02.
-7. **Final summary.** After Sector 03, the summary shows 1,500 simulated Luna /
-   300 XP (for three answers), the QUEUED → SUBMITTED → CONFIRMED simulation,
-   the real Phase 5 testnet reference receipt, and the Operator Treasury / scripted
-   requester disclosures.
+## The experience
 
-A full play-through takes three sectors. A zero-answer run is also supported:
-skipping all three tasks produces **0 Luna** and a no-payout state, not a
-fabricated receipt.
+**1. Galaxy map — 12 worlds.**
+Xylos is the single unlocked world. Eleven sealed planets form a sprawling spiral:
+Kepler-9, Crimson Nebula, Azure Reach, Violet Forge, Solaris Drift, Ghost Moon,
+Emberfall, Nimbus Vale, Onyx Spire, Prismata and Eventide. Every world is a
+procedural toon planet built from Three.js spheres, surface patches, glowing rings
+and orbiting moons — **no planet image textures are used**. The testnet badge is
+permanent.
 
-## What is implemented
+**2. Enter Xylos.**
+Click the central planet or **Descend to Xylos**. The camera flies into a local
+orbital view. The teacher tower opens on the right with 18 teachers. Each row
+visibly escalates through four tiers: INITIATE, ADEPT, MASTER, SOVEREIGN.
 
-- Three textured 3D planets with atmospheric shaders, hover scaling, clickable
-  in-scene HTML labels, orbit rings, floating lock markers and dotted routes.
-- A single-screen state machine: `orbit → sector → consultation → reward →
-  sector clear → next sector → summary`.
-- Real Phase 3 scenario content, consultation evidence and decision math.
-- Fixed 500 Luna rewards, 100 XP per accepted response, 300 XP cap, 1,500 Luna
-  maximum per run.
-- Persistent HUD (XP, Luna, sectors), trust badge, toast states for locked
-  sectors, archive replays for cleared sectors, demo reset.
-- Responsive mobile layout at 390 px and reduced-motion support.
-- Playwright capture and verification scripts.
+**3. Teacher tests.**
+Clicking a teacher opens a DeFi risk question. A wrong answer gives no XP and can
+be retried; a correct answer grants the teacher's XP reward, marks them mastered
+and advances the conquest meter. The roster has more XP than the 100 XP
+threshold, so a player can choose their route.
 
-## Trust and honesty constraints
+**4. Simulate XP Max.**
+An explicitly labelled **OPERATOR TEST TOOL** button jumps straight to the
+threshold. It is there so the operator can review the asteroid/Agent flow without
+grinding all 18 tests.
 
-- **Testnet simulation only.** No real money, wallet, API or treasury transfer is
-  connected in this prototype.
-- **Fixed reward.** Every valid classification earns 500 Luna; skip earns zero.
-  There is no hidden correct/incorrect rubric.
-- **Scripted requester.** The consultation is operator-authored static content,
-  not a live AI agent.
-- **Operator custody.** The production payout model is an ordinary Nimiq transfer
-  from an operator-controlled treasury. It is not HTLC, escrow or trustless.
-- **Reference payout, not this run's payout.** The summary displays Phase 5
-  play-through A's real testnet payout:
-  `139bfc81643ffb410c1f2a179d0d152ab7346f5205f31d99642a1e0e577421e4`
-  (1,000 Luna, block 15,838,771, confirmed). It is explicitly labelled as a
-  **reference** and is not equated to the prototype's simulated earnings. The
-  simulated payout status is also labelled **SIMULATION**.
-- **No fabricated success.** If all tasks are skipped, the summary shows zero
-  payout and no payout lifecycle.
+**5. Asteroid strike.**
+At 100 XP, a cinematic impact layer appears: a cartoon meteor and its trail hit
+Xylos, the screen flashes, the planet cracks and the Agent signal rises. The
+Agent transmission auto-opens after the cinematic hold (or via **Open Agent
+Transmission** once the impact lands).
 
-## Verification evidence
+**6. Agent consultation.**
+The modal shows the **SCRIPTED DEMO REQUESTER**, evidence first, then one risk
+question. Any valid classification earns the fixed **+500 Luna** (there is no
+hidden correct-answer rubric for consultation responses). The payout simulation
+then runs **QUEUED → SUBMITTED → CONFIRMED** with a clear **SIMULATION** label.
 
-Run against a local Vite dev server at `http://127.0.0.1:5173`:
+**7. Completion.**
+Return to the galaxy to see Xylos marked **CONQUERED**, the Agent chip read
+**RECEIPT**, and the sealed worlds still locked. Reset the demo at any time.
 
-```bash
-npm run lint      # oxlint: clean
-npm run build     # tsc + Vite production build: success
-npm run verify    # 16/16 assertions passed, 0 console errors
-npm run capture   # 9 screenshots, 0 console errors
-```
+## Screenshots
 
-The capture reports the simulated payout status as `CONFIRMED` and the Phase 5
-explorer link as:
-
-```text
-https://test.nimiq.watch/#139bfc81643ffb410c1f2a179d0d152ab7346f5205f31d99642a1e0e577421e4
-```
-
-Screenshots are in [`screenshots/`](./screenshots):
+Committed in [`screenshots/`](./screenshots):
 
 | File | State |
 | --- | --- |
-| `01-orbit.png` | Orbit map, Sector 01 active, lock markers |
-| `02-sector-briefing.png` | Sector detail and decisions |
-| `03-sector-consequence.png` | Decision outcome and portfolio delta |
-| `04-consultation.png` | Evidence-first scripted consultation |
-| `05-reward.png` | Accepted response, +500 Luna and XP |
-| `06-sector-cleared.png` | Camera reframe, rings, lit path, banner |
-| `07-run-complete.png` | All-clear orbit |
-| `08-summary.png` | Final summary, payout lifecycle and Phase 5 receipt |
-| `09-mobile-orbit.png` | 390 × 844 orbit layout |
+| `01-orbit-map.png` | 12-planet galaxy map, Xylos unlocked + 11 sealed worlds |
+| `02-teacher-list.png` | Xylos teacher tower, first tiers |
+| `03-teacher-tiers.png` | Scrolled tower showing master/sovereign teachers and boss |
+| `04-asteroid-strike.png` | Asteroid impact, Agent signal rising |
+| `05-agent-consultation.png` | Scripted Agent, evidence-first consultation |
+| `06-agent-payout.png` | +500 Luna, QUEUED → SUBMITTED → CONFIRMED |
+| `07-galaxy-conquered.png` | Xylos conquered, Agent receipt available |
+| `08-mobile-orbit.png` | 390 × 844 mobile galaxy layout |
 
-`npm run capture` expects the dev server to already be running. If Playwright's
-Chromium is not installed, run `npx playwright install chromium` first.
+The required review shots are the first, second and fourth files.
 
-The root `pnpm lint` command ignores standalone design prototypes and locally
-installed agent skills, because those have their own tooling (oxlint here). The
-application code (`apps/`, `packages/`, `tests/`) remains under the root ESLint
-configuration.
+## Trust and honesty
 
-## Asset note (important)
+- **Testnet only.** The permanent badge says **TESTNET / NOT REAL MONEY**. No
+  production wallet, API or treasury is connected to this prototype.
+- **Fixed reward.** The Agent consultation pays a simulated 500 Luna for any
+  valid classification; the teacher tests are separately scored and award XP.
+- **Scripted requester.** The Agent is operator-authored scripted content, not a
+  live AI or an independent external agent.
+- **Operator custody.** The production model is an ordinary testnet NIM transfer
+  from an operator-controlled treasury. It is not HTLC or trustless escrow.
+- **Payout labels.** The UI says **SIMULATED** throughout. The real Phase 5
+  testnet receipt (`139bfc81…`, 1,000 Luna, block 15,838,771) is linked as a
+  **reference from a different play-through**, never presented as this 500 Luna
+  simulation’s transaction.
+- **No fake success.** The Agent modal cannot show CONFIRMED until the local
+  simulation timers complete; no transaction is fabricated.
 
-The requested planet downloads were run exactly as specified. The three.js
-`earth_atmos_2048.jpg` and `moon_1024.jpg` URLs resolved, but
-`mars_1k_color.jpg` returns **404** from the three.js repository (verified on
-`master`, `dev` and several release tags). The missing texture was replaced with
-the public Solar System Scope 2k Mars map (CC BY 4.0) so the map still has three
-real, distinct planet textures. Attribution is in [CREDITS.md](./CREDITS.md).
-No invented texture was used.
+## Visual system
 
-The `stageshow` skill was installed locally at
-`.agents/skills/stageshow/` to guide framing, hierarchy and HUD composition. It
-is local tooling and is not vendored into this prototype or committed.
+- **Toon planets:** `MeshToonMaterial` with a stepped gradient map, dark back-face
+  outlines, saturated body colors, procedural surface patches and additive
+  atmosphere rims.
+- **Continuous motion:** planet spin, ring tilt/pulse, orbiting moons, a travelling
+  route comet, star sparkles and a gently floating camera.
+- **Fonts:** **Outfit** for bold display and UI headings, **JetBrains Mono** for
+  all numbers, identifiers and statuses.
+- **HUD:** floating glass bar, resource chips, chunky XP meter, trust badge; the
+  left dossier is the only large card on the galaxy screen, keeping the planets
+  as the focal object.
+- **Neon palette:** toxic lime, hot pink, cyan, violet, orange and gold over a
+  deep purple starfield.
+- **Motion has a cause:** planets react to hover, routes pulse toward the sealed
+  worlds, XP fills only when earned, the asteroid triggers at the threshold and
+  the Agent modal opens from the impact.
+
+## Verification evidence
+
+Run locally on 4 November 2026:
+
+```text
+npm run lint      → clean (oxlint)
+npm run build     → success (tsc + Vite)
+npm run verify    → 23 PASS / 0 FAIL, 0 console/page errors
+npm run capture   → 8 screenshots, 0 console/page errors
+                    payout status: CONFIRMED
+                    Phase 5 reference href: test.nimiq.watch/#139bfc81…
+```
+
+The verify suite checks: 12-planet map, 11 sealed labels, permanent trust badge,
+sealed-planet refusal, Xylos opening, 18 teachers, wrong-answer rejection and
+retry, XP award, mastery state, asteroid trigger, auto/manual Agent reveal,
+evidence-first consultation, fixed +500 reward, payout confirmation, real Phase 5
+reference link, Operator Treasury disclosure, conquered return state, reset,
+390 px overflow, and reduced-motion controls.
+
+## Assets and credits
+
+All planet imagery is **procedurally generated** from Three.js primitives; there
+are no downloaded planet `.jpg` textures in the app. The old realistic textures
+from the rejected Direction 3 v3 prototype were removed. See
+[CREDITS.md](./CREDITS.md) for fonts, icons and the local-only reference images.
 
 ## Known limitations
 
-- No persistence: a page reload restarts the demo.
-- No wallet, authentication, API, database or payout worker.
-- No audio, gamepad support or sound cues.
-- WebGL is required; the prototype was verified in Chromium with SwiftShader.
-- Three.js r187 / React Three Fiber emits a benign `THREE.Clock` deprecation
-  warning in the dev console. No runtime errors are logged; the capture/verify
-  scripts assert a zero error count.
-- The reference bitmap is a local, operator-supplied third-party screenshot and
-  is not part of the prototype.
-- The icon/brand mark is an original placeholder orbital glyph for this design
-  direction; it is not an official LevelBreak Arena logo.
-- The 390 px layout is verified. 320 px was not separately captured.
+- Only Xylos is playable. The other 11 named worlds are visible map furniture and
+  deliberately sealed.
+- Teacher test content is static local data; there is no API, persistence, wallet,
+  database or backend integration.
+- The Agent modal auto-reveals after the impact cinematic; the CTA is available
+  earlier so the operator can move quickly.
+- No audio.
+- The 390 px layout hides the 11 locked-world labels to keep the map legible. The
+  names remain in the desktop evidence and the toast copy.
+- The floating planet labels are a projected DOM layer; during the camera flight
+  into Xylos the labels are hidden.
+- No official LevelBreak Arena logo exists in this prototype; the orbit glyph is a
+  placemarker for the direction.
+- The Phase 5 chain receipt is real testnet evidence; every other payout state on
+  this screen is simulated.
 
 ## Next step
 
-**STOP — operator review.** Do not begin Phase 7, apply this visual direction to
-`apps/web`, or change the product’s payment/auth architecture until the operator
-explicitly approves the direction.
+**STOP — operator review.** Do not begin Phase 7, wire the main app to this
+direction, or add backend integration until the operator explicitly approves
+Direction 4.

@@ -1,32 +1,33 @@
-export function BrandMark({ size = 30 }: { size?: number }) {
+export function BrandMark({ size = 34 }: { size?: number }) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 40 40"
       fill="none"
       aria-hidden="true"
       className="brand-mark"
     >
-      <circle cx="16" cy="16" r="10.5" stroke="currentColor" strokeOpacity="0.28" />
+      <defs>
+        <linearGradient id="brandPlanet" x1="9" y1="8" x2="31" y2="32">
+          <stop stopColor="#c6ff4a" />
+          <stop offset="1" stopColor="#ff4ecd" />
+        </linearGradient>
+      </defs>
+      <circle cx="20" cy="20" r="9.5" fill="url(#brandPlanet)" />
+      <circle cx="17" cy="17" r="2.4" fill="#fff8ef" fillOpacity=".55" />
+      <circle cx="25" cy="24" r="1.8" fill="#6b1a63" fillOpacity=".5" />
       <ellipse
-        cx="16"
-        cy="16"
-        rx="14"
-        ry="5.4"
-        transform="rotate(-28 16 16)"
-        stroke="currentColor"
-        strokeOpacity="0.65"
+        cx="20"
+        cy="20"
+        rx="17"
+        ry="6.2"
+        transform="rotate(-24 20 20)"
+        stroke="#4cf4ff"
+        strokeWidth="1.8"
       />
-      <path
-        d="M16 5.5V9M16 23v3.5"
-        stroke="currentColor"
-        strokeOpacity="0.35"
-        strokeLinecap="round"
-      />
-      <circle cx="16" cy="16" r="4.2" fill="currentColor" fillOpacity="0.14" />
-      <circle cx="16" cy="16" r="2.1" fill="currentColor" />
-      <circle cx="27.2" cy="10.6" r="1.8" fill="currentColor" />
+      <circle cx="34" cy="12" r="1.7" fill="#fff2a8" />
+      <circle cx="6" cy="28" r="1" fill="#ff4ecd" />
     </svg>
   );
 }

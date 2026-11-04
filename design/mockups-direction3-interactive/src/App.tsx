@@ -1,23 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { OrbitScene } from "./scene/OrbitScene";
-import { Hud } from "./components/Hud";
-import { OrbitDossier } from "./components/OrbitDossier";
-import { SectorOverlay } from "./components/SectorOverlay";
-import { ConsultationOverlay } from "./components/ConsultationOverlay";
-import { SummaryOverlay } from "./components/SummaryOverlay";
-import { LevelCompleteBanner } from "./components/LevelCompleteBanner";
+import { GalaxyScene } from "./scene/GalaxyScene";
+import { GalaxyHud, type AgentStatus } from "./components/GalaxyHud";
+import { PlanetDossier } from "./components/PlanetDossier";
+import { ConquestPanel } from "./components/ConquestPanel";
+import { TeacherTestModal } from "./components/TeacherTestModal";
+import { AgentModal } from "./components/AgentModal";
+import { ImpactOverlay } from "./components/ImpactOverlay";
 import { Toast } from "./components/Toast";
 import {
-  applyBasisPoints,
-  getSector,
-  REWARD_LUNA,
-  STARTING_PORTFOLIO_UNITS,
-  XP_PER_SECTOR,
-  SECTORS,
-} from "./game/sectors";
-import type { SectorProgress } from "./game/types";
+  AGENT_REWARD_LUNA,
+  CONQUEST_XP,
+  PLANETS,
+  type Teacher,
+} from "./game/conquest";
 
-type Screen = "orbit" | "sector" | "consultation" | "summary";
+type Screen = "galaxy" | "conquest";
 
 function usePrefersReducedMotion() {
   const [reducedMotion, setReducedMotion] = useState(
@@ -36,43 +33,34 @@ function usePrefersReducedMotion() {
   return reducedMotion;
 }
 
-function emptyProgress(): Record<number, SectorProgress> {
-  return {};
-}
-
 export default function App() {
   const reducedMotion = usePrefersReducedMotion();
-  const [screen, setScreen] = useState<Screen>("orbit");
-  const [activeIndex, setActiveIndex] = useState(1);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [progress, setProgress] =
-    useState<Record<number, SectorProgress>>(emptyProgress);
-  const [portfolioUnits, setPortfolioUnits] = useState(STARTING_PORTFOLIO_UNITS);
+  const [screen, setScreen] = useState<Screen>("galaxy");
   const [xp, setXp] = useState(0);
+  const [clearedTeachers, setClearedTeachers] = useState<Set<number>>(
+    () => new Set(),
+  );
+  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+  const [agentUnlocked, setAgentUnlocked] = useState(false);
+  const [agentModalOpen, setAgentModalOpen] = useState(false);
+  const [agentAnswered, setAgentAnswered] = useState(false);
+  const [agentAnswerKey, setAgentAnswerKey] = useState<
+    "SAFE" | "RISKY" | "CANT_TELL" | null
+  >(null);
+  const [agentConfirmed, setAgentConfirmed] = useState(false);
+  const [payoutStage, setPayoutStage] = useState(0);
   const [earnedLuna, setEarnedLuna] = useState(0);
-  const [answers, setAnswers] = useState(0);
-  const [skips, setSkips] = useState(0);
-  const [levelCompleteIndex, setLevelCompleteIndex] = useState<number | null>(null);
-  const [celebratingIndex, setCelebratingIndex] = useState<number | null>(null);
+  const [impactActive, setImpactActive] = useState(false);
+  const [skyfallPending, setSkyfallPending] = useState(false);
   const [toast, setToast] = useState<{ id: number; text: string } | null>(null);
   const toastId = useRef(0);
-  const decisionGuard = useRef<Set<number>>(new Set());
-  const answerGuard = useRef<Set<number>>(new Set());
-  const finishGuard = useRef<Set<number>>(new Set());
 
-  const selectedSector = selectedIndex ? getSector(selectedIndex) : null;
-  const selectedProgress =
-    selectedIndex === null ? undefined : progress[selectedIndex];
-  const clearedCount = SECTORS.filter(
-    (sector) => progress[sector.index]?.status === "cleared",
-  ).length;
-  const runComplete = clearedCount === SECTORS.length;
-  const activeSector =
-    progress[activeIndex]?.status === "cleared"
-      ? null
-      : getSector(activeIndex);
-  const focusedIndex =
-    screen === "sector" || screen === "consultation" ? selectedIndex : null;
+  const agentStatus: AgentStatus = agentConfirmed
+    ? "confirmed"
+    : agentUnlocked
+      ? "awake"
+      : "sealed";
+  const conquered = agentConfirmed;
 
   const showToast = useCallback((text: string) => {
     toastId.current += 1;
@@ -86,301 +74,219 @@ export default function App() {
   }, [toast]);
 
   useEffect(() => {
-    if (celebratingIndex === null) return;
-    const timer = window.setTimeout(() => setCelebratingIndex(null), 2600);
+    if (!agentAnswered || agentConfirmed) return;
+    const submitTimer = window.setTimeout(() => setPayoutStage(1), 1100);
+    const confirmTimer = window.setTimeout(() => {
+      setPayoutStage(2);
+      setAgentConfirmed(true);
+    }, 2400);
+    return () => {
+      window.clearTimeout(submitTimer);
+      window.clearTimeout(confirmTimer);
+    };
+  }, [agentAnswered, agentConfirmed]);
+
+  useEffect(() => {
+    if (!impactActive) return;
+    const timer = window.setTimeout(() => {
+      setImpactActive(false);
+      setAgentModalOpen(true);
+    }, 10_000);
     return () => window.clearTimeout(timer);
-  }, [celebratingIndex]);
+  }, [impactActive]);
 
-  function handleOpenSector(index: number) {
-    if (progress[index]?.status === "cleared") {
-      setLevelCompleteIndex(null);
-      setSelectedIndex(index);
-      setScreen("sector");
-      return;
-    }
+  useEffect(() => {
+    if (!skyfallPending) return;
+    const timer = window.setTimeout(() => {
+      setSkyfallPending(false);
+      setSelectedTeacher(null);
+      setXp(CONQUEST_XP);
+      setAgentUnlocked(true);
+      setImpactActive(true);
+    }, 1700);
+    return () => window.clearTimeout(timer);
+  }, [skyfallPending]);
 
-    if (index !== activeIndex) {
-      showToast(
-        `SECTOR 0${index} IS LOCKED — CLEAR SECTOR 0${index - 1} TO OPEN THE ROUTE.`,
-      );
-      return;
-    }
-
-    setLevelCompleteIndex(null);
-    setSelectedIndex(index);
-    setScreen("sector");
+  function triggerImpact() {
+    if (agentUnlocked || impactActive) return;
+    setXp(CONQUEST_XP);
+    setAgentUnlocked(true);
+    setImpactActive(true);
+    setSkyfallPending(false);
+    setSelectedTeacher(null);
   }
 
-  function handleLockedSector(index: number) {
+  function handleOpenXylos() {
+    setScreen("conquest");
+    setToast(null);
+  }
+
+  function handleLockedPlanet(planetName: string, id: number) {
     showToast(
-      `SECTOR 0${index} IS LOCKED — CLEAR SECTOR 0${index - 1} TO OPEN THE ROUTE.`,
+      conquered
+        ? `PLANET ${String(id).padStart(2, "0")} // ${planetName.toUpperCase()} IS SEALED FOR THE NEXT CHAPTER.`
+        : `PLANET ${String(id).padStart(2, "0")} // ${planetName.toUpperCase()} IS SEALED — CONQUER XYLOS FIRST.`,
     );
   }
 
-  function handleDecision(decisionKey: string) {
-    if (!selectedSector) return;
-    if (decisionGuard.current.has(selectedSector.index)) return;
-    if (progress[selectedSector.index]) return;
-    const decision = selectedSector.decisions.find(
-      (item) => item.key === decisionKey,
-    );
-    if (!decision) return;
-
-    decisionGuard.current.add(selectedSector.index);
-    const portfolioAfter = applyBasisPoints(
-      portfolioUnits,
-      decision.basisPoints,
-    );
-
-    setProgress((current) => ({
-      ...current,
-      [selectedSector.index]: {
-        status: "open",
-        decisionKey,
-        portfolioBeforeUnits: portfolioUnits,
-        portfolioAfterUnits: portfolioAfter,
-        consultationStatus: null,
-        answerKey: null,
-        rewardLuna: 0,
-        xp: 0,
-      },
-    }));
-    setPortfolioUnits(portfolioAfter);
+  function handleSimulateXpMax() {
+    if (agentUnlocked) return;
+    triggerImpact();
   }
 
-  function handleOpenConsultation() {
-    if (!selectedSector || !progress[selectedSector.index]) return;
-    setScreen("consultation");
-  }
-
-  function handleAnswer(answerKey: "SAFE" | "RISKY" | "CANT_TELL") {
-    if (!selectedSector) return;
-    const current = progress[selectedSector.index];
-    if (!current) return;
-    if (current.consultationStatus) return;
-    if (answerGuard.current.has(selectedSector.index)) return;
-    answerGuard.current.add(selectedSector.index);
-
-    setProgress((previous) => ({
-      ...previous,
-      [selectedSector.index]: {
-        ...current,
-        consultationStatus: "answered",
-        answerKey,
-        rewardLuna: REWARD_LUNA,
-        xp: XP_PER_SECTOR,
-      },
-    }));
-    setXp((value) => Math.min(300, value + XP_PER_SECTOR));
-    setEarnedLuna((value) => Math.min(1_500, value + REWARD_LUNA));
-    setAnswers((value) => value + 1);
-    setCelebratingIndex(selectedSector.index);
-  }
-
-  function finishSector(index: number, consultationStatus: "answered" | "skipped") {
-    if (finishGuard.current.has(index)) return;
-    finishGuard.current.add(index);
-    const current = progress[index];
-    if (!current) return;
-
-    setProgress((previous) => ({
-      ...previous,
-      [index]: {
-        ...current,
-        status: "cleared",
-        consultationStatus:
-          current.consultationStatus ?? consultationStatus,
-      },
-    }));
-    if (index < 3) {
-      setActiveIndex(index + 1);
-    }
-    setSelectedIndex(null);
-    setScreen("orbit");
-    setLevelCompleteIndex(index);
-    setCelebratingIndex(null);
-  }
-
-  function handleFinishConsultation() {
-    if (!selectedSector) return;
-    finishSector(selectedSector.index, "answered");
-  }
-
-  function handleSkip() {
-    if (!selectedSector) return;
-    const current = progress[selectedSector.index];
-    if (!current || current.consultationStatus) return;
-
-    setProgress((previous) => ({
-      ...previous,
-      [selectedSector.index]: {
-        ...current,
-        status: "cleared",
-        consultationStatus: "skipped",
-        answerKey: null,
-        rewardLuna: 0,
-        xp: 0,
-      },
-    }));
-    setSkips((value) => value + 1);
-    if (selectedSector.index < 3) setActiveIndex(selectedSector.index + 1);
-    finishGuard.current.add(selectedSector.index);
-    setSelectedIndex(null);
-    setScreen("orbit");
-    setLevelCompleteIndex(selectedSector.index);
-    setCelebratingIndex(null);
-    showToast("TRANSMISSION SKIPPED — 0 LUNA. SKIPPED TASKS EARN ZERO.");
-  }
-
-  function handleCloseOverlay() {
-    if (screen === "summary") {
-      setScreen("orbit");
-      setSelectedIndex(null);
-      setLevelCompleteIndex(3);
+  function handleOpenTeacher(teacher: Teacher) {
+    if (clearedTeachers.has(teacher.id)) {
+      showToast(`${teacher.name.toUpperCase()} IS ALREADY MASTERED — NO EXTRA XP.`);
       return;
     }
-
-    if (screen === "consultation" && selectedSector) {
-      if (progress[selectedSector.index]?.consultationStatus === "answered") {
-        finishSector(selectedSector.index, "answered");
-        return;
-      }
-      if (!progress[selectedSector.index]?.consultationStatus) {
-        setScreen("orbit");
-        setSelectedIndex(null);
-        return;
-      }
-    }
-
-    setScreen("orbit");
-    setSelectedIndex(null);
+    setSelectedTeacher(teacher);
   }
 
-  function handleLevelBannerAction() {
-    if (levelCompleteIndex === null) return;
-    if (levelCompleteIndex >= 3 || runComplete) {
-      setScreen("summary");
+  function handleTestPass(teacher: Teacher) {
+    if (clearedTeachers.has(teacher.id)) return;
+    const nextXp = Math.min(CONQUEST_XP, xp + teacher.xp);
+    setClearedTeachers((current) => {
+      const next = new Set(current);
+      next.add(teacher.id);
+      return next;
+    });
+    setXp(nextXp);
+    if (nextXp >= CONQUEST_XP && !agentUnlocked) {
+      setSkyfallPending(true);
+    }
+  }
+
+  function handleAgentAnswer(key: "SAFE" | "RISKY" | "CANT_TELL") {
+    if (agentAnswered) return;
+    setAgentAnswered(true);
+    setAgentAnswerKey(key);
+    setEarnedLuna(AGENT_REWARD_LUNA);
+    setPayoutStage(0);
+  }
+
+  function handleOpenAgent() {
+    if (!agentUnlocked) {
+      showToast("THE AGENT IS SEALED — REACH 100 XP ON XYLOS TO BREAK THE CORE.");
       return;
     }
-    handleOpenSector(levelCompleteIndex + 1);
+    setAgentModalOpen(true);
   }
 
-  function handleOpenSummary() {
-    if (!runComplete) return;
-    setLevelCompleteIndex(null);
-    setScreen("summary");
+  function handleAgentFinish() {
+    setAgentModalOpen(false);
+    setScreen("galaxy");
+    showToast("XYLOS CONQUERED — AGENT PAYOUT CONFIRMED. THE NEXT CHAPTER IS SEALED.");
   }
 
-  function resetDemo(message = "DEMO RESET — ALL SECTORS LOCKED. CHOOSE SECTOR 01.") {
-    decisionGuard.current.clear();
-    answerGuard.current.clear();
-    finishGuard.current.clear();
-    setScreen("orbit");
-    setActiveIndex(1);
-    setSelectedIndex(null);
-    setProgress(emptyProgress());
-    setPortfolioUnits(STARTING_PORTFOLIO_UNITS);
+  function handleReset() {
+    setScreen("galaxy");
     setXp(0);
+    setClearedTeachers(new Set());
+    setSelectedTeacher(null);
+    setAgentUnlocked(false);
+    setAgentModalOpen(false);
+    setAgentAnswered(false);
+    setAgentAnswerKey(null);
+    setAgentConfirmed(false);
+    setPayoutStage(0);
     setEarnedLuna(0);
-    setAnswers(0);
-    setSkips(0);
-    setLevelCompleteIndex(null);
-    setCelebratingIndex(null);
-    showToast(message);
+    setImpactActive(false);
+    setSkyfallPending(false);
+    showToast("DEMO RESET — XYLOS AWAITS ITS FIRST CONQUEST.");
   }
 
-  const activeSectorLabel = runComplete
-    ? "ALL SECTORS CLEARED // RECEIPT READY"
-    : activeSector
-      ? `SECTOR 0${activeSector.index} // ${activeSector.codename.toUpperCase()}`
-      : "ROUTE STANDBY";
+  const sceneMode = impactActive
+    ? "impact"
+    : screen === "conquest"
+      ? "conquest"
+      : "galaxy";
 
   return (
-    <div className="app-shell" data-screen={screen} data-testid="app">
+    <div
+      className="app-shell"
+      data-screen={screen}
+      data-impact={impactActive ? "true" : "false"}
+      data-testid="app"
+    >
       <div className="cosmic-backdrop" aria-hidden="true" />
       <div className="cosmic-grain" aria-hidden="true" />
       <div className="cosmic-vignette" aria-hidden="true" />
 
-      <OrbitScene
-        activeIndex={activeIndex}
-        progress={progress}
-        focusedIndex={focusedIndex}
-        showLabels={screen === "orbit"}
-        celebratingIndex={celebratingIndex}
-        onOpenSector={handleOpenSector}
-        onLockedSector={handleLockedSector}
+      <GalaxyScene
+        mode={sceneMode}
+        conquered={conquered}
+        agentUnlocked={agentUnlocked}
+        impactActive={impactActive}
         reducedMotion={reducedMotion}
+        onOpenXylos={handleOpenXylos}
+        onLockedPlanet={(planet) => handleLockedPlanet(planet.name, planet.id)}
       />
 
-      <h1 className="sr-only">
-        LevelBreak Arena interactive orbit map prototype
-      </h1>
-
-      <Hud
-        xp={xp}
-        earnedLuna={earnedLuna}
-        clearedCount={clearedCount}
-        activeSectorLabel={activeSectorLabel}
-        summaryAvailable={runComplete}
-        onReset={() => resetDemo()}
-        onOpenSummary={handleOpenSummary}
-      />
-
-      {screen === "orbit" ? (
-        <OrbitDossier
-          activeSector={activeSector}
-          portfolioUnits={portfolioUnits}
-          clearedCount={clearedCount}
-          runComplete={runComplete}
-          onOpenSector={() => {
-            if (activeSector) handleOpenSector(activeSector.index);
-          }}
-          onOpenSummary={handleOpenSummary}
-        />
-      ) : null}
-
-      {screen === "orbit" && levelCompleteIndex !== null ? (
-        <LevelCompleteBanner
-          sector={getSector(levelCompleteIndex)}
-          isRunComplete={runComplete}
-          rewardLuna={progress[levelCompleteIndex]?.rewardLuna ?? 0}
-          xpEarned={progress[levelCompleteIndex]?.xp ?? 0}
-          onAction={handleLevelBannerAction}
-          onDismiss={() => setLevelCompleteIndex(null)}
-        />
-      ) : null}
-
-      {screen === "sector" && selectedSector ? (
-        <SectorOverlay
-          sector={selectedSector}
-          progress={selectedProgress}
-          portfolioUnits={portfolioUnits}
-          onClose={handleCloseOverlay}
-          onDecision={handleDecision}
-          onOpenConsultation={handleOpenConsultation}
-        />
-      ) : null}
-
-      {screen === "consultation" && selectedSector && selectedProgress ? (
-        <ConsultationOverlay
-          sector={selectedSector}
-          progress={selectedProgress}
-          onClose={handleCloseOverlay}
-          onAnswer={handleAnswer}
-          onSkip={handleSkip}
-          onFinish={handleFinishConsultation}
-        />
-      ) : null}
-
-      {screen === "summary" ? (
-        <SummaryOverlay
+      {!impactActive ? (
+        <GalaxyHud
           xp={xp}
           earnedLuna={earnedLuna}
-          answers={answers}
-          skips={skips}
-          portfolioUnits={portfolioUnits}
-          onInspect={handleCloseOverlay}
-          onReplay={() => resetDemo("DEMO REPLAYED — ORBIT RESET.")}
+          clearedTeachers={clearedTeachers.size}
+          agentStatus={agentStatus}
+          onOpenAgent={handleOpenAgent}
+          onReset={handleReset}
+        />
+      ) : null}
+
+      {!impactActive && screen === "galaxy" ? (
+        <PlanetDossier
+          planet={PLANETS[0]}
+          xp={xp}
+          clearedTeachers={clearedTeachers.size}
+          agentStatus={agentStatus}
+          earnedLuna={earnedLuna}
+          conquered={conquered}
+          onEnter={handleOpenXylos}
+          onOpenAgent={handleOpenAgent}
+        />
+      ) : null}
+
+      {!impactActive && screen === "conquest" ? (
+        <ConquestPanel
+          xp={xp}
+          clearedTeachers={clearedTeachers}
+          agentStatus={agentStatus}
+          skyfallPending={skyfallPending}
+          onBack={() => setScreen("galaxy")}
+          onOpenTeacher={handleOpenTeacher}
+          onSimulateXp={handleSimulateXpMax}
+          onOpenAgent={handleOpenAgent}
+        />
+      ) : null}
+
+      {selectedTeacher ? (
+        <TeacherTestModal
+          teacher={selectedTeacher}
+          skyfallPending={skyfallPending}
+          onClose={() => setSelectedTeacher(null)}
+          onPass={handleTestPass}
+        />
+      ) : null}
+
+      {agentModalOpen ? (
+        <AgentModal
+          answered={agentAnswered}
+          answerKey={agentAnswerKey}
+          payoutStage={payoutStage}
+          confirmed={agentConfirmed}
+          earnedLuna={earnedLuna}
+          onAnswer={handleAgentAnswer}
+          onClose={() => setAgentModalOpen(false)}
+          onFinish={handleAgentFinish}
+        />
+      ) : null}
+
+      {impactActive ? (
+        <ImpactOverlay
+          onOpenAgent={() => {
+            setImpactActive(false);
+            setAgentModalOpen(true);
+          }}
         />
       ) : null}
 

@@ -9,90 +9,101 @@ const launchArgs = ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"];
 
 await mkdir(outDir, { recursive: true });
 
+const errors = [];
+
+function collect(page, label = "") {
+  page.on("console", (message) => {
+    if (message.type() === "error") {
+      errors.push(`${label}console: ${message.text()}`);
+    }
+  });
+  page.on("pageerror", (error) => {
+    errors.push(`${label}pageerror: ${error.message}`);
+  });
+}
+
 const browser = await chromium.launch({ args: launchArgs });
 const page = await browser.newPage({
   viewport: { width: 1440, height: 900 },
   deviceScaleFactor: 1,
 });
-const consoleErrors = [];
-page.on("console", (message) => {
-  if (message.type() === "error") {
-    consoleErrors.push(`console: ${message.text()}`);
-  }
-});
-page.on("pageerror", (error) => {
-  consoleErrors.push(`pageerror: ${error.message}`);
-});
+collect(page);
 
-async function wait(ms = 650) {
+async function wait(ms = 600) {
   await page.waitForTimeout(ms);
 }
 
-async function shot(name) {
-  await page.mouse.move(1380, 44);
-  await wait(420);
-  await page.screenshot({ path: path.join(outDir, name) });
+async function shot(name, selector) {
+  await wait(300);
+  if (selector) {
+    await page.locator(selector).screenshot({
+      path: path.join(outDir, name),
+      timeout: 60_000,
+    });
+  } else {
+    await page.screenshot({
+      path: path.join(outDir, name),
+      timeout: 60_000,
+    });
+  }
   console.log(`captured ${name}`);
 }
 
 await page.goto(baseUrl, { waitUntil: "networkidle" });
-await page.getByTestId("orbit-canvas").waitFor();
-await page.waitForTimeout(2400);
-await page.mouse.move(760, 480);
-await shot("01-orbit.png");
+await page.getByTestId("galaxy-canvas").waitFor();
+await wait(2600);
+await shot("01-orbit-map.png");
 
-await page.getByTestId("open-sector").click();
-await wait(1000);
-await shot("02-sector-briefing.png");
+await page.getByTestId("open-planet-1").click();
+await wait(1100);
+await shot("02-teacher-list.png");
 
-await page.getByTestId("decision-STAY").click();
-await wait(650);
-await shot("03-sector-consequence.png");
-
-await page.getByTestId("open-consultation").click();
-await wait(850);
-await shot("04-consultation.png");
-
-await page.getByTestId("answer-RISKY").click();
-await wait(650);
-await shot("05-reward.png");
-
-await page.getByTestId("finish-sector").click();
-await wait(1800);
-await shot("06-sector-cleared.png");
-
-await page.getByTestId("next-sector").click();
-await wait(750);
-await page.getByTestId("decision-EXIT").click();
+await page.getByTestId("teacher-list").evaluate((element) => {
+  element.scrollTop = element.scrollHeight;
+});
 await wait(450);
-await page.getByTestId("open-consultation").click();
-await wait(500);
-await page.getByTestId("answer-SAFE").click();
-await wait(500);
-await page.getByTestId("finish-sector").click();
-await wait(700);
-await page.getByTestId("next-sector").click();
-await wait(750);
-await page.getByTestId("decision-READ").click();
-await wait(450);
-await page.getByTestId("open-consultation").click();
-await wait(500);
-await page.getByTestId("answer-RISKY").click();
-await wait(500);
-await page.getByTestId("finish-sector").click();
-await wait(1900);
-await shot("07-run-complete.png");
+await shot("03-teacher-tiers.png");
+await page.getByTestId("teacher-list").evaluate((element) => {
+  element.scrollTop = 0;
+});
+await wait(400);
 
-await page.getByTestId("level-summary").click();
-await wait(250);
-await page.getByTestId("summary-overlay").waitFor();
-await page.waitForTimeout(2600);
-await shot("08-summary.png");
+await page.getByTestId("simulate-xp-max").evaluate((element) => element.click());
+await page.getByTestId("impact-overlay").waitFor({ timeout: 20_000 });
+await wait(650);
+await shot("04-asteroid-strike.png");
+
+await page.waitForFunction(
+  () =>
+    Boolean(document.querySelector('[data-testid="open-agent-impact"]')) ||
+    Boolean(document.querySelector('[data-testid="agent-modal"]')),
+  { timeout: 20_000 },
+);
+if ((await page.getByTestId("open-agent-impact").count()) > 0) {
+  await page.evaluate(() => {
+    document.querySelector('[data-testid="open-agent-impact"]')?.click();
+  });
+}
+await page.getByTestId("agent-modal").waitFor({ timeout: 20_000 });
+await wait(450);
+await shot("05-agent-consultation.png");
+
+await page.getByTestId("agent-answer-RISKY").click();
+await page.waitForFunction(() => {
+  const element = document.querySelector('[data-testid="payout-status"]');
+  return element?.getAttribute("aria-label")?.includes("CONFIRMED");
+}, { timeout: 15_000 });
+await wait(300);
+await shot("06-agent-payout.png");
 
 const payoutStatus = await page
   .getByTestId("payout-status")
   .getAttribute("aria-label");
 const referenceTx = await page.getByTestId("phase5-tx").getAttribute("href");
+
+await page.getByTestId("agent-finish").click();
+await wait(2600);
+await shot("07-galaxy-conquered.png");
 
 await page.close();
 
@@ -103,37 +114,28 @@ const mobile = await mobileBrowser.newPage({
   isMobile: true,
   hasTouch: true,
 });
-mobile.on("console", (message) => {
-  if (message.type() === "error") {
-    consoleErrors.push(`mobile console: ${message.text()}`);
-  }
-});
-mobile.on("pageerror", (error) => {
-  consoleErrors.push(`mobile pageerror: ${error.message}`);
-});
+collect(mobile, "mobile ");
 await mobile.goto(baseUrl, { waitUntil: "networkidle" });
-await mobile.waitForTimeout(2600);
+await mobile.waitForTimeout(2400);
 await mobile.screenshot({
-  path: path.join(outDir, "09-mobile-orbit.png"),
+  path: path.join(outDir, "08-mobile-orbit.png"),
   timeout: 60_000,
 });
-console.log("captured 09-mobile-orbit.png");
+console.log("captured 08-mobile-orbit.png");
 await mobileBrowser.close();
-
 await browser.close();
 
 console.log(
   JSON.stringify(
     {
-      consoleErrors,
+      consoleErrors: errors,
       payoutStatus,
       referenceTx,
+      screenshots: outDir,
     },
     null,
     2,
   ),
 );
 
-if (consoleErrors.length > 0) {
-  process.exitCode = 1;
-}
+if (errors.length > 0) process.exitCode = 1;
