@@ -143,6 +143,9 @@ is local tooling and is not vendored into this prototype or committed.
 - No wallet, authentication, API, database or payout worker.
 - No audio, gamepad support or sound cues.
 - WebGL is required; the prototype was verified in Chromium with SwiftShader.
+- Three.js r187 / React Three Fiber emits a benign `THREE.Clock` deprecation
+  warning in the dev console. No runtime errors are logged; the capture/verify
+  scripts assert a zero error count.
 - The reference bitmap is a local, operator-supplied third-party screenshot and
   is not part of the prototype.
 - The icon/brand mark is an original placeholder orbital glyph for this design

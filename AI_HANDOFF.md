@@ -61,6 +61,7 @@
   - The requested three.js Mars URL (`mars_1k_color.jpg`) returns 404; a real CC BY 4.0 Solar System Scope Mars texture is used with attribution in `CREDITS.md`.
   - The prototype uses the Phase 5 1,000 Luna receipt while a three-answer simulation can total 1,500 Luna; the mismatch is explicitly disclosed in the UI and notes.
   - No persistence, auth, API wiring, audio or 320 px-specific capture.
+  - Three.js r187 / React Three Fiber emits a benign `THREE.Clock` deprecation warning in the dev console; the capture and verify runs had 0 console/page errors.
   - Operator reference images and the locally installed stageshow skill are intentionally not committed.
 - **Single next task:** Await the operator's explicit review of the interactive prototype. Do not begin Phase 7 or apply this direction to `apps/web` before approval.
 - **STOPPED awaiting operator approval:** yes
