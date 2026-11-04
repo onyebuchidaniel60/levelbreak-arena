@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 4 November 2026
-**Current phase:** Phase 5 complete — accepted; awaiting the Phase 6 visual-direction conversation
-**Status:** Phase 5 PASS / ACCEPTED. Phase 6 NOT STARTED.
+**Current phase:** Phase 6 — Direction 3 v3 interactive prototype complete; awaiting operator review
+**Status:** Phase 5 PASS / ACCEPTED. Phase 6 visual direction NOT APPROVED. Phase 7 NOT STARTED.
 
 ## Current deployment and wallets
 
@@ -23,10 +23,47 @@
 - Phase 5 Session B: `f96476d6-ba9b-4ff9-b555-8761d52da6e6`, ref `685638bc542dad71`; run `03de2187-83dd-46df-a2e0-7573ef678a7b`; payout `5975746e-306b-41e1-88c7-ddf8fc15349e`, 1,500 Luna, tx `b693acd38fdac38008b7faabe921056e5b3ebbae02b36207031faee4435250bf`, block `15839460`.
 - All three Phase 5 payouts are `CONFIRMED`; total paid 3,500 Luna, fees 0. Treasury balance before the payout run: `11,000,006,000` Luna; after: `11,000,002,500` Luna.
 - `NIMIQ_EXPLORER_BASE_URL`: `https://test.nimiq.watch/#`; verified to render tx `899823e2…` and block `15766696`. The API returns `explorerUrl` and the UI/history show a working "View on explorer" link.
-- Design references: not collected
-- Mockups: not created
+- Design references: 3 operator-supplied VISE Staking Adventure images in `design/references/` (local design input, intentionally not committed)
+- Mockups: Direction 3 v2 rejected; Direction 3 v3 interactive React + Three.js prototype created at `design/mockups-direction3-interactive/` with 9 review screenshots; not applied to the app
+- Prototype deployment: NOT DEPLOYED (local standalone prototype)
 - Operator approval of final visual design: **NOT GIVEN**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 5 proof, disabled 2026-11-04T01:21:37Z).
+
+## Phase 6 — Direction 3 v3 interactive prototype (4 November 2026)
+
+**Status:** READY FOR OPERATOR REVIEW. Visual direction NOT APPROVED. Phase 7 NOT STARTED.
+
+- **Location:** `design/mockups-direction3-interactive/`
+- **Review URL:** NOT DEPLOYED — local standalone prototype. Run `cd design/mockups-direction3-interactive && npm install && npm run dev`, then open the Vite URL.
+- **Prototype deployed SHA:** NONE.
+- **Commit:** `4ccfcdb` — `design: build interactive orbital prototype v3`
+- **What changed:**
+  - Pivoted from static v2 HTML mockups (rejected as a flat dashboard) to a functional React + TypeScript + Vite + Three.js prototype where the orbit map is the UI.
+  - Added three textured planets with atmosphere rim shaders, hover scaling, active reticle, locked padlock markers, cleared rings and glowing dotted routes.
+  - Added the full single-screen loop: orbit → sector briefing → consequence → evidence-first consultation → +500 Luna / +100 XP reward → sector clear → next sector → run summary.
+  - Added persistent HUD, testnet trust badge, scripted-requester badge, fixed reward and skip=zero behaviour, operator-treasury disclosure and the real Phase 5 reference payout.
+  - Added Playwright `capture` and `verify` scripts, 9 review screenshots, README, credits and design notes.
+  - Added `design/**` and `.agents/**` to root ESLint ignores because the prototype uses standalone oxlint and the locally installed stageshow skill is tooling, not product code.
+- **Evidence (local):**
+  - `npm run lint` — oxlint clean.
+  - `npm run build` — TypeScript + Vite production build passed (only the standard chunk-size advisory).
+  - `npm run verify` — 16/16 assertions passed: testnet badge, locked-sector refusal, active-planet open, Escape close, skip=0 XP/Luna, reset, all-skip zero payout, operator disclosure, replay, 390 px overflow checks, reduced motion; 0 console/page errors.
+  - `npm run capture` — 9 states, 0 console/page errors; simulated payout status reached `CONFIRMED`; Phase 5 reference href is the real testnet explorer URL.
+  - Root `pnpm lint` passes after the design/skill exclusions.
+  - `apps/web` and `apps/api` have no changes.
+- **Screenshots:** `design/mockups-direction3-interactive/screenshots/01-orbit.png` through `09-mobile-orbit.png`.
+- **Trust/honesty notes:**
+  - The summary payout lifecycle is explicitly marked **SIMULATION** and no funds move in the prototype.
+  - The real Phase 5 tx `139bfc81643ffb410c1f2a179d0d152ab7346f5205f31d99642a1e0e577421e4` (1,000 Luna, block 15,838,771) is labelled as a **reference receipt** and is not equated with the prototype run's simulated earnings.
+  - All-skipped runs show zero payout, not a fabricated confirmed state.
+  - Static Phase 3 scenario and evidence content; no live LLM, market feed, wallet, API, DeFi execution or treasury transfer.
+- **Known deviations/limitations:**
+  - The requested three.js Mars URL (`mars_1k_color.jpg`) returns 404; a real CC BY 4.0 Solar System Scope Mars texture is used with attribution in `CREDITS.md`.
+  - The prototype uses the Phase 5 1,000 Luna receipt while a three-answer simulation can total 1,500 Luna; the mismatch is explicitly disclosed in the UI and notes.
+  - No persistence, auth, API wiring, audio or 320 px-specific capture.
+  - Operator reference images and the locally installed stageshow skill are intentionally not committed.
+- **Single next task:** Await the operator's explicit review of the interactive prototype. Do not begin Phase 7 or apply this direction to `apps/web` before approval.
+- **STOPPED awaiting operator approval:** yes
 
 ## Phase 5 acceptance (operator-confirmed, 4 November 2026)
 
