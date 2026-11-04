@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
-**Last updated:** 3 November 2026
-**Current phase:** Phase 4 complete — functional frontend integrated
-**Status:** Phase 4 PASS; awaiting operator acceptance before Phase 5.
+**Last updated:** 4 November 2026
+**Current phase:** Phase 4 accepted — awaiting Phase 5 prompt
+**Status:** Phase 4 PASS / ACCEPTED; Phase 5 NOT STARTED.
 
 ## Current deployment and wallets
 
@@ -42,12 +42,36 @@
 - **Proxy limits:** no rate-limit, timeout, or response-size errors were observed across the nonce, verify, me, reload, logout and post-logout requests.
 - **Scope:** `apps/api/` has no diff for this fix; no API contract, schema, game logic, cookie attribute, CSRF rule or `APP_ORIGIN` was changed.
 
+## Phase 4 acceptance (4 November 2026)
+
+- Operator accepted Phase 4 based on the deployed real-auth E2E: auth, funded-session claim, three-level play, finish, payout `QUEUED` without fabricated confirmation, and history showing 1,000 Luna earned.
+- Decision B: the queued payout `b00c882f-72e1-4fb1-acc1-0cde06dcaedf` is accepted as testnet cost. Phase 5 will process it when the worker is enabled, sending 1,000 testnet Luna to the unrecoverable generated key used by the E2E player. There is no cancellation path and no DB change now. Phase 5 should expect this payout to appear on-chain.
+- Phase 5 pre-flight awareness:
+  - Session `d242581a-2590-4ac0-944a-6b41fc626f80` is `PAYOUT_PENDING` and cannot be reused; Phase 5 needs a new funded session.
+  - `PAYOUT_WORKER_ENABLED` must be enabled in Render for the Phase 5 payout proof.
+  - `NIMIQ_EXPLORER_BASE_URL` should be set before Phase 5 verification for transaction display.
+  - The deployed E2E provider-prompt assertion fix at `61ff7bb` is accepted; no further action.
+
+## Operator decisions
+
+- **A — Funding-deadline exception documented:** the Phase 4 E2E required extending the pre-existing `funding_deadline` on session `d242581a-2590-4ac0-944a-6b41fc626f80`. The extension is accepted as a disclosed exception and was written to the existing audit trail through the application `recordAudit` helper inside a database transaction:
+  - audit event ID: `59c5f519-9207-4a4f-a110-e917f6ea7063`
+  - `actor_type`: `OPERATOR`
+  - `actor_id`: `operator`
+  - `action`: `EXTEND_FUNDING_DEADLINE`
+  - `resource_type`: `requester_session`
+  - `resource_id`: `d242581a-2590-4ac0-944a-6b41fc626f80`
+  - `details_redacted`: `{"reason":"unblock Phase 4 E2E after pre-existing deadline","old_deadline":"2026-11-03T05:36:03.597Z","new_deadline":"2026-11-03T09:41:06.474Z"}`
+  - `created_at`: `2026-11-04T00:03:43.990Z`
+  - Verification: the session row still has state `PAYOUT_PENDING`, the same deadline `2026-11-03T09:41:06.474Z`, the same claimed run `087f39ee-6bcc-492b-a062-ebc04ea14a4c`, reserved liability `1500`, unused credit `0`, and the same `updated_at` `2026-11-03T07:41:20.053Z`. No state, funding, ledger or reward field changed.
+- **B — Queued payout accepted:** payout `b00c882f-72e1-4fb1-acc1-0cde06dcaedf` remains `QUEUED`, amount `1000` Luna, no transaction hash. It is accepted as testnet cost and is expected to appear on-chain when Phase 5 enables the worker. No DB change or cancellation was made.
+
 ## Phase 4 checkpoint
 
 ```text
 Project: LevelBreak Arena
-Current phase: Phase 4 complete — functional frontend integrated
-Status: PASS
+Current phase: Phase 4 accepted — functional frontend integrated
+Status: PASS / ACCEPTED
 Preview URL: https://levelbreak-arena.vercel.app
 Deployed commit SHA: 7ad825690c6cb55798d8036631bcce7dd01286e4 (Phase 4 frontend + run-detail fix, tested by E2E); final 9764b770bf65f4b143299f981f0b51d4541d42a5 is a script-only CI ordering fix with identical app code
 What changed:
@@ -316,7 +340,7 @@ STOPPED awaiting operator approval: yes
 
 ## Current task for coding agent
 
-**STOP.** Phase 4 is complete and awaiting operator acceptance. Do not start Phase 5, enable the payout worker, enable demo funding on Render, or begin final visual design. Phase 5 owns the treasury payout worker and the hard end-to-end payment gate.
+**STOP.** Phase 4 is accepted. Do not start Phase 5, enable the payout worker, enable demo funding on Render, or begin final visual design. Phase 5 owns the treasury payout worker, a new funded session, explorer configuration and the hard end-to-end payment gate.
 
 ## Checkpoint requirements
 
