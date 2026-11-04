@@ -75,6 +75,7 @@ async function render(file, width, height, outputDir, stem, options = {}) {
       .map((element) => {
         const rect = element.getBoundingClientRect();
         const style = window.getComputedStyle(element);
+        const decorative = Boolean(element.closest('[aria-hidden="true"]'));
         return {
           tag: element.tagName,
           className:
@@ -86,10 +87,12 @@ async function render(file, width, height, outputDir, stem, options = {}) {
           width: Math.round(rect.width),
           display: style.display,
           visibility: style.visibility,
+          decorative,
         };
       })
       .filter(
         (item) =>
+          !item.decorative &&
           item.display !== "none" &&
           item.visibility !== "hidden" &&
           item.width > 0 &&

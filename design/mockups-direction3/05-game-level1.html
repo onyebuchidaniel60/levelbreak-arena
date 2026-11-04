@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>LevelBreak Arena — Sector 01 decision</title>
-  <meta name="description" content="LevelBreak Arena Gamified design mockup — Level 1 scenario decision.">
+  <meta name="description" content="LevelBreak Arena Gamified v2 design mockup — cinematic Sector 01 decision.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23050814'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%23FBBF24'/%3E%3Cellipse cx='16' cy='17' rx='13' ry='4' fill='none' stroke='%2322D3EE' stroke-width='1.5' transform='rotate(-14 16 17)'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="_shared/tokens.css">
 </head>
@@ -52,133 +52,99 @@
         <a class="text-link-muted" href="03-lobby-available.html">Abort run</a>
       </div>
 
-      <div class="hud">
-        <div class="hud-card">
-          <div class="hud-level">
-            <span class="level-hex">1</span>
-            <div>
-              <strong>Sector 01 / Stablecoin peg</strong>
-              <span>Decision stage · 3 sectors total</span>
+      <section class="sector-scene" aria-label="Sector 01 orbit: stablecoin peg active, pool and yield locked">
+        <div class="scene-topline">
+          <div class="scene-level"><span class="level-hex" style="width:30px;height:30px;font-size:11px;">1</span> <strong>Sector 01 / Stablecoin peg</strong></div>
+          <div class="scene-hud">
+            <div class="hud-pod xp">
+              <span class="label">Run XP</span>
+              <strong>0 / 300</strong>
+              <div class="xp-bar"><div class="xp-fill"></div></div>
             </div>
-          </div>
-          <div class="xp-block" style="margin-top: 10px;">
-            <div class="xp-top"><span>Run XP</span><strong>0 / 300</strong></div>
-            <div class="xp-bar"><div class="xp-fill"></div></div>
+            <div class="hud-pod"><span class="label">Streak</span><strong class="gold">0</strong></div>
+            <div class="hud-pod answers-pod"><span class="label">Answers</span><strong>0 / 3</strong></div>
+            <div class="hud-pod"><span class="label">Earned</span><strong class="mint">0 <span style="font-size:8px;color:var(--muted);">NIM</span></strong></div>
           </div>
         </div>
-        <div class="hud-card">
-          <div class="hud-stats">
-            <div class="hud-stat"><span class="label">Streak</span><strong class="gold">0</strong></div>
-            <div class="hud-stat"><span class="label">Answers</span><strong>0 / 3</strong></div>
-            <div class="hud-stat"><span class="label">Earned</span><strong class="mint">0 <span style="font-size: 8px; color: var(--muted);">NIM</span></strong></div>
-          </div>
-          <p class="micro" style="margin-top: 8px;">Reward pending · not paid yet</p>
-        </div>
-        <div class="hud-card">
-          <span class="label">Run status</span>
-          <div style="display: flex; align-items: center; gap: 7px; margin-top: 6px;">
-            <span class="dot dot-green dot-live"></span>
-            <span class="chip chip-mint">Decision open</span>
-          </div>
-          <p class="micro" style="margin-top: 8px;">No outcome preview</p>
-        </div>
-      </div>
 
-      <div class="sector-track" style="margin-bottom: 12px;">
-        <div class="sector-node active">
-          <span class="orb planet-peg">1</span>
-          <span class="sector-meta"><strong>Peg risk</strong><span>Active</span></span>
-        </div>
-        <span class="sector-link active" aria-hidden="true"></span>
-        <div class="sector-node">
-          <span class="orb locked">2</span>
-          <span class="sector-meta"><strong>Pool risk</strong><span>Locked</span></span>
-        </div>
-        <span class="sector-link" aria-hidden="true"></span>
-        <div class="sector-node">
-          <span class="orb locked">3</span>
-          <span class="sector-meta"><strong>Yield risk</strong><span>Locked</span></span>
-        </div>
-        <span class="micro" style="margin-left: auto; white-space: nowrap;">Complete sector 01 to unlock 02</span>
-      </div>
+        <svg class="orbit-route" viewBox="0 0 1380 470" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="sectorRoute" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#34D399" stop-opacity=".9"/>
+              <stop offset=".5" stop-color="#FBBF24" stop-opacity=".8"/>
+              <stop offset="1" stop-color="#A78BFA" stop-opacity=".35"/>
+            </linearGradient>
+          </defs>
+          <ellipse class="route-orbit" cx="540" cy="250" rx="390" ry="125" transform="rotate(-6 540 250)"/>
+          <path class="route-ghost" d="M250 340 C390 250 460 290 570 270 C700 246 760 160 920 150 C1080 140 1150 190 1240 220"/>
+          <path class="route-line" style="stroke:url(#sectorRoute)" d="M250 340 C390 250 460 290 570 270 C700 246 760 160 920 150 C1080 140 1150 190 1240 220"/>
+        </svg>
 
-      <div class="run-main">
-        <article class="panel panel-lg mission-panel" aria-labelledby="sector-title">
-          <div class="panel-head">
-            <span class="panel-title"><strong>Sector 01</strong> / scenario brief</span>
-            <span class="panel-meta">No outcome preview</span>
-          </div>
-          <div class="panel-body">
-            <div class="mission-kicker">
-              <span class="eyebrow">Risk call / decision</span>
-              <span class="chip chip-gold">500 Luna if answered</span>
-            </div>
-            <h1 id="sector-title">Level 1 — Stablecoin peg risk</h1>
-            <p class="mission-setting">A simulated wallet holds 1,000 vUSDT.</p>
-            <p class="mission-situation">A newly launched stablecoin advertises 12% APY. It is much less established than the stablecoin you already hold.</p>
-            <div class="mission-prompt">Do you stay in the established stablecoin or move to the new one?</div>
+        <div class="planet-orb active scene-planet-active" style="width: 270px; height: 270px; left: 37%; top: 56%; transform: translate(-50%, -50%);">
+          <span class="planet-num">01</span>
+        </div>
+        <div class="planet-orb locked scene-lock-2" style="width: 92px; height: 92px; left: 68%; top: 32%;">
+          <span class="planet-num" style="font-size: 15px;">02</span>
+        </div>
+        <div class="planet-orb locked scene-lock-3" style="width: 62px; height: 62px; left: 84%; top: 57%;">
+          <span class="planet-num" style="font-size: 11px;">03</span>
+        </div>
 
-            <div class="choice-grid">
-              <button class="choice" type="button">
-                <span class="choice-icon stay" aria-hidden="true">S</span>
-                <span class="choice-copy">
-                  <strong>Stay</strong>
-                  <span>Keep the simulated balance in the established stablecoin.</span>
-                  <span class="choice-key">STAY · outcome hidden until you choose</span>
-                </span>
-              </button>
-              <button class="choice" type="button">
-                <span class="choice-icon move" aria-hidden="true">M</span>
-                <span class="choice-copy">
-                  <strong>Move</strong>
-                  <span>Move the simulated balance into the new 12% APY token.</span>
-                  <span class="choice-key">MOVE · outcome hidden until you choose</span>
-                </span>
-              </button>
-            </div>
-          </div>
-          <div class="mission-foot">
-            <span>🌱 The backend owns the outcome. No expected values shown.</span>
-            <span>Simulation only</span>
-          </div>
-        </article>
+        <div class="gps-label" style="left: 27%; top: 70%;">Active sector<strong>Stablecoin peg</strong></div>
+        <div class="gps-label" style="left: 63%; top: 47%;">Locked<strong>Pool risk</strong></div>
+        <div class="gps-label" style="left: 78%; top: 68%;">Locked<strong>Yield risk</strong></div>
 
-        <aside class="side-stack">
-          <section class="portfolio-card">
+        <div class="orbit-hud" style="left: 3%; top: 62%;">Decision open <strong>· no outcome preview</strong></div>
+
+        <div class="scene-bottom">
+          <div class="scene-portfolio">
             <span class="label">Virtual portfolio</span>
-            <div class="big-number">1,000.00 <small>vUSDT</small></div>
+            <div class="big">1,000.00 <small>vUSDT</small></div>
             <p class="sub">Simulated units · not real money</p>
-            <div class="side-stat-row">
-              <div class="side-stat">
-                <span class="label">Max reward</span>
-                <strong>1,500</strong>
-                <span>Luna / 0.015 NIM</span>
-              </div>
-              <div class="side-stat">
-                <span class="label">Badge</span>
-                <strong style="font-size: 11px; color: var(--gold);">Peg Navigator</strong>
-                <span>Unlocks on clear</span>
-              </div>
-            </div>
-            <div class="trust-inline" style="margin-top: 12px;">
-              <span class="trust-icon">🛡</span>
-              <span><strong>Testnet · not real money.</strong> This portfolio is a game score. Your payout comes from an operator treasury after the run.</span>
-            </div>
-          </section>
-
-          <section class="opsec">
-            <h3>Sector locks</h3>
-            <p>Sector 02 opens after you answer Guide's Level 1 question. No purchase, no timer.</p>
-            <div class="lock-row"><span>🔒</span> Sector 02 · Pool risk</div>
-            <div class="lock-row"><span>🔒</span> Sector 03 · Yield risk</div>
-          </section>
-
-          <div class="trust-inline cyan">
-            <span class="trust-icon">i</span>
-            <span><strong>No hidden answer key.</strong> A valid consultation response earns the fixed reward. Skipping is allowed and earns zero.</span>
           </div>
-        </aside>
-      </div>
+          <div class="scene-trust"><span class="dot dot-gold"></span><span><strong>Testnet · not real money.</strong> The portfolio is a game score; the reward comes from an operator treasury.</span></div>
+        </div>
+      </section>
+
+      <section class="mission-console" aria-labelledby="sector-title">
+        <div class="console-story">
+          <div class="mission-kicker">
+            <span class="eyebrow">Risk call / decision</span>
+            <span class="chip chip-gold">500 Luna if answered</span>
+          </div>
+          <h1 id="sector-title">Level 1 — Stablecoin peg risk</h1>
+          <p class="mission-setting">A simulated wallet holds 1,000 vUSDT.</p>
+          <p class="mission-situation">A newly launched stablecoin advertises 12% APY. It is much less established than the stablecoin you already hold.</p>
+          <div class="mission-prompt">Do you stay in the established stablecoin or move to the new one?</div>
+          <div class="trust-inline console-trust">
+            <span class="trust-icon">🛡</span>
+            <span><strong>Testnet · not real money.</strong> No outcome is previewed. The backend owns the consequence and the fixed reward is separate from this simulated portfolio.</span>
+          </div>
+        </div>
+
+        <div class="console-actions">
+          <span class="label" style="margin-bottom: 10px;">Choose your move</span>
+          <div class="choice-stack">
+            <button class="choice" type="button">
+              <span class="choice-icon stay" aria-hidden="true">S</span>
+              <span class="choice-copy">
+                <strong>Stay</strong>
+                <span>Keep the simulated balance in the established stablecoin.</span>
+                <span class="choice-key">STAY · outcome hidden until you choose</span>
+              </span>
+            </button>
+            <button class="choice" type="button">
+              <span class="choice-icon move" aria-hidden="true">M</span>
+              <span class="choice-copy">
+                <strong>Move</strong>
+                <span>Move the simulated balance into the new 12% APY token.</span>
+                <span class="choice-key">MOVE · outcome hidden until you choose</span>
+              </span>
+            </button>
+          </div>
+          <div class="micro" style="margin-top: 12px;">Sector 02 unlocks after the Level 1 consultation · not before</div>
+        </div>
+      </section>
     </main>
 
     <footer class="footer footer-slim">

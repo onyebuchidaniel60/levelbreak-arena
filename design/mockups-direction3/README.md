@@ -1,7 +1,9 @@
-# LevelBreak Arena — Gamified / Risk Orbit mockups (Direction 3, Phase 6)
+# LevelBreak Arena — Gamified / Risk Orbit mockups (Direction 3 v2, Phase 6)
 
-**Status:** PROPOSED for comparison with Direction 1 (Trading Terminal) and Direction 2 (Playful Learning Game). **None is approved.**
+**Status:** PROPOSED v2 for comparison with Direction 1 (Trading Terminal) and Direction 2 (Playful Learning Game). **None is approved.**
 No application code has been changed. Direction 1 and Direction 2 are frozen.
+
+**v2 rebuild:** the operator rejected v1 as too flat and dashboard-like. V2 replaces the flat cards and gradient circles with a cinematic full-bleed orbital stage, layered 3D CSS spheres, animated SVG routes, glass panels, neon pill actions, a loot-card reveal, a level-up burst and a reference-style Earned/Pending/Paid accent ledger.
 
 This directory is a static design artifact. It has no build step, no API calls and no
 JavaScript in the screens. The deployed application keeps its temporary Tailwind styling.
@@ -28,27 +30,28 @@ placeholders.
 
 The operator supplied three cosmic “Discover Planets” staking-game screenshots in
 `design/references/`. The extraction, adoption/translation decisions and the deliberate
-exclusions are recorded in `design/MOCKUP_NOTES_DIRECTION3.md` before the screens were
-built.
+exclusions are recorded in `design/MOCKUP_NOTES_DIRECTION3.md`. The v2 rebuild applies the
+extraction much more aggressively: orbital world map first, glass UI second, no boxy page
+sections where the scene can carry the hierarchy.
 
 ## Screens
 
 | # | File | State |
 |---|---|---|
-| 01 | `01-landing.html` | Risk Orbit landing, orbital sector map, trust strip, mission map, trophy bay |
+| 01 | `01-landing.html` | Cinematic Risk Orbit landing, huge 3D active planet, animated route, glass HUD, mission map, trophy bay |
 | 02 | `02-wallet-connect.html` | Launch console, provider available / unavailable |
 | 03 | `03-lobby-available.html` | Mission board, real session `0f566d59…c30388`, reward/XP strip |
 | 04 | `04-lobby-empty.html` | Radar empty state, scan timestamp, funding gate |
-| 05 | `05-game-level1.html` | Sector 01 decision, HUD with XP/streak, locked sectors |
+| 05 | `05-game-level1.html` | Full-bleed sector orbit scene, 3D planet, XP/streak HUD, glass mission console, locked sectors |
 | 06 | `06-game-consequence.html` | Visceral 1,000 → 800 vUSDT impact, exact explanation/lesson |
 | 07 | `07-consultation.html` | Guide transmission, evidence, question, options, skip |
-| 08 | `08-consultation-answered.html` | Loot-card reward reveal: +500 Luna, +100 XP, streak |
-| 09 | `09-payout-states.html` | Reward vault as QUEUED → SUBMITTED → CONFIRMED ledger |
+| 08 | `08-consultation-answered.html` | Loot-card reward reveal: giant coin, +500 Luna, +100 XP, streak, neon burst |
+| 09 | `09-payout-states.html` | Reward vault as QUEUED → SUBMITTED → CONFIRMED ledger with Earned/Pending/Paid accent stats |
 | 10 | `10-zero-reward.html` | Empty vault, 0 Luna, no payout record |
 | 11 | `11-history.html` | Mission log with two real Phase 5 receipts and empty reference |
 | 12 | `12-states-composite.html` | Loading, 500, 404, 401 signal states |
-| 13 | `13-level-complete.html` | Sector 01 complete: badge unlock, +100 XP, sector 02 unlocked |
-| 14 | `14-session-summary.html` | Full-run summary, 1,500 Luna, 3/3, full XP, confirmed receipt |
+| 13 | `13-level-complete.html` | Level-up burst: huge Sector 01 cleared, 3D badge unlock, +100 XP, sector 02 unlocked |
+| 14 | `14-session-summary.html` | Full-run summary, 1,500 Luna, 3/3, full XP, confirmed receipt, trophy bay |
 
 ## Screenshots
 
@@ -97,7 +100,8 @@ Checks include:
 Machine-readable results: `screenshots/validation.json`.
 
 Latest run: **66 captures, 0 console errors, 0 page errors, 0 overflow, 0 off-screen
-elements, 0 missing trust copy, 0 failures.**
+content, 0 missing trust copy, 0 failures.** Decorative planet edges clipped inside an
+offscreen-safe stage are not counted as content overflow.
 
 ## Scope guard
 

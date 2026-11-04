@@ -1,4 +1,4 @@
-# Mockup notes — Gamified (reference-driven)
+# Mockup notes — Gamified (reference-driven) v2
 
 ## Reference extraction (written before screen production)
 
@@ -74,9 +74,23 @@ The reference is a dark cosmic staking game called “Discover Planets.” It pr
 - **The confirmed stage is the only one with a chain receipt.** QUEUED and SUBMITTED show no block; CONFIRMED shows block `15839460` and the real `b693acd3…` tx, plus “Testnet · not real money”.
 - **Operator treasury is part of the reward UI**, not footer fine print.
 
+## v2 rebuild — operator feedback
+
+The operator reviewed v1 and rejected it as a flat, boxy dashboard with a space palette rather than a game. V2 was rebuilt after that feedback. The changes are structural, not a recolour:
+
+- The landing and game screens now lead with a full-bleed orbital stage: a massive active planet with layered inset/outset shadows and surface gradients, distant locked planets, an animated dashed SVG route, orbit rings and an original CSS/SVG ship.
+- Cards became glass panels: translucent indigo, `backdrop-filter: blur`, 1px white-alpha borders, deep 0 30px 70px shadows and top light catches. No heavy gray borders.
+- Headings became cinematic: very large uppercase display type, gradient fills and colored drop shadows. Primary actions became glowing pill buttons.
+- The reward reveal became a floating loot card with a large 3D coin, 0 0 80px glow, layered burst rings, a gradient +500 Luna and a visible “not paid yet” note.
+- The level-complete screen became a full-bleed level-up burst: rotating conic rays, a floating 3D badge, an XP bar that visibly advances, and the next sector unlocking under the same glow.
+- The payout screen now carries the reference’s bottom-ledger treatment: three glass Earned / Pending / Paid tiles with red / amber / green top accent borders.
+- Mobile was tuned separately so the planet scene, HUD, trust note and console do not collide at 375 or 320.
+
+The reference extraction above describes what was studied; v2 is the execution that takes it further.
+
 ## Per-screen summary
 
-**01 — Landing.** A full cosmic hero, “ENTER THE RISK ORBIT,” puts a glowing sector 01 planet on a dashed route with sectors 02 and 03 visibly locked. The mission map uses the real three level titles, and the trust chips sit directly under the launch CTA rather than in a footer. A trophy-bay preview states that badges are learning proof, not money.
+**01 — Landing.** A cinematic centered “ENTER THE RISK ORBIT” sits above a full-bleed orbit stage: a massive 3D CSS planet with a warm ring, two distant padlocked planets, an animated dashed route and an original ship marker. Launch and map CTAs are glowing pills, and the four game facts float in glass HUD tiles over the scene. The mission map uses the real three level titles, with large glass tiles and planet thumbnails; trust chips sit directly under the CTA.
 
 **02 — Launch console.** Two states compare a detected Nimiq Pay pilot with the “open in Nimiq Pay” fallback. The launch checklist is micro-gamified (checks, a mission patch), while “Testnet · not real money”, “no transaction at sign-in” and operator-treasury language sit inside the cards. The phone mock is a typographic placeholder, not copied brand art.
 
@@ -84,15 +98,15 @@ The reference is a dark cosmic staking game called “Discover Planets.” It pr
 
 **04 — Empty mission board.** A radar scan and “No run to launch yet” make the empty state feel like part of the world rather than an error. The last scan, funding gate and testnet/treasury note are visible. There is no fake mission or invented countdown.
 
-**05 — Sector 01 decision.** The HUD carries a level hex, a 0/300 XP bar, streak, answers, earned, and a live decision state. The sector route shows two locked future nodes; the scenario card uses the exact server text and STAY/MOVE choices with outcomes hidden. The portfolio and trust notes sit in the same view.
+**05 — Sector 01 decision.** The screen is built around a full-bleed sector orbit: a giant magenta active planet, orbiting gold ring, distant padlocked pool/yield planets, animated dotted route and floating glass XP/streak/earned capsules. The virtual portfolio is a glass HUD overlay on the scene. A wide glass mission console below carries the exact scenario, a glowing prompt, two large glass choices and the testnet/trust note.
 
-**06 — Sector 01 impact.** The portfolio number moves visibly from struck-through 1,000.00 to a large red 800.00, with a −20% delta chip and a red HUD state. The exact explanation and lesson are paired with a “what this teaches” panel and a next-step CTA. A trust block separates the pretend portfolio from the fixed reward.
+**06 — Sector 01 impact.** The portfolio number moves visibly from struck-through 1,000.00 to a huge gradient-red 800.00, with a −20% delta chip and a red HUD state. The exact explanation and lesson are paired with a “what this teaches” panel and a next-step CTA. A glowing trust block separates the pretend portfolio from the fixed reward.
 
 **07 — Guide's intel.** Guide appears as a signal avatar with a “Scripted” badge, confidence, and the exact transmission. The three real evidence facts are a data card, then the question and three real options, skip link and “no hidden answer key” note. “Scripted requester”, “Testnet · not real money” and “operator treasury” sit in the same comms surface.
 
-**08 — Reward reveal.** The answer reveal is a loot card: coin pop, +500 Luna, +100 XP, streak 1, and 500/1,500 progress. “Not paid yet”, testnet and operator-treasury notes are inside the reveal card, not after it. The next CTA is the level-clear beat, not an immediate payout.
+**08 — Reward reveal.** The answer reveal is a floating loot card over a full-bleed glow field: a large 3D coin with layered highlight/shadow, huge gradient +500 Luna, +100 XP, streak 1, and 500/1,500 progress. “Not paid yet”, testnet and operator-treasury notes are inside the reveal card, not after it. The next CTA is the level-clear beat, not an immediate payout.
 
-**09 — Reward vault.** The three payout states are a connected ledger rather than three cards: queued, submitted and confirmed stages show what existed at each point. The confirmed stage carries the real `b693acd3…` hash and block `15839460`; the vault hero holds the total and the trust disclosure. Operator treasury and “confirmed on-chain” sit at the same visual weight as the amount.
+**09 — Reward vault.** The payout states are a connected glass ledger: queued, submitted and confirmed stages show what existed at each point. The confirmed stage carries the real `b693acd3…` hash and block `15839460`; the vault hero holds the total and the trust disclosure. Below it, a reference-style Earned / Pending / Paid strip uses red, amber and green top accent borders over glass.
 
 **10 — Empty vault.** The zero state is an empty reward orb, 0 Luna and three skipped rows. It says no payout record, hash or block was created, and explicitly keeps “testnet · not real money” and “no operator treasury transfer” visible. There is no confetti, no green and no fictional receipt.
 
@@ -100,9 +114,9 @@ The reference is a dark cosmic staking game called “Discover Planets.” It pr
 
 **12 — Signal states.** Loading, 500, 404 and 401 are presented as orbit diagnostics with friendly copy and precise state. The error screen names a request ID and says no financial state changed; the 404 protects pilot privacy; the 401 reconnects. None presents a payout or success.
 
-**13 — Sector 01 complete.** A dedicated level-up beat: “SECTOR 01 CLEARED,” Peg Navigator badge, +100 XP with the bar moving to 100/300, streak 1, and a clear “sector 02 unlocked” line. The trust panel states 500 Luna is pending, not paid, and the next level unlocks by playing rather than paying.
+**13 — Sector 01 complete.** A full-bleed level-up burst: rotating gold conic rays, a huge gradient “SECTOR 01 CLEARED,” a floating 3D Peg Navigator badge, +100 XP and an XP bar that visibly moves to 100/300. A glass trust panel keeps “500 Luna pending, not paid” and “scripted Guide” in the same frame as the celebration. Sector 02 unlocks below as a glowing status line.
 
-**14 — Session summary.** The earned-feeling finish: 1,500 Luna total, 3/3 answers, 300/300 XP, streak 3 and three badge tiles. The verified payout receipt carries the real b693acd3… hash, block 15839460, payer “Operator treasury” and “Nimiq Testnet / 5”. One primary next action returns to the mission board.
+**14 — Session summary.** The earned-feeling finish: a huge gradient “ORBIT CLEARED,” 1,500 Luna total, 3/3 answers, 300/300 XP, streak 3 and three 3D trophy tiles. The verified payout receipt carries the real b693acd3… hash, block 15839460, payer “Operator treasury” and “Nimiq Testnet / 5”. One primary next action returns to the mission board.
 
 ## Gamified patterns adopted from the reference
 
@@ -129,7 +143,7 @@ The reference is a dark cosmic staking game called “Discover Planets.” It pr
 | 02 Wallet | Not a transaction | Strip + checklist row | Visible above the fold |
 | 03 Mission board | Testnet / operator treasury / scripted | Trust line in side rail + mission body | Same panel as trophy bay |
 | 04 Empty board | Testnet / operator treasury | Trust line under funding gate | Same bordered panel |
-| 05 Sector 01 | Testnet · not real money | Portfolio card + footer | Gold trust panel inside the card |
+| 05 Sector 01 | Testnet · not real money | Glass HUD trust tile over the orbit scene + console note | Gold glass HUD tile + console panel |
 | 06 Impact | Testnet · not real money | Portfolio card trust + footer | Gold trust panel next to the loss |
 | 06 Impact | Operator treasury | Comms queue row | Text row in the same side panel |
 | 07 Consultation | Scripted requester | Guide header badge + comms trust line | Badge beside Guide's name |
@@ -144,7 +158,7 @@ The reference is a dark cosmic staking game called “Discover Planets.” It pr
 
 ## Accessibility decisions
 
-- **Reduced motion:** all celebration effects are additive. With `prefers-reduced-motion: reduce`, the loot card appears in its final state, the coin is still, the XP fill is already at its value, the badge is static, and the orbit rings do not pulse. No critical number or state depends on animation.
+- **Reduced motion:** all celebration effects are additive. With `prefers-reduced-motion: reduce`, the route dash stops, the planets stop glowing/pulsing, the loot card appears in its final position, the coin is still, the XP fill is already at its value, the badge is static, and the conic level-up rays stop rotating. No critical number or state depends on animation.
 - **Color-independent meaning:** locked sectors include a padlock and “Locked”; confirmed stages include a check, “Confirmed” and the block number; losses include a downward arrow, a minus sign and the numeric delta; earned/paid states include text labels. Color is never the only carrier.
 - **Touch targets:** primary/secondary buttons are at least 46px high; option cards at least 56px; choice cards have generous padding; the skip link has a 44px target. Nav links are at least 34px at mobile with large horizontal padding.
 - **Focus:** buttons, choices, options and stage steps use a visible 2px cyan focus ring with 3px offset.
@@ -167,9 +181,9 @@ The reference is a dark cosmic staking game called “Discover Planets.” It pr
 
 ## Questions for the operator
 
-1. **Reference recognition:** does the orbit route, locked nodes, XP HUD, badge shelf and vault ledger read as the same gamified category as the reference — or does it still feel like a themed dashboard?
-2. **Trust weight:** are “Testnet · not real money,” “Operator treasury” and “Scripted requester” visible enough beside the celebrations? Which screen gets closest to burying them, and should that one be revised first?
-3. **Celebration calibration:** are the loot reveal (08), level-up (13) and run summary (14) distinct enough beats, or should one of them be more theatrical? Is the reward reveal too much or too little?
+1. **v2 resonance:** does the cinematic orbit stage, 3D CSS planet, glass HUD and glowing loot/level-up now read as the same visual category as the reference — or does any screen still feel like a themed dashboard? Name the screen.
+2. **Trust weight:** are the glowing gold/mint trust HUD panels reading as strongly as the celebration? Which v2 screen gets closest to letting the glow bury the “testnet · not real money” fact?
+3. **Celebration calibration:** are the loot reveal (08), level-up burst (13) and run summary (14) distinct enough? Is the coin/level-up glow now at the reference’s level, or should one beat go further?
 4. **Game loop completeness:** is anything essential missing from the loop — for example a visible streak-break state, a badge shelf before the first run, or a per-sector counter on the HUD?
 5. **Direction comparison:** for the competition audience, does this gamified direction beat the terminal and playful directions, or would a hybrid (for example, Direction 3's HUD and rewards on Direction 1's density) be stronger?
 

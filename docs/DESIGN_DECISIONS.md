@@ -160,23 +160,28 @@ No transaction hash, block, address, session reference or scenario value was fab
 
 This section records a **proposal and comparison**, not a selection or approval. The app remains on temporary styling; `apps/web/` and `apps/api/` are untouched.
 
-## Proposed direction: Gamified (reference-driven) (Phase 6, Direction 3)
+## Proposed direction: Gamified (reference-driven) — v2 (Phase 6, Direction 3)
 
-**Status: PROPOSED — awaiting operator comparison and selection. Operator approval: NOT GIVEN.**
-**Date proposed:** 4 November 2026.
-**Scope:** mockups only. No application code, API, schema, auth, payment behavior or deployed environment was changed. Direction 1 and Direction 2 are untouched.
+**Status: PROPOSED v2 — awaiting operator comparison and selection. Operator approval: NOT GIVEN.**
+**Date proposed:** 4 November 2026. **v2 rebuilt:** 4 November 2026 after operator feedback.
+**Scope:** mockups only. No application code, API, schema, auth, payment behavior or deployed environment was changed. Direction 1 and Direction 2 are untouched; Direction 3 v1 was replaced in place.
 
 ### Direction and reference
 
 The operator supplied three cosmic staking-game screenshots in `design/references/` and asked for a genuinely gamified direction, not another skin. The reference extraction was written before screen production in [Direction 3 mockup notes](../design/MOCKUP_NOTES_DIRECTION3.md). The reference is used as a structural anchor — planet route, locked future destinations, fuel/progress bar, collectible vehicle cards, trophy room, claim action, allocated/claimed ledger — not as artwork to copy.
 
-- Deep-space base `#050814`; glass panels `#0D1530` with cyan-tinted borders.
-- Nimiq gold `#FBBF24`/`#FCD34D` for primary action and earned value; mint `#34D399` for confirmed/progress; cyan `#22D3EE` for links/info; purple `#A78BFA` and magenta `#F472B6` for level markers.
-- Space Grotesk for the wide uppercase display voice; Inter for body and tabular figures.
-- Original CSS/SVG planets, dashed orbit routes, starfields, glow and badge geometry. No reference image or trademark is reproduced.
-- 18px panel / 24px hero radii; bright rectangular game CTAs; thin XP tracks; 12px trust panels.
-- Run XP, answer streak, three sector nodes, badge unlocks, loot-reveal reward, level-up burst, reward-vault ledger and a full-run summary.
-- Motion is CSS-only: orbit rings, coin drop, loot-card reveal, XP fill, badge pop. `prefers-reduced-motion` presents the same information in a static final state.
+The operator rejected v1 as a flat, boxy dashboard with a space palette. **V2 replaces the flat presentation** with:
+
+- A full-bleed orbital stage: massive 3D CSS spheres built from layered radial gradients, inset/outset shadows and rim light; distant locked planets with padlocks; animated dashed SVG routes; orbit rings and an original CSS/SVG ship.
+- Glass panels: translucent indigo, `backdrop-filter: blur(20px)`, subtle 1px white-alpha borders, deep 0 30px 70px shadows and top light catches. No heavy gray borders.
+- Cinematic type: very large uppercase Space Grotesk display, gradient text fills and colored drop shadows.
+- Glowing pill CTAs with layered gold/cyan box-shadow glows.
+- A floating loot-card reward reveal with an oversized 3D coin, layered burst rings and gradient +500 Luna.
+- A level-up burst with rotating conic rays, floating 3D badge and a visibly advancing XP bar.
+- A reference-style bottom ledger with Earned / Pending / Paid glass tiles carrying red / amber / green top accent borders.
+- Mobile-specific compositions for the orbit scene, HUD and glass console at 375 and 320px.
+
+The v2 palette remains deep space `#03040C` with Nimiq gold, mint, cyan, violet and magenta. Space Grotesk carries display type; Inter carries body and tabular figures. No reference image or trademark is reproduced. Run XP, streak, badges and levels remain game-layer metrics, never money. Motion is CSS-only; `prefers-reduced-motion` freezes the route, planets, loot card, coin, badge and conic rays in their final readable state.
 
 ### Artifacts
 
@@ -215,10 +220,10 @@ No hash, block, address, session reference or scenario value was fabricated. The
 
 ### Verification
 
-`node design/mockups-direction3/capture.mjs` produced 66 captures with:
+`node design/mockups-direction3/capture.mjs` produced 66 v2 captures with:
 
 - 0 console errors, 0 page errors;
-- 0 horizontal overflow and 0 off-screen elements at 1440px, 375px and 320px across all 14 screens;
+- 0 horizontal overflow and 0 off-screen content at 1440px, 375px and 320px across all 14 screens (decorative planet edges clipped inside an overflow-safe stage are not counted as content);
 - 0 `<script>` tags in screen HTML;
 - mockup marker present on every screen;
 - required trust copy present per screen (case-insensitive, tag-stripped text check);
@@ -237,7 +242,7 @@ This section records a **proposal and comparison**, not a selection or approval.
 ## Approval log
 
 - Reference candidates: Direction 3 is anchored on the three operator-supplied files in `design/references/`; Directions 1 and 2 used operator briefs with no external URLs.
-- Mockup sets: Direction 1 at `design/mockups/` (12 screens), Direction 2 at `design/mockups-direction2/` (12 screens), Direction 3 at `design/mockups-direction3/` (14 screens). All have desktop/mobile captures and 320px stress tests as specified.
+- Mockup sets: Direction 1 at `design/mockups/` (12 screens), Direction 2 at `design/mockups-direction2/` (12 screens), Direction 3 **v2** at `design/mockups-direction3/` (14 screens). All have desktop/mobile captures and 320px stress tests as specified.
 - Design decision record: all three directions **PROPOSED** — awaiting operator comparison and selection.
 - Operator approval: **NOT GIVEN** for any direction.
 - Selected direction: **NONE**.
