@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 4 November 2026
-**Current phase:** Phase 6 — Direction 3 v3 interactive prototype complete; awaiting operator review
-**Status:** Phase 5 PASS / ACCEPTED. Phase 6 visual direction NOT APPROVED. Phase 7 NOT STARTED.
+**Current phase:** Phase 6 — Direction 4: The Conquest RPG interactive prototype complete; awaiting operator review
+**Status:** Phase 5 PASS / ACCEPTED. Direction 3 v3 REJECTED. Direction 4 NOT APPROVED. Phase 7 NOT STARTED.
 
 ## Current deployment and wallets
 
@@ -24,14 +24,63 @@
 - All three Phase 5 payouts are `CONFIRMED`; total paid 3,500 Luna, fees 0. Treasury balance before the payout run: `11,000,006,000` Luna; after: `11,000,002,500` Luna.
 - `NIMIQ_EXPLORER_BASE_URL`: `https://test.nimiq.watch/#`; verified to render tx `899823e2…` and block `15766696`. The API returns `explorerUrl` and the UI/history show a working "View on explorer" link.
 - Design references: 3 operator-supplied VISE Staking Adventure images in `design/references/` (local design input, intentionally not committed)
-- Mockups: Direction 3 v2 rejected; Direction 3 v3 interactive React + Three.js prototype created at `design/mockups-direction3-interactive/` with 9 review screenshots; not applied to the app
+- Mockups: Direction 3 v2 rejected; Direction 3 v3 rejected (realistic textures/standard typography). Direction 4: The Conquest RPG interactive prototype at `design/mockups-direction3-interactive/` with 8 review screenshots; not applied to the app
 - Prototype deployment: NOT DEPLOYED (local standalone prototype)
 - Operator approval of final visual design: **NOT GIVEN**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 5 proof, disabled 2026-11-04T01:21:37Z).
 
-## Phase 6 — Direction 3 v3 interactive prototype (4 November 2026)
+## Phase 6 — Direction 4: The Conquest RPG (4 November 2026)
 
 **Status:** READY FOR OPERATOR REVIEW. Visual direction NOT APPROVED. Phase 7 NOT STARTED.
+
+- **Location:** `design/mockups-direction3-interactive/` (directory retained from the previous design round; the inside is now Direction 4).
+- **Review URL:** NOT DEPLOYED — local standalone prototype. Run `cd design/mockups-direction3-interactive && npm install && npm run dev`.
+- **Prototype deployed SHA:** NONE.
+- **Commit:** `2a232e3` — `design: rebuild prototype as Direction 4 conquest RPG`. This handoff documentation commit follows it.
+- **Operator feedback addressed:** v3 was rejected for realistic NASA textures, standard fonts and a flat/dashboard feel. V4 removes all texture imagery, uses procedural toon planets, switches to Outfit display type, and rebuilds the game as a 12-world cartoon conquest RPG.
+- **What changed:**
+  - 12 named planets in a sprawling spiral: Xylos (playable) plus Kepler-9, Crimson Nebula, Azure Reach, Violet Forge, Solaris Drift, Ghost Moon, Emberfall, Nimbus Vale, Onyx Spire, Prismata and Eventide (sealed).
+  - Procedural `MeshToonMaterial` planets with stepped gradient maps, dark outlines, neon atmosphere, procedural surface patches, glowing rings and orbiting moons. No planet `.jpg` imports; `public/assets/` removed.
+  - Continuous motion: planet spin, ring tilt/pulse, moon orbits, route comet, star sparkles and a floating camera.
+  - Xylos teacher tower: 18 teachers in four escalating visual tiers with real local DeFi trial questions. Wrong answers cost nothing; correct answers award XP once and mark mastery.
+  - 100 XP conquest threshold, visible progress meter, and an explicitly labelled **OPERATOR TEST TOOL: SIMULATE XP MAX**.
+  - Asteroid strike cinematic at the threshold. A cartoon meteor and trail hit Xylos; impact flash; planet cracks open; the Agent signal rises and the Agent consultation auto-opens after the hold (or via the CTA).
+  - Agent modal shows the **SCRIPTED DEMO REQUESTER**, evidence first, the consultation question and a fixed **+500 Luna** simulated reward.
+  - Simulated payout states **QUEUED → SUBMITTED → CONFIRMED** with an explicit **SIMULATION** label.
+  - Real Phase 5 testnet receipt is shown only as a separate **reference** from another play-through.
+  - Operator Treasury / testnet / scripted-requester disclosures remain in the reward surface.
+  - New Playwright `verify` and `capture` scripts; 8 review screenshots committed.
+- **Evidence (local):**
+  - `npm run lint` — clean oxlint.
+  - `npm run build` — TypeScript + Vite production build passed.
+  - `npm run verify` — **23/23 assertions passed, 0 console/page errors.** Covers 12-planet count, 11 sealed labels, trust badge, sealed refusal, Xylos entry, 18 teacher rows, wrong answer no-XP, retry, correct XP, mastery, asteroid trigger, Agent reveal, evidence, +500 reward, payout CONFIRMED, Phase 5 href, Operator Treasury, conquered state, reset, 390 px overflow and reduced motion.
+  - `npm run capture` — 8 screenshots, 0 console/page errors; simulated payout status `CONFIRMED`; Phase 5 explorer href verified.
+  - Root `pnpm lint` — passed (design prototypes and local agent tooling remain excluded from product lint).
+  - `apps/web` and `apps/api` — no changes.
+- **Screenshots:** `design/mockups-direction3-interactive/screenshots/01-orbit-map.png`, `02-teacher-list.png`, `03-teacher-tiers.png`, `04-asteroid-strike.png`, `05-agent-consultation.png`, `06-agent-payout.png`, `07-galaxy-conquered.png`, `08-mobile-orbit.png`.
+- **Trust/honesty notes:**
+  - No realistic planet textures remain; all worlds are procedural.
+  - No wallet, API, database, LLM or treasury transfer is connected to this prototype.
+  - The +500 Luna payout and QUEUED → CONFIRMED lifecycle are labelled **SIMULATION**. No funds move.
+  - Phase 5 tx `139bfc81643ffb410c1f2a179d0d152ab7346f5205f31d99642a1e0e577421e4` (1,000 Luna, block 15,838,771) is explicitly a **reference from a different play-through**, not this simulation's payout.
+  - Agent response is fixed-fee and has no hidden correct/incorrect rubric, matching the product rule. Teacher tests do have correct answers and only award XP.
+  - The Agent is scripted; operator treasury is ordinary testnet custody, not HTLC/escrow.
+- **Known deviations/limitations:**
+  - Only Planet 1 (Xylos) is playable; Planets 2–12 are named, sealed map worlds.
+  - No persistence, auth, API wiring, audio or 320 px-specific capture.
+  - The Agent auto-reveals after the impact hold and also has an explicit CTA for faster review.
+  - On the 390 px mobile layout, locked-world labels are hidden to keep the map legible; names remain available on desktop and in locked-planet toast copy.
+  - Teacher/Agent content is local static mock data.
+  - Three.js r187 / React Three Fiber emits a benign `THREE.Clock` deprecation warning in the dev console; no console/page errors are logged by capture or verify.
+  - Operator reference images and the locally installed stageshow skill are intentionally not committed.
+- **Single next task:** Await the operator's explicit review of Direction 4. Do not begin Phase 7, apply the direction to `apps/web`, or add backend/wallet integration before approval.
+- **STOPPED awaiting operator approval:** yes
+
+## Phase 6 — Direction 3 v3 interactive prototype (superseded, 4 November 2026)
+
+> **Superseded by Direction 4.** The operator rejected the realistic NASA textures, standard typography and resulting look. This section is retained as historical context; the old v3 screenshots were replaced by the Direction 4 captures.
+
+**Status:** REJECTED. Visual direction NOT APPROVED. Phase 7 NOT STARTED.
 
 - **Location:** `design/mockups-direction3-interactive/`
 - **Review URL:** NOT DEPLOYED — local standalone prototype. Run `cd design/mockups-direction3-interactive && npm install && npm run dev`, then open the Vite URL.
