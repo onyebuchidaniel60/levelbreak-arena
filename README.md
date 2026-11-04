@@ -1,10 +1,10 @@
 # LevelBreak Arena
 
-LevelBreak Arena is a three-level simulated DeFi learning game for Nimiq Mini Apps. This repository is the implementation workspace for the approved blueprint.
+LevelBreak Arena is a five-level simulated DeFi learning game for Nimiq Mini Apps. This repository is the implementation workspace for the approved blueprint.
 
-**Current phase:** Phase 5 complete — end-to-end funded-session-to-payout proven; awaiting operator acceptance.
+**Current phase:** Phase 7 — Direction 1 Trading Terminal UI, five-level ladder, LLM-assisted agent, and demo fiat off-ramp.
 
-Phase 4 connected the frontend to the Phase 3 APIs: real wallet challenge/signature authentication, funded-session lobby, three-level game decisions, evidence-backed consultations, reward display, finish/payout status and player history. Phase 5 completed the serialized payout worker and proved the full funded-session → game → treasury payout → on-chain confirmation flow on testnet for two play-throughs plus the orphaned Phase 4 payout. Styling remains temporary; final visual design is Phase 6/7. `PAYOUT_WORKER_ENABLED` was enabled only for the proof and is disabled again; `DEMO_FUNDING_ENABLED` remains false on Render.
+Phase 4 connected the frontend to the Phase 3 APIs: real wallet challenge/signature authentication, funded-session lobby, five-level game decisions, evidence-backed consultations, reward display, finish/payout status and player history. Phase 5 completed the serialized payout worker and proved the full funded-session → game → treasury payout → on-chain confirmation flow on testnet for two play-throughs plus the orphaned Phase 4 payout. The approved Direction 1 Trading Terminal design is implemented in Phase 7. `PAYOUT_WORKER_ENABLED` was enabled only for the proof and is disabled again; `DEMO_FUNDING_ENABLED` remains false on Render.
 
 ## Stack
 
@@ -101,6 +101,6 @@ The verified preview URL and deployed commit SHA are recorded in [`AI_HANDOFF.md
 ## Safety and scope
 
 - Testnet only; no mainnet path is enabled.
-- No HTLC and no trustless-escrow claim. The MVP uses an operator-controlled treasury and ordinary NIM transfers; database reservations are accounting, not on-chain locks.
-- The requester is a scripted demo requester controlled by the operator, not a live AI agent.
+- No HTLC and no trustless-escrow claim. The MVP uses an operator-controlled treasury and ordinary NIM transfers; database reservations are accounting, not on-chain locks. The LLM only drafts the agent message.
+- The requester is an LLM-assisted, operator-controlled demo agent with a deterministic scripted fallback; it is not an independent external agent. The fiat off-ramp modal is a labelled demo and moves no fiat.
 - No secrets belong in the repository. `.env.example` contains blank placeholders only.

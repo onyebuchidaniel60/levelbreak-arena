@@ -18,7 +18,7 @@ export type ScenarioOutcome = {
 export type ScenarioDefinition = {
   id: string;
   version: string;
-  levelIndex: 1 | 2 | 3;
+  levelIndex: 1 | 2 | 3 | 4 | 5;
   title: string;
   setting: string;
   situation: string;
@@ -152,6 +152,90 @@ export const SCENARIOS: readonly ScenarioDefinition[] = [
           "Reading the disclosures reveals an unaudited fork and an unsustainable rewards source. The simulated portfolio is left unchanged.",
         lesson:
           "Inspect where yield comes from before committing capital.",
+      },
+    },
+  },
+  {
+    id: "level-4-oracle-manipulation",
+    version: "1",
+    levelIndex: 4,
+    title: "Level 4 — Oracle manipulation",
+    setting:
+      "A simulated lending market values collateral using a single spot price feed.",
+    situation:
+      "The feed draws from one thin market. A large simulated actor can move that market, and the protocol has no time-weighted average or circuit breaker.",
+    prompt:
+      "Do you trust the spot feed or verify the oracle design before borrowing?",
+    choices: [
+      {
+        key: "TRUST",
+        label: "Trust the feed",
+        description:
+          "Borrow against the collateral using the single spot price without further checks.",
+      },
+      {
+        key: "VERIFY",
+        label: "Verify the oracle",
+        description:
+          "Check the feed sources, averaging window, fallback and liquidation safeguards first.",
+      },
+    ],
+    outcomes: {
+      TRUST: {
+        basisPoints: 7_000n,
+        explanation:
+          "The simulated spot price is pushed down, the position is liquidated at the manipulated price, and the virtual portfolio loses 30%.",
+        lesson:
+          "A single manipulable price source can turn a safe-looking loan into a forced sale.",
+      },
+      VERIFY: {
+        basisPoints: 10_000n,
+        explanation:
+          "Verifying the design reveals the single-source feed and missing safeguards. The simulated position is not opened at that price.",
+        lesson:
+          "Check oracle sources, averaging, fallbacks and circuit breakers before relying on a price.",
+      },
+    },
+  },
+  {
+    id: "level-5-liquidation-cascade",
+    version: "1",
+    levelIndex: 5,
+    title: "Level 5 — Liquidation cascades",
+    setting:
+      "The simulated portfolio holds a leveraged ETH position with a thin collateral buffer.",
+    situation:
+      "ETH falls 15% in the simulation. Liquidations are automated, and the market's liquidity is thin enough that forced selling can push prices further down.",
+    prompt:
+      "Do you hold through the drawdown or deleverage before the liquidation threshold?",
+    choices: [
+      {
+        key: "HOLD",
+        label: "Hold",
+        description:
+          "Keep the leveraged position and wait for the simulated price to recover.",
+      },
+      {
+        key: "DELEVERAGE",
+        label: "Deleverage",
+        description:
+          "Repay part of the simulated debt or add collateral to restore a buffer.",
+      },
+    ],
+    outcomes: {
+      HOLD: {
+        basisPoints: 6_500n,
+        explanation:
+          "The simulated drawdown triggers liquidations, thin liquidity amplifies the move, and the virtual portfolio loses 35%.",
+        lesson:
+          "Leverage plus thin liquidity can turn a normal drawdown into a reflexive cascade.",
+      },
+      DELEVERAGE: {
+        basisPoints: 9_600n,
+        explanation:
+          "Deleveraging costs 4% in the simulation but restores a buffer and avoids the liquidation cascade.",
+        lesson:
+          "A deliberate, small cost to reduce leverage can prevent a much larger forced loss.",
       },
     },
   },

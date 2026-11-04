@@ -56,7 +56,7 @@ export const availableSessionsResponseSchema = z.object({
 export const claimResponseSchema = z.object({
   runId: z.string().uuid(),
   state: z.string(),
-  levelIndex: z.number().int().min(1).max(3),
+  levelIndex: z.number().int().min(1).max(5),
   stateVersion: z.number().int().min(0),
 });
 
@@ -68,7 +68,7 @@ export const scenarioChoiceSchema = z.object({
 export const scenarioSchema = z.object({
   id: z.string(),
   version: z.string(),
-  levelIndex: z.number().int().min(1).max(3),
+  levelIndex: z.number().int().min(1).max(5),
   title: z.string(),
   setting: z.string(),
   situation: z.string(),
@@ -123,7 +123,7 @@ export const consultationOptionSchema = z.object({
 
 export const consultationSchema = z.object({
   id: z.string(),
-  levelIndex: z.number().int().min(1).max(3),
+  levelIndex: z.number().int().min(1).max(5),
   evidenceVersion: z.string(),
   agentContext: z.string(),
   agentConfidence: z.enum(["low", "medium", "high"]),
@@ -137,7 +137,7 @@ export const consultationSchema = z.object({
 export const decisionResultSchema = z.object({
   scenarioId: z.string(),
   scenarioVersion: z.string(),
-  levelIndex: z.number().int().min(1).max(3),
+  levelIndex: z.number().int().min(1).max(5),
   decisionKey: z.string(),
   decisionLabel: z.string(),
   portfolioBefore: lunaSchema,
@@ -149,7 +149,7 @@ export const decisionResultSchema = z.object({
 
 export const decisionRecordSchema = z.object({
   decisionId: z.string().uuid(),
-  levelIndex: z.number().int().min(1).max(3),
+  levelIndex: z.number().int().min(1).max(5),
   decisionKey: z.string(),
   result: decisionResultSchema,
   stateVersionBefore: z.number().int().min(0),
@@ -159,7 +159,7 @@ export const decisionRecordSchema = z.object({
 export const responseRecordSchema = z.object({
   responseId: z.string().uuid(),
   questionId: z.string(),
-  levelIndex: z.number().int().min(1).max(3),
+  levelIndex: z.number().int().min(1).max(5),
   responseKey: z.string().nullable(),
   result: z.enum(["ANSWERED", "SKIPPED"]),
   rewardLuna: lunaSchema,
@@ -191,7 +191,8 @@ export const payoutStatusSchema = z.enum([
 export const runDetailSchema = z.object({
   runId: z.string().uuid(),
   state: runStateSchema,
-  levelIndex: z.number().int().min(1).max(3),
+  levelIndex: z.number().int().min(1).max(5),
+  maxConsultations: z.number().int().positive(),
   stateVersion: z.number().int().min(0),
   portfolio: z.object({
     unit: z.string(),
@@ -209,7 +210,7 @@ export const runDetailSchema = z.object({
 
 export const decisionResponseSchema = z.object({
   decisionId: z.string().uuid(),
-  levelIndex: z.number().int().min(1).max(3),
+  levelIndex: z.number().int().min(1).max(5),
   result: decisionResultSchema,
   nextState: z.string(),
   stateVersion: z.number().int().min(0),
@@ -240,11 +241,16 @@ export const payoutResponseSchema = z.object({
   explorerUrl: z.string().nullable(),
 });
 
+export const agentPromptResponseSchema = z.object({
+  prompt: z.string().min(1).max(700),
+  source: z.enum(["llm", "scripted"]),
+});
+
 export const historyItemSchema = z.object({
   runId: z.string().uuid(),
   publicRef: z.string(),
   state: z.string(),
-  levelIndex: z.number().int().min(0).max(3),
+  levelIndex: z.number().int().min(0).max(5),
   earnedLuna: lunaSchema,
   payoutId: z.string().uuid().nullable(),
   payoutStatus: z.string(),
@@ -273,6 +279,7 @@ export type DecisionResponse = z.infer<typeof decisionResponseSchema>;
 export type RespondResponse = z.infer<typeof respondResponseSchema>;
 export type FinishResponse = z.infer<typeof finishResponseSchema>;
 export type PayoutResponse = z.infer<typeof payoutResponseSchema>;
+export type AgentPromptResponse = z.infer<typeof agentPromptResponseSchema>;
 export type HistoryItem = z.infer<typeof historyItemSchema>;
 export type HistoryResponse = z.infer<typeof historyResponseSchema>;
 export type ErrorEnvelope = z.infer<typeof errorEnvelopeSchema>;

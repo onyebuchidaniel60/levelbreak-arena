@@ -10,8 +10,10 @@ const START = STARTING_PORTFOLIO_UNITS;
 
 describe("scenario definitions", () => {
   it("defines exactly one scenario per level", () => {
-    expect(SCENARIOS).toHaveLength(3);
-    expect(SCENARIOS.map((scenario) => scenario.levelIndex)).toEqual([1, 2, 3]);
+    expect(SCENARIOS).toHaveLength(5);
+    expect(SCENARIOS.map((scenario) => scenario.levelIndex)).toEqual([
+      1, 2, 3, 4, 5,
+    ]);
   });
 
   it("covers every authored decision branch", () => {
@@ -41,11 +43,27 @@ describe("scenario definitions", () => {
       portfolioAfter: "100000000",
       delta: "0",
     });
+    expect(evaluateScenario(4, "TRUST", START)).toMatchObject({
+      portfolioAfter: "70000000",
+      delta: "-30000000",
+    });
+    expect(evaluateScenario(4, "VERIFY", START)).toMatchObject({
+      portfolioAfter: "100000000",
+      delta: "0",
+    });
+    expect(evaluateScenario(5, "HOLD", START)).toMatchObject({
+      portfolioAfter: "65000000",
+      delta: "-35000000",
+    });
+    expect(evaluateScenario(5, "DELEVERAGE", START)).toMatchObject({
+      portfolioAfter: "96000000",
+      delta: "-4000000",
+    });
   });
 
   it("rejects unknown decisions and levels", () => {
     expect(() => evaluateScenario(1, "YOLO", START)).toThrow();
-    expect(() => getScenario(4)).toThrow();
+    expect(() => getScenario(6)).toThrow();
   });
 
   it("contains a consequence and lesson for every branch", () => {

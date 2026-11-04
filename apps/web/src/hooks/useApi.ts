@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { api, isApiError } from "../lib/api";
 import type {
+  AgentPromptResponse,
   AvailableSession,
   ClaimResponse,
   FinishResponse,
@@ -21,6 +22,8 @@ export const queryKeys = {
   availableSessions: ["sessions", "available"] as const,
   run: (runId: string) => ["runs", runId] as const,
   payout: (runId: string) => ["runs", runId, "payout"] as const,
+  agentPrompt: (runId: string, questionId: string) =>
+    ["runs", runId, "agent-prompt", questionId] as const,
   history: ["history"] as const,
 };
 
@@ -107,6 +110,23 @@ export function usePayoutQuery(
       }
       return 5_000;
     },
+  });
+}
+
+export function useAgentPromptQuery(
+  runId: string | undefined,
+  questionId: string | undefined,
+  enabled: boolean,
+) {
+  return useQuery<AgentPromptResponse>({
+    queryKey:
+      runId && questionId
+        ? queryKeys.agentPrompt(runId, questionId)
+        : ["runs", "missing", "agent-prompt"],
+    queryFn: () => api.agentPrompt(runId as string, questionId as string),
+    enabled: Boolean(runId && questionId && enabled),
+    staleTime: 10 * 60_000,
+    retry: false,
   });
 }
 

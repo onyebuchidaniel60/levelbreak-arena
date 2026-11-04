@@ -8,9 +8,9 @@ import {
 
 describe("consultation definitions", () => {
   it("has one question per level with the fixed reward", () => {
-    expect(CONSULTATION_QUESTIONS).toHaveLength(3);
+    expect(CONSULTATION_QUESTIONS).toHaveLength(5);
     expect(CONSULTATION_QUESTIONS.map((item) => item.levelIndex)).toEqual([
-      1, 2, 3,
+      1, 2, 3, 4, 5,
     ]);
     for (const question of CONSULTATION_QUESTIONS) {
       expect(question.rewardLuna).toBe(500n);

@@ -1,6 +1,7 @@
 # LevelBreak Arena — Architecture & API Contract
 
 **Status:** Fixed implementation direction; Phase 2 must prove the Nimiq normal-transfer adapter on testnet before payment integration is treated as complete.  
+**Phase 7 amendment (4 November 2026):** operator-approved five-level ladder, 2,500 Luna liability, optional LLM-drafted agent message with scripted fallback, and a clearly labelled demo fiat off-ramp.
 **Related:** `PROJECT_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `AGENTS.md`.
 
 ## 1. System context
@@ -60,7 +61,7 @@ At repository setup, pin a supported Node.js 24 LTS version and exact dependency
 - No Redis or separate queue service: PostgreSQL outbox and a serialized worker are sufficient at current scale.
 - No direct frontend Supabase access to financial/session data: all mutations require centralized server-side validation.
 - No HTLC: explicitly removed from the MVP.
-- No LLM provider or evidence fetching: the agent is scripted.
+- No live evidence fetching or LLM-based scoring: the LLM may draft only the agent message and must fall back to the scripted message.
 
 ## 3. Nimiq architecture details
 
@@ -89,7 +90,7 @@ The adapter must fail closed if configured network does not match testnet. It mu
 An incoming funding transaction can activate one session only if all conditions hold:
 1. It is on the configured Nimiq testnet.
 2. The actual recipient is exactly `NIMIQ_TREASURY_ADDRESS`.
-3. Its value is at least the configured session funding requirement (1,500 Luna in the MVP).
+3. Its value is at least the configured session funding requirement (2,500 Luna in the MVP).
 4. Its sender matches the demo-agent address allowlist in demo mode.
 5. Its transaction data contains the session's opaque unique reference in the approved format `LBA1:<publicRef>`. If the chosen SDK cannot construct this ordinary transfer with the reference, stop and report the blocker rather than silently changing the funding model.
 6. The transaction is included/verified according to the Nimiq client/provider verification contract; a returned hash alone is not enough.
@@ -120,6 +121,7 @@ Official docs show `@nimiq/core` can build/sign/broadcast ordinary NIM transfers
 - `payouts`: create, queue, broadcast, status/reconciliation.
 - `operator`: minimal protected operational endpoints; audits every mutation.
 - `nimiq`: provider-independent adapter for `@nimiq/core` chain actions.
+- `llm`: optional server-side agent-message generation with deterministic scripted fallback, bounded timeout, caching, and redacted logging.
 - `observability`: request IDs, health/readiness checks, safe logs.
 
 Domain modules must not write database tables directly from route handlers. Routes parse/authorize, call domain services, and map typed errors to HTTP.
@@ -164,7 +166,7 @@ Domain modules must not write database tables directly from route handlers. Rout
 ### `GET /api/config/public`
 - **Purpose:** expose safe presentation config.
 - **Auth:** none.
-- **Response:** `{ "productName":"LevelBreak Arena", "networkLabel":"Nimiq Testnet", "rewardPerAnswerLuna":"500", "maxConsultations":3, "demoMode":true }`.
+- **Response:** `{ "productName":"LevelBreak Arena", "networkLabel":"Nimiq Testnet", "rewardPerAnswerLuna":"500", "maxConsultations":5, "demoMode":true }`.
 - **Never return:** keys, database URL, private endpoints, treasury signer details.
 
 ### `POST /api/auth/nonce`
@@ -193,7 +195,7 @@ Domain modules must not write database tables directly from route handlers. Rout
 ### `GET /api/sessions/available`
 - **Auth:** player.
 - **Logic:** return only sessions that are verified funded, `AVAILABLE`, not expired/cancelled, and not already claimed.
-- **Response:** `{ "sessions":[{"id":"uuid","publicRef":"…","maxConsultations":3,"rewardPerAnswerLuna":"500","maxRewardLuna":"1500","funded":true,"state":"AVAILABLE"}] }`.
+- **Response:** `{ "sessions":[{"id":"uuid","publicRef":"…","maxConsultations":5,"rewardPerAnswerLuna":"500","maxRewardLuna":"2500","funded":true,"state":"AVAILABLE"}] }`.
 - **Do not display:** other player IDs or treasury signing data.
 
 ### `POST /api/sessions/:sessionId/claim`
@@ -205,12 +207,12 @@ Domain modules must not write database tables directly from route handlers. Rout
 
 ### `GET /api/runs/:runId`
 - **Auth:** player; owner scope mandatory.
-- **Response:** authoritative run state, current scenario/question if available, virtual portfolio, answered/skipped questions, earned Luna, and payout status. Do not return internal funding source signer data.
+- **Response:** authoritative run state, `maxConsultations`, current scenario/question if available, virtual portfolio, answered/skipped questions, earned Luna, and payout status. Do not return internal funding source signer data.
 - **Errors:** use `404` for non-owned or absent run to limit ID enumeration.
 
 ### `POST /api/runs/:runId/decision`
 - **Auth:** player owner; idempotency required.
-- **Request:** `{ "levelIndex":1, "decisionKey":"STAY", "expectedStateVersion":0, "idempotencyKey":"uuid" }`.
+- **Request:** `{ "levelIndex":1, "decisionKey":"STAY", "expectedStateVersion":0, "idempotencyKey":"uuid" }` with `levelIndex` in `1..5`.
 - **Validation:** only the configured decision keys for the current level; expected version must match; run must be in the expected level state.
 - **Response:** `{ "decisionId":"uuid","levelIndex":1,"result":{"portfolioValue":"100000000","explanation":"…"},"nextState":"CONSULTATION_PENDING","stateVersion":1 }`. Portfolio values use domain-specified virtual units, not NIM.
 - **Side effects:** insert decision and update portfolio/version in a DB transaction.
@@ -223,10 +225,17 @@ Domain modules must not write database tables directly from route handlers. Rout
 - **Response:** `{ "responseId":"uuid","result":"ANSWERED","rewardLuna":"500","earnedLunaTotal":"500","nextState":"IN_PROGRESS","stateVersion":2 }`.
 - **Errors:** `409 QUESTION_ALREADY_RESOLVED`, `409 STATE_CONFLICT`, `422 INVALID_ANSWER`, `422 REWARD_CAP_EXCEEDED`.
 
+### `GET /api/consultations/:questionId/generate-agent-prompt`
+- **Auth:** player session; `runId` query parameter required; ownership scope mandatory.
+- **Logic:** verify the run belongs to the player, is in `CONSULTATION_PENDING`, and `questionId` is the active question. If `LLM_API_KEY` is configured, call an OpenAI-compatible chat-completions provider with a short prompt containing only the current scenario/question context and the player's own earned amount. Cache the result per run/question. If the key is absent, the provider times out, or the output is invalid, return the versioned scripted `agentMessage`.
+- **Response:** `{ "prompt":"…", "source":"llm" | "scripted" }`.
+- **Errors:** `404 RUN_NOT_FOUND`, `409 QUESTION_NOT_ACTIVE`, `429 RATE_LIMITED`.
+- **Privacy:** never send wallet addresses, auth material, secrets, or other players' data; never log raw prompts or completions.
+
 ### `POST /api/runs/:runId/finish`
 - **Auth:** player owner; idempotency required.
 - **Request:** `{ "idempotencyKey":"uuid" }`.
-- **Logic:** only after level 3 scenario and consultation terminal action; re-compute accepted reward total from DB; mark run completed; create zero or one payout record. If total is zero, mark `COMPLETED_NO_REWARD` and no blockchain transaction is sent. If total > 0, create unique payout/outbox item in same DB transaction.
+- **Logic:** only after the level-5 scenario and consultation terminal action; re-compute accepted reward total from DB; mark run completed; create zero or one payout record. If total is zero, mark `COMPLETED_NO_REWARD` and no blockchain transaction is sent. If total > 0, create unique payout/outbox item in same DB transaction.
 - **Response:** `{ "runId":"uuid","state":"PAYOUT_QUEUED|COMPLETED_NO_REWARD","earnedLuna":"1000","payoutId":"uuid|null","payoutStatus":"QUEUED|NONE" }`.
 
 ### `GET /api/runs/:runId/payout`
@@ -303,9 +312,9 @@ Single active payout broadcaster in MVP. Use a DB lock/lease (`treasury_worker_l
 
 - One `requester_session` has one funding transaction and one player run.
 - `funding_amount_luna >= max_reward_liability_luna`.
-- `max_reward_liability_luna = 3 * 500 = 1500 Luna` in MVP.
+- `max_reward_liability_luna = 5 * 500 = 2500 Luna` in MVP.
 - `0 <= reward_earned_luna <= max_reward_liability_luna`.
-- One response per question per run; max 3 responses.
+- One response per question per run; max 5 responses.
 - `payout.amount_luna = SUM(response.reward_luna)` for the run; never from client input.
 - One payout row per run; one funding tx per session; no transaction hash attached to more than one financial operation.
 - If transaction fee is nonzero, treasury operational reserve covers it; user reward amount stays fixed.
@@ -410,16 +419,21 @@ For MVP, structured Render logs and a protected operator status page are suffici
 - `NIMIQ_DEMO_AGENT_ADDRESS`
 - `NIMIQ_DEMO_AGENT_PRIVATE_KEY`
 - `NIMIQ_EXPLORER_BASE_URL` (verified real testnet explorer URL; do not guess)
-- `FUNDING_MINIMUM_LUNA=1500`
+- `FUNDING_MINIMUM_LUNA=2500`
 - `REWARD_PER_ANSWER_LUNA=500`
-- `MAX_CONSULTATIONS_PER_SESSION=3`
+- `MAX_CONSULTATIONS_PER_SESSION=5`
+- `MAX_REWARD_LIABILITY_LUNA=2500`
+- `LLM_API_KEY` (optional; server-side only)
+- `LLM_BASE_URL` (optional OpenAI-compatible base URL; default OpenAI)
+- `LLM_MODEL` (optional model name)
+- `LLM_TIMEOUT_MS=8000`
 - `PAYOUT_WORKER_ENABLED=false` by default
 - `DEMO_FUNDING_ENABLED=false` by default
 - `PREVIEW_MOCK_AUTH_ENABLED=false` outside isolated UI-only preview
 - `LOG_LEVEL`
 - per-route `RATE_LIMIT_*` configuration if using explicit environment settings
 
-All NIMIQ private keys, session secrets, DB URLs and privileged DB credentials are server-only. No secret may have a `VITE_` prefix. Use `.env.example` with blank placeholders only.
+All NIMIQ private keys, session secrets, LLM keys, DB URLs and privileged DB credentials are server-only. No secret may have a `VITE_` prefix. Use `.env.example` with blank placeholders only.
 
 ## 14. Links and official technical references
 

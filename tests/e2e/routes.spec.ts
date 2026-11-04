@@ -1,15 +1,15 @@
 import { expect, test } from "@playwright/test";
 
 const routes = [
-  { path: "/", heading: /LevelBreak Arena/i },
-  { path: "/play", heading: /Lobby/i },
+  { path: "/", heading: /Learn DeFi by breaking it/i },
+  { path: "/play", heading: /Sign in to see funded sessions/i },
   { path: "/play/example-run-id", heading: /Run not found/i },
-  { path: "/history", heading: /History/i },
-  { path: "/how-it-works", heading: /How it works/i },
-  { path: "/privacy", heading: /Privacy/i },
-  { path: "/terms", heading: /Terms and risk disclosure/i },
-  { path: "/docs", heading: /Documentation/i },
-  { path: "/route-that-does-not-exist", heading: /Page not found/i },
+  { path: "/history", heading: /Your runs/i },
+  { path: "/how-it-works", heading: /A five-level DeFi judgment game/i },
+  { path: "/privacy", heading: /A short privacy notice/i },
+  { path: "/terms", heading: /Testnet demo terms/i },
+  { path: "/docs", heading: /Build notes and operating rules/i },
+  { path: "/route-that-does-not-exist", heading: /This route is not in the arena/i },
 ] as const;
 
 test.beforeEach(async ({ page }) => {
@@ -23,7 +23,7 @@ test.beforeEach(async ({ page }) => {
           productName: "LevelBreak Arena",
           networkLabel: "Nimiq Testnet",
           rewardPerAnswerLuna: "500",
-          maxConsultations: 3,
+          maxConsultations: 5,
           demoMode: true,
         }),
       });

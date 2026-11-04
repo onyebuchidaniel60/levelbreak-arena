@@ -1,4 +1,5 @@
 import {
+  agentPromptResponseSchema,
   availableSessionsResponseSchema,
   claimResponseSchema,
   decisionResponseSchema,
@@ -12,6 +13,7 @@ import {
   respondResponseSchema,
   runDetailSchema,
   verifyResponseSchema,
+  type AgentPromptResponse,
   type AvailableSession,
   type ClaimResponse,
   type DecisionResponse,
@@ -333,6 +335,15 @@ export const api = {
 
   payout: (runId: string): Promise<PayoutResponse> =>
     apiRequest(`/api/runs/${runId}/payout`, { schema: payoutResponseSchema }),
+
+  agentPrompt: (
+    runId: string,
+    questionId: string,
+  ): Promise<AgentPromptResponse> =>
+    apiRequest(
+      `/api/consultations/${encodeURIComponent(questionId)}/generate-agent-prompt?runId=${encodeURIComponent(runId)}`,
+      { schema: agentPromptResponseSchema },
+    ),
 
   history: (cursor?: string): Promise<HistoryResponse> => {
     const query = cursor

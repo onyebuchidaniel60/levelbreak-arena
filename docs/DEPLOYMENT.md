@@ -29,6 +29,8 @@ Do not invent commands until scripts exist; update this guide when the repositor
 - Use preview API/database configuration, never production data.
 - Do not place server secrets in Vercel client environment variables (`VITE_*`).
 - Mainnet configuration must fail closed in preview.
+- Phase 7 backend env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`. Optional LLM settings: `LLM_API_KEY` (server-only secret), `LLM_BASE_URL` (OpenAI-compatible base, e.g. Groq), `LLM_MODEL`, `LLM_TIMEOUT_MS=8000`. If `LLM_API_KEY` is absent, the scripted fallback is used and no LLM request is made. Never place `LLM_API_KEY` in a `VITE_*` variable.
+- Apply migration `db/migrations/003_phase7_five_levels.sql` with `pnpm db:migrate` before deploying the Phase 7 backend. Existing sessions keep their stored 3-level/1,500-Luna values; new sessions use 5 levels/2,500 Luna.
 
 ## Early deployment requirement
 

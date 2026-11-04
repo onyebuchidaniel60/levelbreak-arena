@@ -35,7 +35,7 @@ EXPECTED_REFERENCE="LBA1:<publicRef>" \
 
 - Challenge creation/expiry/single-use/signature verification helpers.
 - Every scenario decision branch and portfolio invariant.
-- Three-answer reward calculation, skip=0 and 1,500-Luna cap.
+- Five-answer reward calculation, skip=0 and 2,500-Luna cap.
 - State transition guard and expected version checks.
 - Idempotency key/unique record behavior.
 - NIM/Luna display conversion (financial calculations remain integer Luna).
@@ -54,15 +54,15 @@ EXPECTED_REFERENCE="LBA1:<publicRef>" \
 
 - Requester-session, player-run, consultation and payout state-machine guards.
 - All six signed scenario branches and the fixed virtual-portfolio arithmetic.
-- Three bundled consultations: one per level, evidence before question,
+- Five bundled consultations: one per level, evidence before question,
   `Can't tell` allowed, fixed 500-Luna reward, no hidden correct answer.
 - Incoming funding validation for inclusion, network, sender, recipient,
   amount and `LBA1:` reference.
 - Two simultaneous claims: exactly one succeeds.
 - Two simultaneous answers: exactly one response and one reward ledger row.
 - Two simultaneous finishes: exactly one payout row.
-- Ledger arithmetic: 3 answers = 1,500 Luna; 1 skip + 2 answers = 1,000 Luna;
-  0 answers = zero payout and a 1,500-Luna unused-credit entry.
+- Ledger arithmetic: 5 answers = 2,500 Luna; 1 skip + 4 answers = 2,000 Luna;
+  0 answers = zero payout and a 2,500-Luna unused-credit entry.
 - Payout worker with a mocked adapter, while `PAYOUT_WORKER_ENABLED=false`.
 
 ## Phase 4 deployed frontend E2E
@@ -78,7 +78,7 @@ PHASE4_EXPECTED_PUBLIC_REF=fa4f30a2d178b6da \
 ```
 
 The test covers unauthenticated provider messaging, real nonce → signature →
-verify, lobby claim, all three levels, answer/skip, refresh/resume, finish,
+verify, lobby claim, all five levels, answer/skip, refresh/resume, finish,
 payout status, history and responsive overflow checks. Do not run it twice
 against the same funded session.
 
@@ -125,7 +125,7 @@ PHASE5_LABEL=a \
 ```
 
 It performs real Ed25519 auth in two browser contexts, races both claims on the
-same session (one 200, one 409), plays the three levels, replays the same
+same session (one 200, one 409), plays the five levels, replays the same
 answer and finish idempotency keys, polls the payout endpoint until `CONFIRMED`
 or five minutes, verifies the transaction through a testnet Web Client, and
 checks the UI, history and explorer link.
@@ -154,7 +154,7 @@ answer label is “Impermanent loss”, not “Risky”.
 
 ## E2E tests
 
-- Landing -> wallet auth -> available funded session -> claim -> three decisions -> consultations -> finish -> payout status -> history.
+- Landing -> wallet auth -> available funded session -> claim -> five decisions -> consultations -> finish -> payout status -> history.
 - Mix of answer and skip; correct reward total.
 - Refresh halfway and resume same run.
 - No funded session state blocks start.
@@ -171,3 +171,22 @@ Replay signed challenge; forge/wrong address; cross-player IDOR; modify reward a
 ## Design gate
 
 Do not begin final visual design until all critical funded-session-to-payout E2E checks have passed on preview and evidence is recorded. Design/visual regression tests occur after the operator approves mockups.
+
+
+## Phase 7 UI and agent coverage
+
+`tests/e2e/phase7.ui.spec.ts` runs against a mocked API and covers:
+
+- five-level progress (`Level 3 of 5`, `03 / 05`) and the five-step rail;
+- the LLM agent message, `LLM draft` source badge, typewriter rendering, and static evidence panel;
+- the confirmed-payout **Withdraw to Fiat** action, the `Nimiq Pay Off-Ramp` dialog, the labelled demo rate, and the simulated success state with no fiat transfer;
+- no horizontal overflow at 320 px and 1280 px.
+
+`apps/api/src/services/llm.test.ts` covers prompt sanitization, output capping, and context construction without wallet identity. The integration suite covers the scripted fallback when `LLM_API_KEY` is not configured and rejects a non-owner run.
+
+The five-level migration and integration tests were also run against a fresh PostgreSQL 16 database:
+
+```bash
+DATABASE_URL_UNPOOLED=postgres://... pnpm db:migrate
+LBA_INTEGRATION_DATABASE_URL=postgres://... pnpm test:integration
+```

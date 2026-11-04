@@ -2,11 +2,11 @@
 
 ## Normal session flow
 
-1. A scripted requester session is created in `AWAITING_FUNDING`.
+1. A demo requester session is created in `AWAITING_FUNDING`.
 2. The demo-agent wallet sends an ordinary NIM transfer to the configured treasury, with a unique session reference where supported.
 3. The chain adapter verifies network, sender, treasury destination, amount, reference and inclusion.
 4. The database transaction records funding exactly once and makes the session `AVAILABLE`.
-5. One player claims it; three game decisions and consultation responses are recorded server-side.
+5. One player claims it; five game decisions and consultation responses are recorded server-side.
 6. Accepted responses create reward liabilities of 500 Luna each; skipped consultations earn zero.
 7. Session completion creates one payout row. The serialized worker sends an ordinary treasury transfer and reconciles the transaction.
 
@@ -104,7 +104,7 @@ Maintain a separate operational reserve for any transaction fees and a session r
 ## Emergency controls
 
 - Set `PAYOUT_WORKER_ENABLED=false` to stop new submissions. Do not erase queued payouts.
-- Set `DEMO_FUNDING_ENABLED=false` to stop new scripted sessions.
+- Set `DEMO_FUNDING_ENABLED=false` to stop new demo sessions.
 - Keep public API health usable while financial features are disabled.
 - Rotate testnet keys if exposed; invalidate the leaked key and replace all affected testnet config.
 - For any suspected mainnet/key incident, stop all transactions, preserve audit logs, and follow the operator's incident/legal process.

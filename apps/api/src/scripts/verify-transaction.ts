@@ -8,7 +8,7 @@ async function main(): Promise<void> {
     process.env.NIMIQ_DEMO_AGENT_ADDRESS ?? process.env.EXPECTED_SENDER;
   const expectedRecipient =
     process.env.NIMIQ_TREASURY_ADDRESS ?? process.env.EXPECTED_RECIPIENT;
-  const expectedAmount = BigInt(process.env.EXPECTED_AMOUNT_LUNA ?? "1500");
+  const expectedAmount = BigInt(process.env.EXPECTED_AMOUNT_LUNA ?? "2500");
   const expectedReference = process.env.EXPECTED_REFERENCE ?? null;
 
   if (!txHash) throw new Error("Pass the transaction hash as the first argument or TX_HASH");

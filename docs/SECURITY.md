@@ -32,6 +32,8 @@
 - Operator endpoints are protected, logged and limited; no arbitrary unaudited payout tool.
 - Structured logging redacts keys, mnemonics, cookies, signatures, raw challenges, tokens and DB credentials.
 - Preview deployments use testnet and safe test data; mainnet path is disabled by default.
+- LLM agent messages are server-only. Send only the current scenario/question/evidence summary and the player's own earned amount; never wallet addresses, signatures, auth tokens, cookies, keys, or other players' data. Use a bounded timeout, output cap, per-run cache, authentication, and rate limiting. Fall back to the versioned scripted message on missing key, timeout, HTTP error, or invalid output. Do not log raw prompts or completions.
+- The fiat off-ramp modal is a labelled demonstration only. It must not call an exchange, create an account, start KYC, move funds, or imply real fiat settlement. A real off-ramp requires a licensed provider, KYC/AML, legal and security review.
 
 ## Product trust disclosure
 

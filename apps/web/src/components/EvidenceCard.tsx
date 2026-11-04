@@ -1,4 +1,6 @@
+import type { ReactNode } from "react";
 import type { Evidence } from "@levelbreak-arena/contracts";
+import { Badge, Panel, SectionLabel } from "./ui";
 
 function asRecord(evidence: Evidence): Record<string, unknown> {
   return evidence as unknown as Record<string, unknown>;
@@ -16,6 +18,27 @@ function stringList(record: Record<string, unknown>, key: string): string[] {
     : [];
 }
 
+function EvidenceShell({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <Panel className="overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
+        <div>
+          <SectionLabel>Bundled evidence</SectionLabel>
+          <h3 className="mt-1 text-sm font-semibold text-numeric">{title}</h3>
+        </div>
+        <Badge tone="neutral">Static · no live feed</Badge>
+      </div>
+      <div className="p-4">{children}</div>
+    </Panel>
+  );
+}
+
 export function EvidenceCard({ evidence }: { evidence: Evidence }) {
   const record = asRecord(evidence);
   const title = stringValue(record, "title") ?? "Bundled evidence";
@@ -25,32 +48,36 @@ export function EvidenceCard({ evidence }: { evidence: Evidence }) {
     const alt = stringValue(record, "alt") ?? title;
     if (!src) return <UnsupportedEvidence type={evidence.type} />;
     return (
-      <section aria-label="Evidence" className="rounded border border-slate-300 bg-white p-4">
-        <h3 className="font-semibold">{title}</h3>
-        <img src={src} alt={alt} className="mt-3 max-w-full rounded border border-slate-200" />
-      </section>
+      <EvidenceShell title={title}>
+        <img
+          src={src}
+          alt={alt}
+          className="max-w-full rounded-md border border-line"
+        />
+      </EvidenceShell>
     );
   }
 
   if (evidence.type === "data_card") {
     const lines = stringList(record, "lines");
     return (
-      <section aria-label="Evidence" className="rounded border border-slate-300 bg-white p-4">
-        <h3 className="font-semibold">{title}</h3>
-        <dl className="mt-3 space-y-2 text-sm">
+      <EvidenceShell title={title}>
+        <dl className="divide-y divide-line">
           {lines.map((line, index) => {
             const separator = line.indexOf(": ");
             const term = separator > 0 ? line.slice(0, separator) : `Fact ${index + 1}`;
             const description = separator > 0 ? line.slice(separator + 2) : line;
             return (
-              <div key={`${term}-${index}`}>
-                <dt className="font-medium text-slate-900">{term}</dt>
-                <dd className="text-slate-700">{description}</dd>
+              <div key={`${term}-${index}`} className="grid gap-1 py-2.5 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] sm:gap-4">
+                <dt className="font-mono text-[11px] uppercase tracking-[0.1em] text-dim">
+                  {term}
+                </dt>
+                <dd className="text-sm leading-6 text-body">{description}</dd>
               </div>
             );
           })}
         </dl>
-      </section>
+      </EvidenceShell>
     );
   }
 
@@ -59,32 +86,32 @@ export function EvidenceCard({ evidence }: { evidence: Evidence }) {
     const sourceLabel = stringValue(record, "sourceLabel");
     if (!text) return <UnsupportedEvidence type={evidence.type} />;
     return (
-      <section aria-label="Evidence" className="rounded border border-slate-300 bg-white p-4">
-        <h3 className="font-semibold">{title}</h3>
-        <blockquote className="mt-3 border-l-4 border-slate-300 pl-3 text-sm text-slate-800">
-          <p className="font-mono">{text}</p>
+      <EvidenceShell title={title}>
+        <blockquote className="border-l-2 border-gold/60 pl-4">
+          <p className="font-mono text-[13px] leading-6 text-body">{text}</p>
           {sourceLabel ? (
-            <footer className="mt-2 text-xs text-slate-600">{sourceLabel}</footer>
+            <footer className="mt-3 font-mono text-[10px] uppercase tracking-[0.1em] text-dim">
+              {sourceLabel}
+            </footer>
           ) : null}
         </blockquote>
-      </section>
+      </EvidenceShell>
     );
   }
 
   if (evidence.type === "scenario_card") {
     const lines = stringList(record, "lines");
     return (
-      <section
-        aria-label="Evidence"
-        className="rounded border-2 border-slate-400 bg-slate-50 p-4"
-      >
-        <h3 className="font-semibold">{title}</h3>
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-800">
+      <EvidenceShell title={title}>
+        <ul className="space-y-2.5">
           {lines.map((line, index) => (
-            <li key={`${line}-${index}`}>{line}</li>
+            <li key={`${line}-${index}`} className="flex gap-2.5 text-sm leading-6 text-body">
+              <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-gold" aria-hidden="true" />
+              <span>{line}</span>
+            </li>
           ))}
         </ul>
-      </section>
+      </EvidenceShell>
     );
   }
 
@@ -93,12 +120,12 @@ export function EvidenceCard({ evidence }: { evidence: Evidence }) {
 
 function UnsupportedEvidence({ type }: { type: string }) {
   return (
-    <section aria-label="Evidence" className="rounded border border-amber-300 bg-amber-50 p-4">
-      <h3 className="font-semibold text-amber-950">Unsupported evidence</h3>
-      <p className="mt-1 text-sm text-amber-900">
+    <Panel className="border-pending/30 bg-pending/[0.06] p-4">
+      <h3 className="font-semibold text-pending">Unsupported evidence</h3>
+      <p className="mt-1 text-sm leading-6 text-muted">
         This consultation uses an evidence type this preview cannot display
         ({type}). You can still answer or skip.
       </p>
-    </section>
+    </Panel>
   );
 }

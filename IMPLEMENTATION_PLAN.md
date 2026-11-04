@@ -10,7 +10,7 @@
 4. Temporary styling only through core E2E functionality completion.
 5. Phase 5 is a hard gate. Do not create final visual design before the core user journey and testnet funding/payout have been demonstrated end to end.
 6. Phase 6 gathers/chooses references, produces mockups, presents them, revises them, and waits for explicit operator approval. No approval means stop before Phase 7.
-7. Phase 7 applies the approved visual design without changing product behavior, APIs, data model, architecture, or payment rules.
+7. Phase 7 applies the approved visual design without changing product behavior, APIs, data model, architecture, or payment rules. **Operator-approved exception (4 November 2026):** the Phase 7 bundle also includes the five-level ladder, 2,500 Luna liability, LLM-drafted agent message with scripted fallback, and a clearly labelled demo fiat off-ramp. These changes are implemented as one approved Phase 7 task and must stop before Phase 8.
 8. Phase 8 completes frontend details, documentation, and real footer links. Never fabricate a preview, docs, or repository URL.
 9. Phase 9 runs regression/security and prepares public/production release. Any mainnet treasury configuration requires a distinct explicit operator approval after testnet proof and security review.
 
@@ -260,28 +260,30 @@
 
 ---
 
-## Phase 7 — Implement approved final UI
+## Phase 7 — Implement approved final UI and approved expansion
 
-**Objective:** apply the approved design to proven functional screens without changing behavior.
+> **Operator amendment — 4 November 2026.** Direction 1 — Trading Terminal is approved. Directions 2, 3, and 4 are rejected and removed. The operator also approved the five-level ladder, 2,500 Luna maximum liability, LLM-drafted agent message with scripted fallback, and a clearly labelled demo fiat off-ramp. These are implemented in this phase; mainnet remains out of scope.
+
+**Objective:** apply the approved design to proven functional screens and implement the explicitly approved Phase 7 expansion.
 
 **Dependencies:** Phase 6 explicit approval recorded.
 
 **Tasks:**
 1. Implement approved visual tokens, typography, spacing, cards, buttons, forms, layout and motion.
-2. Apply styles to existing flows; do not change API contracts, state machines, reward math, wallet auth, or payout semantics.
+2. Apply styles to existing flows. Implement the approved five-level ladder, 2,500 Luna liability, LLM service/endpoint, and demo off-ramp. Do not change wallet auth, payout semantics, or the treasury safety model.
 3. Preserve accessible focus, labels, reduced motion and contrast from the approved design.
 4. Update preview each checkpoint and verify screenshots against approved mockups.
 5. If a visual requirement appears to require a product/architecture change, stop and request separate approval; do not quietly rework behavior.
 
 **Expected files:** design token files, UI components, responsive CSS, design notes updated for deviations.
 
-**Database/API changes:** none.
+**Database/API changes:** migration 003 for five-level constraints and 2,500 Luna caps; new authenticated LLM-prompt endpoint; run-detail `maxConsultations`; contract and env updates.
 
 **UI changes:** full approved design.
 
 **Tests:** component tests, visual/layout checks, all key flows still function.
 
-**Acceptance criteria:** visual direction matches approved mockups; no functionality regression; responsive layouts pass.
+**Acceptance criteria:** visual direction matches approved Direction 1; five levels work end to end; LLM missing-key/failure fallback works; demo off-ramp is clearly labelled and moves no funds; no functionality regression; responsive layouts pass.
 
 **Verification procedure:** compare actual preview at desktop/mobile to mockups; run E2E suite.
 

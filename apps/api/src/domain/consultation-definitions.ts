@@ -36,7 +36,7 @@ export type ConsultationOption = {
 
 export type ConsultationQuestion = {
   id: string;
-  levelIndex: 1 | 2 | 3;
+  levelIndex: 1 | 2 | 3 | 4 | 5;
   version: string;
   evidenceVersion: string;
   agentContext: string;
@@ -55,7 +55,7 @@ export const CONSULTATION_QUESTIONS: readonly ConsultationQuestion[] = [
     levelIndex: 1,
     version: "1",
     evidenceVersion: "evidence-2026-11-01",
-    agentContext: "Scripted demo requester · simulated stablecoin review",
+    agentContext: "LLM-assisted demo requester · simulated stablecoin review",
     agentConfidence: "medium",
     agentMessage:
       "I am reviewing a simulated stablecoin opportunity. Use the evidence, then give me your risk read. There is no hidden correct answer.",
@@ -93,7 +93,7 @@ export const CONSULTATION_QUESTIONS: readonly ConsultationQuestion[] = [
     levelIndex: 2,
     version: "1",
     evidenceVersion: "evidence-2026-11-01",
-    agentContext: "Scripted demo requester · simulated liquidity review",
+    agentContext: "LLM-assisted demo requester · simulated liquidity review",
     agentConfidence: "medium",
     agentMessage:
       "I am comparing simulated pool exposure with holding the assets directly. Read the evidence before answering.",
@@ -129,7 +129,7 @@ export const CONSULTATION_QUESTIONS: readonly ConsultationQuestion[] = [
     levelIndex: 3,
     version: "1",
     evidenceVersion: "evidence-2026-11-01",
-    agentContext: "Scripted demo requester · simulated yield review",
+    agentContext: "LLM-assisted demo requester · simulated yield review",
     agentConfidence: "medium",
     agentMessage:
       "This simulated farm promises a very high yield. Review the evidence and classify the opportunity.",
@@ -153,6 +153,84 @@ export const CONSULTATION_QUESTIONS: readonly ConsultationQuestion[] = [
         key: "RISKY",
         label: "Risky",
         description: "The unaudited fork and thin rewards liquidity are material risks.",
+      },
+      {
+        key: "CANT_TELL",
+        label: "Can't tell",
+        description: "The evidence is not sufficient to classify it.",
+      },
+    ],
+    rewardLuna: 500n,
+  },
+  {
+    id: "l4-oracle-manipulation",
+    levelIndex: 4,
+    version: "1",
+    evidenceVersion: "evidence-2026-11-01",
+    agentContext: "LLM-assisted demo requester · simulated oracle review",
+    agentConfidence: "medium",
+    agentMessage:
+      "This simulated lending market depends on a single price feed. Read the evidence, then give me your risk read. There is no hidden correct answer.",
+    evidence: {
+      type: "data_card",
+      title: "Simulated oracle facts",
+      lines: [
+        "Collateral pricing: one spot market",
+        "Averaging window: none",
+        "Fallback feed or circuit breaker: none shown",
+      ],
+    },
+    question:
+      "How would you classify a lending market that relies on a single spot price feed?",
+    options: [
+      {
+        key: "SAFE",
+        label: "Safe enough",
+        description: "A single liquid spot market is sufficient for collateral pricing.",
+      },
+      {
+        key: "RISKY",
+        label: "Risky",
+        description: "A single manipulable feed can trigger unfair liquidations.",
+      },
+      {
+        key: "CANT_TELL",
+        label: "Can't tell",
+        description: "The evidence is not sufficient to classify it.",
+      },
+    ],
+    rewardLuna: 500n,
+  },
+  {
+    id: "l5-liquidation-cascade",
+    levelIndex: 5,
+    version: "1",
+    evidenceVersion: "evidence-2026-11-01",
+    agentContext: "LLM-assisted demo requester · simulated liquidation review",
+    agentConfidence: "medium",
+    agentMessage:
+      "This simulated leveraged position is close to its liquidation threshold. Review the evidence and classify the risk before I decide what to do.",
+    evidence: {
+      type: "scenario_card",
+      title: "Simulated leverage disclosure",
+      lines: [
+        "Position: leveraged simulated ETH exposure",
+        "Collateral buffer: thin",
+        "Liquidation engine: automated, with thin market liquidity",
+      ],
+    },
+    question:
+      "How would you classify holding this leveraged position through a 15% drawdown?",
+    options: [
+      {
+        key: "SAFE",
+        label: "Safe enough",
+        description: "The position can wait for a rebound without a material liquidation risk.",
+      },
+      {
+        key: "RISKY",
+        label: "Risky",
+        description: "Thin liquidity can turn forced selling into a cascade.",
       },
       {
         key: "CANT_TELL",

@@ -14,13 +14,14 @@ import {
   submitConsultationResponse,
   submitDecision,
 } from "../services/game";
+import { generateAgentPrompt } from "../services/llm";
 
 const IdempotencyKey = z.string().uuid();
 const ExpectedVersion = z.number().int().min(0);
 
 const ClaimBody = z.object({ idempotencyKey: IdempotencyKey });
 const DecisionBody = z.object({
-  levelIndex: z.number().int().min(1).max(3),
+  levelIndex: z.number().int().min(1).max(5),
   decisionKey: z.string().min(1).max(40),
   expectedStateVersion: ExpectedVersion,
   idempotencyKey: IdempotencyKey,
@@ -58,6 +59,12 @@ const SessionParams = z.object({ sessionId: z.string().uuid() });
 const QuestionParams = z.object({
   runId: z.string().uuid(),
   questionId: z.string().min(1).max(100),
+});
+const QuestionIdParams = z.object({
+  questionId: z.string().min(1).max(100),
+});
+const AgentPromptQuery = z.object({
+  runId: z.string().uuid(),
 });
 
 function parse<T>(schema: z.ZodType<T>, value: unknown): T {
@@ -140,6 +147,22 @@ export async function registerPlayerRoutes(app: FastifyInstance): Promise<void> 
         answerKey: body.answerKey,
         expectedStateVersion: body.expectedStateVersion,
         idempotencyKey: body.idempotencyKey,
+      });
+    },
+  );
+
+  app.get(
+    "/api/consultations/:questionId/generate-agent-prompt",
+    { config: { rateLimit: { max: 12, timeWindow: "1 minute" } } },
+    async (request) => {
+      const session = await authenticate(request);
+      const params = parse(QuestionIdParams, request.params);
+      const queryParams = parse(AgentPromptQuery, request.query);
+      return generateAgentPrompt({
+        runId: queryParams.runId,
+        playerId: session.playerId,
+        questionId: params.questionId,
+        logger: request.log,
       });
     },
   );

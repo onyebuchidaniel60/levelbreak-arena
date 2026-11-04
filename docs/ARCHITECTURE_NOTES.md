@@ -12,16 +12,16 @@ This file summarizes the fixed architecture from `ARCHITECTURE.md` for people wo
 
 ## Trust model
 
-The browser is untrusted. Reward and game state are authoritative only after backend validation and database commit. The operator controls a treasury that receives the scripted requester's ordinary NIM transfer and sends player rewards. Funding is verified before a session is available, but the treasury is not on-chain escrow. Do not use “trustless escrow” in copy.
+The browser is untrusted. Reward and game state are authoritative only after backend validation and database commit. The operator controls a treasury that receives the demo requester's ordinary NIM transfer and sends player rewards. Funding is verified before a session is available, but the treasury is not on-chain escrow. Do not use “trustless escrow” in copy.
 
 ## Fixed monetary rules
 
 - 1 NIM = 100,000 Luna.
-- One consultation at each of three levels.
+- One consultation at each of five levels.
 - 0.005 NIM / 500 Luna for one accepted answer.
 - Skip = zero.
-- Maximum = 0.015 NIM / 1,500 Luna per session.
-- Use integer Luna in all backend/database logic.
+- Maximum = 0.025 NIM / 2,500 Luna per session.
+- Use integer Luna in all backend/database logic. The agent message may be LLM-drafted; the scripted fallback is authoritative when the LLM is unavailable. The fiat off-ramp modal is a labelled demo.
 
 ## Integration hard gate
 

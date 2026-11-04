@@ -245,6 +245,7 @@ export async function getRunDetail(runId: string, playerId: string) {
       version: run.portfolio_state?.version ?? "1",
     },
     earnedLuna: lunaString(run.reward_earned_luna),
+    maxConsultations: run.max_consultations,
     maxRewardLuna: lunaString(run.max_reward_liability_luna),
     payoutStatus: payout.rows[0]?.status ?? "NONE",
     scenario,
@@ -428,6 +429,11 @@ export async function submitConsultationResponse(input: {
     if (!run || run.player_id !== input.playerId) {
       throw errors.notFound("Run not found.");
     }
+    const session = await loadSessionForUpdate(
+      client,
+      run.requester_session_id,
+    );
+    if (!session) throw errors.notFound("Session not found.");
 
     const replay = await findResponseByKey(
       client,
@@ -496,11 +502,6 @@ export async function submitConsultationResponse(input: {
       responseKey = input.answerKey;
       reward = toLuna(config.rewardPerAnswerLuna);
 
-      const session = await loadSessionForUpdate(
-        client,
-        run.requester_session_id,
-      );
-      if (!session) throw errors.notFound("Session not found.");
       const earned = toLuna(run.reward_earned_luna);
       const maxLiability = toLuna(session.max_reward_liability_luna);
       const reserved = toLuna(session.reserved_liability_luna);
@@ -551,7 +552,7 @@ export async function submitConsultationResponse(input: {
             rewardLuna: lunaString(replayAfterRace.reward_luna),
             earnedLunaTotal: lunaString(run.reward_earned_luna),
             nextState:
-              run.level_index >= config.maxConsultations
+              run.level_index >= session.max_consultations
                 ? "COMPLETED"
                 : "IN_PROGRESS",
             stateVersion: run.state_version,
@@ -587,7 +588,7 @@ export async function submitConsultationResponse(input: {
       );
     }
 
-    const isLastLevel = run.level_index >= config.maxConsultations;
+    const isLastLevel = run.level_index >= session.max_consultations;
     const nextState = isLastLevel ? "COMPLETED" : "IN_PROGRESS";
     assertTransition(
       "player_run",
@@ -606,20 +607,14 @@ export async function submitConsultationResponse(input: {
       [run.id, nextState, isLastLevel ? run.level_index : run.level_index + 1, String(reward)],
     );
 
-    if (isLastLevel) {
-      const session = await loadSessionForUpdate(
-        client,
-        run.requester_session_id,
+    if (isLastLevel && session.state === "IN_PROGRESS") {
+      assertTransition("requester_session", "IN_PROGRESS", "COMPLETED");
+      await client.query(
+        `UPDATE requester_sessions
+            SET state = 'COMPLETED', updated_at = now()
+          WHERE id = $1`,
+        [session.id],
       );
-      if (session && session.state === "IN_PROGRESS") {
-        assertTransition("requester_session", "IN_PROGRESS", "COMPLETED");
-        await client.query(
-          `UPDATE requester_sessions
-              SET state = 'COMPLETED', updated_at = now()
-            WHERE id = $1`,
-          [session.id],
-        );
-      }
     }
 
     await recordAudit(client, {
@@ -763,12 +758,12 @@ export async function finishRun(input: {
     );
 
     if (
-      Number(decisionCount.rows[0].count) !== config.maxConsultations ||
-      Number(responseCount.rows[0].count) !== config.maxConsultations
+      Number(decisionCount.rows[0].count) !== session.max_consultations ||
+      Number(responseCount.rows[0].count) !== session.max_consultations
     ) {
       throw errors.conflict(
         "RUN_NOT_COMPLETE",
-        "All three levels must be completed before finishing.",
+        `All ${session.max_consultations} levels must be completed before finishing.`,
       );
     }
 

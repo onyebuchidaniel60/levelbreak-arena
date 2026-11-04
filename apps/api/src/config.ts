@@ -18,9 +18,14 @@ const EnvSchema = z.object({
   NIMIQ_DEMO_AGENT_ADDRESS: z.string().min(1),
   NIMIQ_DEMO_AGENT_PRIVATE_KEY: z.string().min(1).optional(),
   NIMIQ_EXPLORER_BASE_URL: z.string().url().optional(),
-  FUNDING_MINIMUM_LUNA: z.coerce.number().int().positive().default(1500),
+  FUNDING_MINIMUM_LUNA: z.coerce.number().int().positive().default(2500),
   REWARD_PER_ANSWER_LUNA: z.coerce.number().int().positive().default(500),
-  MAX_CONSULTATIONS_PER_SESSION: z.coerce.number().int().positive().default(3),
+  MAX_CONSULTATIONS_PER_SESSION: z.coerce.number().int().positive().default(5),
+  MAX_REWARD_LIABILITY_LUNA: z.coerce.number().int().positive().optional(),
+  LLM_API_KEY: z.string().min(1).optional(),
+  LLM_BASE_URL: z.string().url().default("https://api.openai.com/v1"),
+  LLM_MODEL: z.string().min(1).default("gpt-4o-mini"),
+  LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(8000),
   PAYOUT_WORKER_ENABLED: z.enum(["true", "false"]).default("false"),
   DEMO_FUNDING_ENABLED: z.enum(["true", "false"]).default("false"),
   PREVIEW_MOCK_AUTH_ENABLED: z.enum(["true", "false"]).default("false"),
@@ -42,14 +47,18 @@ const env = parsed.data;
 const rewardPerAnswer = BigInt(env.REWARD_PER_ANSWER_LUNA);
 const maxLiability =
   rewardPerAnswer * BigInt(env.MAX_CONSULTATIONS_PER_SESSION);
+const configuredMaxLiability = env.MAX_REWARD_LIABILITY_LUNA
+  ? BigInt(env.MAX_REWARD_LIABILITY_LUNA)
+  : maxLiability;
 
 if (
   rewardPerAnswer !== 500n ||
-  env.MAX_CONSULTATIONS_PER_SESSION !== 3 ||
-  BigInt(env.FUNDING_MINIMUM_LUNA) < maxLiability
+  env.MAX_CONSULTATIONS_PER_SESSION !== 5 ||
+  configuredMaxLiability !== 2500n ||
+  BigInt(env.FUNDING_MINIMUM_LUNA) < configuredMaxLiability
 ) {
   throw new Error(
-    "MVP financial configuration is fixed at 500 Luna per answer, 3 consultations, 1,500 Luna maximum liability and at least 1,500 Luna funding.",
+    "Phase 7 financial configuration is fixed at 500 Luna per answer, 5 consultations, 2,500 Luna maximum liability and at least 2,500 Luna funding.",
   );
 }
 
@@ -76,7 +85,11 @@ export const config = {
   fundingMinimumLuna: BigInt(env.FUNDING_MINIMUM_LUNA),
   rewardPerAnswerLuna: rewardPerAnswer,
   maxConsultations: env.MAX_CONSULTATIONS_PER_SESSION,
-  maxRewardLiabilityLuna: maxLiability,
+  maxRewardLiabilityLuna: configuredMaxLiability,
+  llmApiKey: env.LLM_API_KEY,
+  llmBaseUrl: env.LLM_BASE_URL.replace(/\/+$/, ""),
+  llmModel: env.LLM_MODEL,
+  llmTimeoutMs: env.LLM_TIMEOUT_MS,
   payoutWorkerEnabled: env.PAYOUT_WORKER_ENABLED === "true",
   demoFundingEnabled: env.DEMO_FUNDING_ENABLED === "true",
   previewMockAuthEnabled: env.PREVIEW_MOCK_AUTH_ENABLED === "true",

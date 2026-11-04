@@ -38,6 +38,29 @@ export function formatVirtualUnits(value: string, unit: string): string {
   return `${fraction ? `${whole}.${fraction}` : whole} ${unit}`;
 }
 
+const DEMO_USD_PER_NIM = 0.85;
+
+/** Presentation-only demo conversion. Never used for accounting or payouts. */
+export function formatDemoUsdFromLuna(luna: string): string {
+  let value: bigint;
+  try {
+    value = BigInt(luna);
+  } catch {
+    return "$0.00";
+  }
+  // 1 NIM = 100,000 Luna = $0.85, so 1 Luna = 8.5 micro-USD.
+  const microUsd = (value * 85n) / 10n;
+  const dollars = Number(microUsd) / 1_000_000;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
+  }).format(dollars);
+}
+
+export const demoUsdPerNim = DEMO_USD_PER_NIM;
+
 export function formatDateTime(value: string | null): string {
   if (!value) return "—";
   const date = new Date(value);

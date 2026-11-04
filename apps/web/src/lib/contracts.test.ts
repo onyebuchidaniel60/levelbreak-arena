@@ -10,10 +10,11 @@ const runDetailFixture = {
   runId: "11111111-1111-4111-8111-111111111111",
   state: "IN_PROGRESS",
   levelIndex: 1,
+  maxConsultations: 5,
   stateVersion: 0,
   portfolio: { unit: "vUSDT", value: "100000000", version: "1" },
   earnedLuna: "0",
-  maxRewardLuna: "1500",
+  maxRewardLuna: "2500",
   payoutStatus: "NONE",
   scenario: {
     id: "level-1-stablecoin-peg",
@@ -32,7 +33,7 @@ const runDetailFixture = {
     id: "l1-stablecoin-peg",
     levelIndex: 1,
     evidenceVersion: "evidence-2026-11-01",
-    agentContext: "Scripted demo requester",
+    agentContext: "LLM-assisted demo requester",
     agentConfidence: "medium",
     agentMessage: "Review the evidence.",
     evidence: {

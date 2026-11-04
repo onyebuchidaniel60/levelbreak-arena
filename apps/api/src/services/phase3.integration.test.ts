@@ -27,6 +27,7 @@ import {
   submitConsultationResponse,
   submitDecision,
 } from "./game";
+import { generateAgentPrompt } from "./llm";
 import { processQueuedPayout, processSubmittedPayout, reconcilePayout } from "./payouts";
 
 const integration = process.env.LBA_INTEGRATION_DATABASE_URL
@@ -280,7 +281,7 @@ async function playRun(
   actions: Array<"ANSWER" | "SKIP">,
 ): Promise<number> {
   let version = 0;
-  for (let level = 1; level <= 3; level += 1) {
+  for (let level = 1; level <= 5; level += 1) {
     const decision = await decide(runId, playerId, level, version);
     version = decision.stateVersion;
     const response = await respond(
@@ -288,7 +289,7 @@ async function playRun(
       playerId,
       level,
       version,
-      actions[level - 1],
+      actions[level - 1] ?? "SKIP",
     );
     version = response.stateVersion;
   }
@@ -634,7 +635,7 @@ integration("Phase 3 domain integration", () => {
     const session = await createAvailableSession(nimiq);
     const player = await makePlayer();
     const run = await claim(player, session.sessionId);
-    await playRun(run.runId, player, ["ANSWER", "ANSWER", "ANSWER"]);
+    await playRun(run.runId, player, ["ANSWER", "ANSWER", "ANSWER", "ANSWER", "ANSWER"]);
 
     const results = await Promise.allSettled([
       finishRun({
@@ -662,24 +663,24 @@ integration("Phase 3 domain integration", () => {
 
     const totals = await payoutTotals(run.runId);
     expect(totals.count).toBe(1);
-    expect(totals.total).toBe("1500");
-    expect(await rewardLedgerTotal(run.runId)).toBe("1500");
+    expect(totals.total).toBe("2500");
+    expect(await rewardLedgerTotal(run.runId)).toBe("2500");
   });
 
-  it("computes the three required ledger cases", async () => {
+  it("computes the required ledger cases", async () => {
     const cases = [
       {
-        actions: ["ANSWER", "ANSWER", "ANSWER"] as const,
+        actions: ["ANSWER", "ANSWER", "ANSWER", "ANSWER", "ANSWER"] as const,
+        expectedEarned: "2500",
+        expectedPayout: "2500",
+      },
+      {
+        actions: ["ANSWER", "SKIP", "ANSWER", "SKIP", "ANSWER"] as const,
         expectedEarned: "1500",
         expectedPayout: "1500",
       },
       {
-        actions: ["ANSWER", "SKIP", "ANSWER"] as const,
-        expectedEarned: "1000",
-        expectedPayout: "1000",
-      },
-      {
-        actions: ["SKIP", "SKIP", "SKIP"] as const,
+        actions: ["SKIP", "SKIP", "SKIP", "SKIP", "SKIP"] as const,
         expectedEarned: "0",
         expectedPayout: null,
       },
@@ -712,7 +713,7 @@ integration("Phase 3 domain integration", () => {
             WHERE requester_session_id = $1 AND entry_type = 'UNUSED_CREDIT'`,
           [session.sessionId],
         );
-        expect(unused.rows[0].amount_luna).toBe("1500");
+        expect(unused.rows[0].amount_luna).toBe("2500");
         expect(await sessionState(session.sessionId)).toBe("SETTLED");
       } else {
         expect(finished.state).toBe("PAYOUT_QUEUED");
@@ -728,7 +729,7 @@ integration("Phase 3 domain integration", () => {
     const session = await createAvailableSession(nimiq);
     const player = await makePlayer();
     const run = await claim(player, session.sessionId);
-    await playRun(run.runId, player, ["ANSWER", "SKIP", "SKIP"]);
+    await playRun(run.runId, player, ["ANSWER", "SKIP", "SKIP", "SKIP", "SKIP"]);
     const finished = await finishRun({
       runId: run.runId,
       playerId: player,
@@ -985,7 +986,7 @@ integration("Phase 3 domain integration", () => {
     const session = await createAvailableSession(nimiq);
     const player = await makePlayer();
     const run = await claim(player, session.sessionId);
-    await playRun(run.runId, player, ["SKIP", "SKIP", "SKIP"]);
+    await playRun(run.runId, player, ["SKIP", "SKIP", "SKIP", "SKIP", "SKIP"]);
     const finished = await finishRun({
       runId: run.runId,
       playerId: player,
@@ -1009,7 +1010,7 @@ integration("Phase 3 domain integration", () => {
     const session = await createAvailableSession(nimiq);
     const player = await makePlayer();
     const run = await claim(player, session.sessionId);
-    await playRun(run.runId, player, ["ANSWER", "SKIP", "SKIP"]);
+    await playRun(run.runId, player, ["ANSWER", "SKIP", "SKIP", "SKIP", "SKIP"]);
     const first = await finishRun({
       runId: run.runId,
       playerId: player,
@@ -1026,6 +1027,34 @@ integration("Phase 3 domain integration", () => {
     expect(second.payoutId).toBe(first.payoutId);
     expect((await payoutTotals(run.runId)).count).toBe(1);
     expect((await payoutTotals(run.runId)).total).toBe("500");
+  });
+
+  it("returns the scripted agent prompt when no LLM key is configured", async () => {
+    const nimiq = new FakeNimiq();
+    const session = await createAvailableSession(nimiq);
+    const player = await makePlayer();
+    const run = await claim(player, session.sessionId);
+    await decide(run.runId, player, 1, 0);
+
+    const question = getQuestionForLevel(1);
+    const result = await generateAgentPrompt({
+      runId: run.runId,
+      playerId: player,
+      questionId: question.id,
+      logger,
+    });
+
+    expect(result.source).toBe("scripted");
+    expect(result.prompt).toBe(question.agentMessage);
+
+    await expect(
+      generateAgentPrompt({
+        runId: run.runId,
+        playerId: (await makePlayer()),
+        questionId: question.id,
+        logger,
+      }),
+    ).rejects.toMatchObject({ statusCode: 404 });
   });
 
   it("serializes run detail without BigInt and strips scenario outcomes", async () => {

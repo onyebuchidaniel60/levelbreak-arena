@@ -7,11 +7,13 @@
 **Product name:** LevelBreak Arena  
 **Source of truth:** This file defines product scope and business behavior. `ARCHITECTURE.md` defines implementation architecture; `IMPLEMENTATION_PLAN.md` defines phase gates.
 
+> **Phase 7 operator amendment — 4 November 2026.** The operator explicitly approved a scope and architecture change: five levels, a 2,500 Luna maximum liability, an LLM-drafted agent message with deterministic scripted fallback, and a clearly labelled demo fiat off-ramp. This amendment supersedes the earlier three-level / 1,500 Luna / no-LLM scope. Mainnet remains out of scope.
+
 ## 1. Product definition
 
 ### 1.1 One-line description
 
-LevelBreak Arena is a consequence-driven DeFi learning game in which players make decisions in simulated market scenarios and earn small, treasury-funded NIM rewards for completing evidence-backed judgment tasks presented by scripted agent requesters.
+LevelBreak Arena is a consequence-driven DeFi learning game in which players make decisions in simulated market scenarios and earn small, treasury-funded NIM rewards for completing evidence-backed judgment tasks presented by an LLM-assisted agent with a deterministic scripted fallback.
 
 ### 1.2 Problem
 
@@ -34,8 +36,8 @@ These are product-positioning observations, not a claim that no competing produc
 
 ### 1.5 Roles
 
-- **Player:** connects a Nimiq wallet, plays the three scenarios, answers or skips consultation tasks, sees earnings, and receives payout to their wallet.
-- **Requester/agent:** a scripted requester in the MVP. A separate server-side demo wallet sends session funding. It is not a live LLM agent and does not independently reason or pay from an external service.
+- **Player:** connects a Nimiq wallet, plays the five scenarios, answers or skips consultation tasks, sees earnings, and receives payout to their wallet.
+- **Requester/agent:** an LLM-assisted agent with a deterministic scripted fallback. The agent drafts the consultation message; it does not fetch live evidence, score answers, or pay from its own funds. A separate operator-controlled server-side demo wallet sends session funding. The agent remains operator-controlled simulation infrastructure, not an independent external agent.
 - **Operator:** controls the backend and treasury; monitors sessions, funding, payouts, and failures.
 - **System worker:** verifies incoming NIM funding, activates sessions, calculates deterministic rewards, queues and submits payouts, and reconciles transactions.
 
@@ -45,23 +47,23 @@ Learn by making simulated decisions, see the result immediately, and receive a s
 
 ### 1.7 Differentiator
 
-The game combines visible consequences in a virtual DeFi portfolio with evidence-attached judgment tasks, a funded-task gate, and real NIM transfers. The MVP uses a scripted requester and centralized treasury payout; it does not claim a live agent marketplace or trustless user-side escrow.
+The game combines visible consequences in a virtual DeFi portfolio with evidence-attached judgment tasks, a funded-task gate, and real NIM transfers. The MVP uses an LLM-assisted agent with scripted fallback and centralized treasury payout; it does not claim a real independent agent marketplace or trustless user-side escrow.
 
 ### 1.8 Primary use case
 
-A player opens the Mini App, connects their Nimiq Pay wallet, starts a funded session, completes up to three DeFi scenario levels, responds to each evidence-backed consultation card (or skips it), and receives an ordinary NIM transfer for each accepted response after completing the session.
+A player opens the Mini App, connects their Nimiq Pay wallet, starts a funded session, completes up to five DeFi scenario levels, responds to each evidence-backed consultation card (or skips it), and receives an ordinary NIM transfer for each accepted response after completing the session.
 
 ### 1.9 Secondary use cases
 
 - A player reviews their previous session and the transaction reference for a payout.
 - The operator inspects a session's funding proof, answer log, payout status, and failure reason.
-- A scripted requester funds a new session before it is made available to players.
+- The LLM-driven agent (with scripted fallback) funds a new session before it is made available to players.
 
 ### 1.10 Explicit non-goals
 
 The MVP does **not**:
 
-- run a live LLM agent or connect answers to a live agent workflow;
+- run an autonomous LLM agent marketplace or connect answers to a live external agent workflow; the LLM only drafts the agent message and a scripted fallback is always available;
 - fetch live token, market, pool, contract, or audit data;
 - place real trades, connect to DeFi protocols, or manage user portfolios;
 - use an HTLC for agent funding or player payout;
@@ -71,21 +73,22 @@ The MVP does **not**:
 - provide leaderboards, streaks, reputation, badges/NFTs, referrals, or social features;
 - support variable per-task reward amounts;
 - support real-money/mainnet launch during hackathon development;
-- support multiple levels beyond the three specified in the MVP.
+- support more than five levels or variable per-task rewards in the MVP;
+- execute a real fiat off-ramp, KYC flow, or fiat settlement; the off-ramp modal is a clearly labelled demo.
 
 ## 2. MVP scope
 
 ### 2.1 MUST HAVE
 
 1. A navigable, responsive frontend deployed to a stable preview URL during Phase 1.
-2. Three scenario levels: stablecoin peg risk, liquidity-pool impermanent loss, and yield-farming sustainability.
+2. Five scenario levels: stablecoin peg risk, liquidity-pool impermanent loss, yield-farming sustainability, oracle manipulation, and liquidation cascades.
 3. A deterministic simulation engine with virtual portfolio state and visible consequence animations.
-4. One scripted evidence-backed consultation task at each level-up, with options and a free skip.
+4. One evidence-backed consultation task at each level-up, with an LLM-drafted agent message, scripted fallback, options, and a free skip.
 5. Nimiq Pay wallet connection and signed-message authentication; no private key enters the app or backend.
 6. A prefunded-session gate: no session is playable/visible as available until the funding transaction has been verified on the intended Nimiq test network.
 7. Fixed reward of **0.005 NIM (500 Luna)** for each accepted consultation response; skip earns zero.
-8. A maximum of three consultation tasks per MVP session; maximum reward liability is **0.015 NIM (1,500 Luna)** per session.
-9. A scripted demo requester with a separate, server-side **testnet-only** demo-agent wallet that sends an ordinary NIM transfer to the treasury to fund sessions. The UI and demo must disclose that this requester and its wallet are operator-controlled simulation infrastructure, not an external live AI agent.
+8. A maximum of five consultation tasks per MVP session; maximum reward liability is **0.025 NIM (2,500 Luna)** per session.
+9. An LLM-driven agent (with a scripted fallback) and a separate, server-side **testnet-only** demo-agent wallet that sends an ordinary NIM transfer to the treasury to fund sessions. The UI and demo must disclose that this requester and its wallet are operator-controlled simulation infrastructure, not an external live AI agent.
 10. A server-side treasury that sends ordinary NIM transfers to players after session completion, subject to authoritative answer records and a reserved session budget.
 11. Transaction-status verification and a player-facing payout status, including transaction hash/explorer link where available.
 12. A server-side ledger for funding, session budget reservations, reward liabilities, payouts, and unspent session balance.
@@ -99,7 +102,7 @@ The MVP does **not**:
 - Resume a started game session after accidental refresh, without duplicating answers or rewards.
 - Player session history and payout receipts.
 - Automated reconciliation of submitted transactions and stuck payout attempts.
-- Clear disclosures for scripted requester, treasury custody, educational simulation, and testnet demo mode.
+- Clear disclosures for the LLM-assisted requester, treasury custody, educational simulation, and testnet demo mode.
 
 ### 2.3 NICE TO HAVE
 
@@ -119,22 +122,26 @@ These must not delay the core funded-session-to-payout journey.
 
 ### 2.5 OUT OF SCOPE
 
-Live LLM, live evidence fetching, real protocol integrations, HTLC contracts, staking/NFTs, leaderboards, social graph, push notifications, cross-chain execution, variable rewards, fiat rails, user-facing agent creation, a full agent marketplace, and public financial advice.
+Real fiat settlement or a production off-ramp/KYC integration (the UI is a labelled demo), live evidence fetching, real protocol integrations, HTLC contracts, staking/NFTs, leaderboards, social graph, push notifications, cross-chain execution, variable rewards, user-facing agent creation, a full agent marketplace, and public financial advice.
 
-### 2.6 Scope reconciliation: 3 levels vs. 10 questions
+### 2.6 Scope reconciliation: 5 levels and 5 paid consultations
 
-An earlier payment example used ten questions, but the locked product design has three levels and one consultation at each level-up. Expanding the game to ten paid questions would be an unapproved scope change. Therefore, the MVP has **three eligible consultations maximum** per session. At 0.005 NIM each, the session reward liability is 0.015 NIM. Funding amounts, reservation logic, UI, and tests must all use this three-question limit. The maximum can be reconsidered only as a separate product decision.
+An earlier payment example used ten questions. The operator-approved Phase 7 scope is now **five levels with one consultation at each level-up**. The MVP therefore has **five eligible consultations maximum** per session. At 0.005 NIM each, the session reward liability is 0.025 NIM (2,500 Luna). Funding amounts, reservation logic, UI, and tests must all use this five-consultation limit. Ten paid questions remain out of scope.
+
+### 2.7 Fiat off-ramp demo requirement
+
+The Payout Confirmed screen must offer a **Withdraw to Fiat** action that opens a **Nimiq Pay Off-Ramp** modal. The modal shows the confirmed payout amount, a clearly labelled indicative rate (1 NIM = $0.85), and an estimated fiat value. The action is a UI demonstration only: it must state that no fiat currency is transferred, must not call a real exchange, and must not imply a licensed off-ramp. A production off-ramp requires a separate provider, KYC/AML, legal and security approval.
 
 ## 3. User roles and permissions
 
-| Capability | Player | Scripted requester | Operator | System worker |
+| Capability | Player | LLM-assisted agent | Operator | System worker |
 |---|---:|---:|---:|---:|
 | Connect own Nimiq wallet | Yes | No | No | No |
-| View available funded sessions | Yes | Own scripted session only | Yes | Yes |
+| View available funded sessions | Yes | Own funded session only | Yes | Yes |
 | Play the game / submit answer | Yes | No | No | No |
 | Skip a consultation | Yes | No | No | No |
 | See own session and payout history | Yes | No | Yes | Yes |
-| Fund a demo session | No | Scripted server process | Can initiate/test | Yes |
+| Fund a demo session | No | Demo-agent server process | Can initiate/test | Yes |
 | Change reward amount or answer history | No | No | No through normal UI; guarded operational override only if explicitly implemented | No; deterministic rules only |
 | Submit treasury payout | No | No | Through approved operator workflow only | Yes, from payout queue |
 | View all players/funding/payout data | No | No | Limited operator access | Yes, service-only |
@@ -166,14 +173,14 @@ No operator override that edits a reward silently is permitted. Any exceptional 
 
 **Exit:** authenticated player sees funded demo sessions or a clear “no funded session available” state.
 
-### 4.2 Fund a session (MVP scripted requester)
+### 4.2 Fund a session (MVP LLM-assisted agent)
 
-**Entry:** operator starts a scripted session or the scheduled demo requester creates one.
+**Entry:** the operator starts a session or the demo requester process creates one. The agent message may be drafted by the LLM, but funding is always sent by the separate demo-agent wallet.
 
 **Preconditions:** backend has a unique session reference; the demo-agent wallet has testnet funds; the treasury address and network are configured; session has not already been funded.
 
 **Steps:**
-1. Backend creates a session in `AWAITING_FUNDING` with `reward_per_answer_luna=500`, `max_consultations=3`, and `max_reward_liability_luna=1500`.
+1. Backend creates a session in `AWAITING_FUNDING` with `reward_per_answer_luna=500`, `max_consultations=5`, and `max_reward_liability_luna=2500`.
 2. Demo requester submits a basic NIM transfer from its separate demo-agent wallet to the treasury address, with the fixed unique transaction-data reference `LBA1:<publicRef>`. If the selected SDK cannot construct a basic transfer with this reference, stop and report the blocker rather than changing the matching rules silently.
 3. Backend stores the returned transaction hash as a *candidate* funding transaction; this alone does not activate the session.
 4. Blockchain adapter verifies on-chain inclusion and validates the transaction sender (demo-agent allowlist), recipient (configured treasury), network, value (at least the required amount), and unique session reference.
@@ -192,7 +199,7 @@ No operator override that edits a reward silently is permitted. Any exceptional 
 
 **Steps:**
 1. API atomically claims the session for the player (or creates a player-session row if the funded session is shareable, see fixed rule below).
-2. MVP decision: **a funded requester session is a pool of funded consultation slots for multiple players, each player session is a separate liability**. To avoid reusing the same `session_budget`, the initial MVP is simpler: one funded requester session funds exactly one player run with three consultation opportunities. Once claimed, the session is not available to other players.
+2. MVP decision: **a funded requester session is a pool of funded consultation slots for multiple players, each player session is a separate liability**. To avoid reusing the same `session_budget`, the initial MVP is simpler: one funded requester session funds exactly one player run with five consultation opportunities. Once claimed, the session is not available to other players.
 3. Backend sets state `IN_PROGRESS`, records player wallet address, and creates a deterministic initial virtual portfolio (1,000 vUSDT) in server-authoritative state.
 4. Frontend renders Level 1 scenario.
 5. If refreshed, frontend fetches authoritative state and resumes; it does not create a second player run.
@@ -226,11 +233,11 @@ No operator override that edits a reward silently is permitted. Any exceptional 
 **Preconditions:** session is `IN_PROGRESS`; current level has an assigned consultation; it has not already been answered or skipped.
 
 **Steps:**
-1. Frontend renders agent message and bundled evidence before the question.
+1. Frontend renders the agent message (LLM-drafted when configured, otherwise the scripted fallback) and bundled evidence before the question.
 2. Player chooses one of the listed classifications, including `Can't tell`, or selects Skip.
 3. On Answer, backend validates the choice and atomically inserts one immutable answer with question ID, chosen option, evidence version, timestamps, and session/player IDs.
 4. Backend computes reward from the server rule: one accepted answer = 500 Luna. Skip creates a skip record and zero reward.
-5. Reward liability check confirms total earned does not exceed 1,500 Luna or funded reservation. The answer and reward ledger entry commit in one transaction.
+5. Reward liability check confirms total earned does not exceed 2,500 Luna or funded reservation. The answer and reward ledger entry commit in one transaction.
 6. UI shows “0.005 NIM earned” and the updated pending total. It does not claim payment has been sent yet.
 7. On Skip, UI shows the game continues and no reward was earned.
 
@@ -240,7 +247,7 @@ No operator override that edits a reward silently is permitted. Any exceptional 
 
 ### 4.6 Finish session and pay the player
 
-**Entry:** player completes all three levels, or session reaches its defined terminal condition after the third consultation is answered or skipped.
+**Entry:** player completes all five levels, or session reaches its defined terminal condition after the fifth consultation is answered or skipped.
 
 **Preconditions:** session belongs to player, is not already closed, valid accepted answers are recorded, funding was verified, treasury has sufficient available balance, and no payout already exists for the session/player.
 
@@ -273,6 +280,14 @@ No operator override that edits a reward silently is permitted. Any exceptional 
 
 Persist authoritative state on each completed decision/answer. Frontend can be closed or refreshed; reopening the app loads the active session. A session is not silently reset. When a session times out or is administratively cancelled before any paid answer, no reward is due and the unused budget remains an internal credit to the funded requester. In the MVP there is no automatic on-chain refund flow; any return of unused funds is a separately audited ordinary transfer and is not needed for the happy-path demo.
 
+### 4.10 Fiat off-ramp demo
+
+**Entry:** player has a `CONFIRMED` payout and selects **Withdraw to Fiat** on the Payout Confirmed screen.
+
+**Behavior:** open an accessible modal titled **Nimiq Pay Off-Ramp**. Show the confirmed payout in NIM and Luna, an explicitly indicative demo rate of 1 NIM = $0.85, and the estimated fiat value. The primary action transitions to a success state labelled as a simulation. The modal must state that no fiat currency is transferred, no exchange account is created, and no real off-ramp is connected. Closing the modal leaves all financial state unchanged.
+
+**Failure/edge cases:** if the payout is not confirmed, the action is not shown. If the confirmed amount is zero, the action is not shown. The modal never creates a payout, changes a payout, or calls a treasury endpoint.
+
 ## 5. Functional requirements
 
 ### FR-01 Wallet authentication
@@ -284,7 +299,7 @@ Persist authoritative state on each completed decision/answer. Frontend can be c
 - **Acceptance:** valid signatures create a session; altered challenge, replay, expired nonce, or wrong address is rejected.
 
 ### FR-02 Funded session lifecycle
-- **Actor:** scripted requester/system.
+- **Actor:** LLM-assisted agent/system (scripted fallback).
 - **Inputs:** session ID, expected amount, funding transaction hash.
 - **Rules:** session unavailable until on-chain transaction verified; transaction hash globally unique; recipient/network/value/reference checked.
 - **Acceptance:** pending transfer does not unlock; exact valid confirmed transfer unlocks once; wrong/duplicate transfer never unlocks a second session.
@@ -297,7 +312,7 @@ Persist authoritative state on each completed decision/answer. Frontend can be c
 
 ### FR-04 Evidence renderer
 - **Actor:** player.
-- **Inputs:** static scripted question JSON.
+- **Inputs:** versioned question JSON plus an optional LLM-generated agent message.
 - **Rules:** supported types: `image`, `data_card`, `text_snippet`, `scenario_card`; evidence precedes question; three-line cap for key fact cards; no live fetches.
 - **Acceptance:** every question has evidence, readable at mobile sizes, with alt text or text equivalent for images.
 
@@ -311,7 +326,7 @@ Persist authoritative state on each completed decision/answer. Frontend can be c
 - **Actor:** system.
 - **Inputs:** stored accepted answer.
 - **Rules:** reward is deterministic; currency amounts stored as integer Luna; no floating-point financial arithmetic.
-- **Acceptance:** three eligible answers total exactly 1,500 Luna and cannot exceed the funded budget.
+- **Acceptance:** five eligible answers total exactly 2,500 Luna and cannot exceed the funded budget.
 
 ### FR-07 Treasury payout
 - **Actor:** system worker.
@@ -361,16 +376,16 @@ Allowed transitions must be implemented in a domain service and checked inside D
 
 ### 6.2 Player run state
 
-`NOT_STARTED -> IN_PROGRESS(level=1) -> CONSULTATION_PENDING(level=1) -> IN_PROGRESS(level=2) -> CONSULTATION_PENDING(level=2) -> IN_PROGRESS(level=3) -> CONSULTATION_PENDING(level=3) -> COMPLETED -> PAYOUT_QUEUED -> PAYOUT_SUBMITTED -> PAYOUT_CONFIRMED`
+`NOT_STARTED -> IN_PROGRESS(level=1) -> CONSULTATION_PENDING(level=1) -> IN_PROGRESS(level=2) -> CONSULTATION_PENDING(level=2) -> IN_PROGRESS(level=3) -> CONSULTATION_PENDING(level=3) -> IN_PROGRESS(level=4) -> CONSULTATION_PENDING(level=4) -> IN_PROGRESS(level=5) -> CONSULTATION_PENDING(level=5) -> COMPLETED -> PAYOUT_QUEUED -> PAYOUT_SUBMITTED -> PAYOUT_CONFIRMED`
 
 At a consultation, the player may choose `ANSWERED` or `SKIPPED`. Either terminal action allows gameplay to continue, but only `ANSWERED` creates a reward ledger entry. If there is an interruption, fetch stored state and resume.
 
 ### 6.3 Session funding rules
 
-- MVP session: one player run and three possible paid consultations.
+- MVP session: one player run and five possible paid consultations.
 - Reward per accepted answer: 500 Luna (0.005 NIM).
-- Maximum reward liability: 1,500 Luna (0.015 NIM) per funded session.
-- Funding amount must be at least the maximum reward liability. Recommended exact demo funding: 1,500 Luna, with treasury/operations fee reserve held separately. If protocol fees are nonzero for outgoing transfers, the treasury operator reserve covers them rather than silently reducing player reward.
+- Maximum reward liability: 2,500 Luna (0.025 NIM) per funded session.
+- Funding amount must be at least the maximum reward liability. Recommended exact demo funding: 2,500 Luna, with treasury/operations fee reserve held separately. If protocol fees are nonzero for outgoing transfers, the treasury operator reserve covers them rather than silently reducing player reward.
 - Use integer Luna only. Convert to NIM only at presentation boundary.
 - On-chain received funds are not a smart-contract escrow. Once received, the operator controls the treasury; the database reserve is an accounting control, not a blockchain-enforced lock.
 - Never allocate the same funding record or budget reservation to two player runs.
@@ -407,7 +422,11 @@ At a consultation, the player may choose `ANSWERED` or `SKIPPED`. Either termina
 
 **Level 3 — Yield sustainability:** a farm advertises 400% APY. Choose `Ape` or `Read`; the scenario reveals a fork/unaudited contract and a rug-pull outcome for the risky choice. The lesson is to inspect sustainability and risk, not that every high APY is a rug.
 
-All portfolio changes must be defined in a versioned static scenario JSON file with tests for each branch. Consultation evidence is bundled static content, not live market data.
+**Level 4 — Oracle manipulation:** a simulated lending market relies on a single spot price feed. Choose `TRUST` or `VERIFY`; the simulation shows how a manipulated feed can trigger unfair liquidations. The lesson is to check oracle design, sources, and circuit breakers.
+
+**Level 5 — Liquidation cascades:** a simulated leveraged position approaches its liquidation threshold. Choose `HOLD` or `DELEVERAGE`; the simulation shows how forced selling can cascade through thin liquidity. The lesson is to manage collateral buffers and understand reflexive liquidation risk.
+
+All portfolio changes must be defined in a versioned static scenario JSON file with tests for each branch. Consultation evidence is bundled static content, not live market data. The LLM may draft only the agent message; it never changes the evidence, options, or reward rules.
 
 ### 6.7 Concurrency and conflicts
 
@@ -458,9 +477,9 @@ All timestamps are UTC `timestamptz`; all NIM amounts are integer Luna (`bigint`
 - `treasury_address text not null`
 - `expected_funding_luna bigint not null`
 - `reward_per_answer_luna bigint not null default 500`
-- `max_consultations smallint not null default 3`
-- `max_reward_liability_luna bigint not null default 1500`
-- `reserved_liability_luna bigint not null default 1500`
+- `max_consultations smallint not null default 5`
+- `max_reward_liability_luna bigint not null default 2500`
+- `reserved_liability_luna bigint not null default 2500`
 - `unused_credit_luna bigint not null default 0`
 - `funding_deadline timestamptz not null`
 - `claimed_by_player_run_id uuid null unique`
@@ -487,7 +506,7 @@ All timestamps are UTC `timestamptz`; all NIM amounts are integer Luna (`bigint`
 - `requester_session_id uuid not null unique references requester_sessions(id)` (one run per funded session)
 - `player_id uuid not null references players(id)`
 - `state text not null`
-- `level_index smallint not null default 1 check 1..3`
+- `level_index smallint not null default 1 check 1..5`
 - `portfolio_state jsonb not null` (virtual data only, validated against schema)
 - `state_version integer not null default 0`
 - `reward_earned_luna bigint not null default 0`
@@ -498,7 +517,7 @@ All timestamps are UTC `timestamptz`; all NIM amounts are integer Luna (`bigint`
 ### 7.7 `scenario_decisions`
 - `id uuid primary key`
 - `player_run_id uuid not null references player_runs(id)`
-- `level_index smallint not null check 1..3`
+- `level_index smallint not null check 1..5`
 - `decision_key text not null`
 - `result jsonb not null` (server-generated resulting portfolio and explanation)
 - `idempotency_key text not null`
@@ -564,7 +583,7 @@ All timestamps are UTC `timestamptz`; all NIM amounts are integer Luna (`bigint`
 
 ### 7.13 Relationships
 
-`players 1—many auth_sessions`; `players 1—many player_runs`; `requester_sessions 1—0/1 funding_transactions`; `requester_sessions 1—0/1 player_runs`; `player_runs 1—many scenario_decisions`; `player_runs 1—0/3 consultation_responses`; `player_runs 1—0/1 payouts`; financial events append to `ledger_entries`; all admin operations create `audit_events`.
+`players 1—many auth_sessions`; `players 1—many player_runs`; `requester_sessions 1—0/1 funding_transactions`; `requester_sessions 1—0/1 player_runs`; `player_runs 1—many scenario_decisions`; `player_runs 1—0/5 consultation_responses`; `player_runs 1—0/1 payouts`; financial events append to `ledger_entries`; all admin operations create `audit_events`.
 
 ### 7.14 Data visibility
 
@@ -583,19 +602,20 @@ See `ARCHITECTURE.md` for detailed components, chosen stack, API contracts, data
 - Supabase PostgreSQL as the authoritative database; browser does not query privileged tables directly.
 - Nimiq Mini App SDK inside Nimiq Pay for user wallet identity and signed-message authentication.
 - `@nimiq/core` Web Client/transaction APIs in the backend adapter for testnet transaction building, signing, reading, and broadcasting; exact API calls must be proven in Phase 2 before financial flow integration.
-- A separate server-only scripted demo-agent wallet and treasury wallet, both testnet-only. They must use different keys and different addresses.
-- No HTLC, no mainnet funds, no live LLM, no additional queue service, no direct frontend-to-database mutations.
+- A separate server-only demo-agent wallet and treasury wallet, both testnet-only. They must use different keys and different addresses.
+- No HTLC, no mainnet funds, no live evidence fetching, no additional queue service, no direct frontend-to-database mutations.
 
 ## 9. Technology stack
 
 - **Frontend:** React + TypeScript + Vite; React Router for routes; Tailwind CSS for consistent temporary styling and later approved UI; TanStack Query for API state; Zod shared schemas for client-side shape validation (server repeats all authoritative validation).
 - **Backend:** Node.js 24 LTS + TypeScript + Fastify; Zod validation; structured logger with secret redaction; `@nimiq/core` Web Client adapter for Nimiq blockchain reads and basic transfer construction/signing/broadcast.
+- **LLM:** optional OpenAI-compatible chat-completions provider used only to draft the agent message; server-side key, timeout, rate limit, output cap, deterministic scripted fallback, and no evidence fetching.
 - **Database:** Supabase PostgreSQL; schema migrations tracked in repository; all app financial/session changes go through Fastify; privileged keys server-side only.
 - **Tests:** Vitest for unit/integration; Playwright for browser E2E; testnet integration test guarded by explicit environment flag and testnet network ID.
 - **Deployment:** Vercel for static frontend/preview deployments; Render persistent Node service for backend and blockchain client; Supabase managed PostgreSQL.
 - **Secrets:** Render environment variables during MVP; never use `VITE_` prefixes for secrets. Testnet-only keys in isolated environments.
 
-Alternatives are rejected to reduce complexity: no Next.js full-stack deployment because the backend needs a persistent Nimiq client/serialized payout worker; no Supabase Edge Functions for signing/broadcast until the chosen Web Client runtime is proven there; no Redis/queue service while one worker and Postgres outbox are sufficient; no LLM API because scripted tasks are locked for MVP.
+Alternatives are rejected to reduce complexity: no Next.js full-stack deployment because the backend needs a persistent Nimiq client/serialized payout worker; no Supabase Edge Functions for signing/broadcast until the chosen Web Client runtime is proven there; no Redis/queue service while one worker and Postgres outbox are sufficient; an LLM is used only to draft the agent message, with a deterministic scripted fallback; it is not used for evidence or scoring.
 
 ## 10. API specification
 
@@ -645,7 +665,9 @@ Every player endpoint derives player identity from the authenticated server sess
 10. **Sensitive logging:** redact cookie, signature payloads, raw nonce, keys, DB URLs, and full auth tokens. Log request IDs and safe failure codes only.
 11. **External chain data:** do not trust a client-reported tx hash or an RPC response alone without validating actual transaction details and network. Compare source, destination, value, data/ref, and inclusion.
 12. **Race conditions:** DB locks/versioning, unique constraints, idempotent mutations, payout worker lease, transactional outbox.
-13. **Abuse/fraud:** one funded run per session, at most three answer rewards, no client control over reward rate, no arbitrary repeated session resets, per-wallet concurrency limit.
+13. **Abuse/fraud:** one funded run per session, at most five answer rewards, no client control over reward rate, no arbitrary repeated session resets, per-wallet concurrency limit.
+18. **LLM data minimization:** send only the current scenario/question context needed for the agent message; never send wallet addresses, signatures, auth tokens, secrets, or other players' data. Cap output length, time out, and fall back to the scripted message. Do not log raw prompts or completions.
+19. **Fiat off-ramp demo:** the off-ramp modal must never imply real fiat settlement. It is a labelled UI demonstration with no exchange API call; a production integration requires a separate provider, KYC/AML, legal and security review.
 14. **Preview safety:** testnet-only keys and addresses; do not put production secrets/data in preview; no mainnet send endpoint enabled. Protect operator routes and disable scripted wallet funding in non-test environments.
 15. **Financial disclosure:** player payout is a normal transfer from operator-controlled treasury. Session funding is not HTLC escrow or on-chain restricted reserve. The operator can misuse funds; product wording must not call this trustless escrow.
 16. **Educational safety:** conspicuous disclosure that all scenarios are simulations, not financial or investment advice; no real trades or deposits by players are required.
@@ -659,9 +681,9 @@ Use React Router with these routes:
 
 - `/` — landing/start screen: concise promise, “Play”/“Connect wallet,” Nimiq integration explanation, game/reward disclosure, navigation to How it works and History after auth.
 - `/play` — lobby: wallet status, available funded session card, expected number of levels/reward cap, start/resume button, explicit no-funded-session state.
-- `/play/:runId` — game screen: progress across 3 levels, virtual portfolio, scenario, decision controls, consequence result, consultation card layer, skip, earned counter, finish state.
+- `/play/:runId` — game screen: progress across 5 levels, virtual portfolio, scenario, decision controls, consequence result, consultation card layer, skip, earned counter, finish state, and the confirmed-payout **Withdraw to Fiat** demo action.
 - `/history` — player's own sessions, answer count, total earned, payout status, transaction hash/link, empty/error state.
-- `/how-it-works` — game rules, reward rules, funded session/treasury disclosure, scripted-agent disclosure, simulation disclaimer.
+- `/how-it-works` — game rules, reward rules, funded session/treasury disclosure, LLM-assisted agent and scripted-fallback disclosure, fiat off-ramp demo disclosure, simulation disclaimer.
 - `/privacy` — concise privacy notice covering wallet address, auth nonce/signature verification metadata, session history, transaction history, and retention.
 - `/terms` — simple hackathon MVP terms and risk/disclosure page; do not draft legal guarantees; clearly state NIM testnet during demo and treasury payout model.
 - `/docs` — in-app overview and link to public repository/docs page (real URL set only after repository/docs publication). Do not fabricate a deployment URL.
@@ -673,10 +695,10 @@ Admin routes live in a separate protected operator surface (`/operator`) only if
 
 - Global shell: product mark/name placeholder, wallet connection/status, primary nav (Play, History, How it works), main content, accessible footer.
 - Lobby: status first (wallet, funded/not funded), then one obvious next action; show max payout in NIM and Luna-equivalent internals not necessary to player.
-- Game: persistent three-step progress and virtual portfolio; one primary decision/action area; consultation is a layer/card after each level; evidence before question; obvious `Can't tell` and `Skip` actions.
+- Game: persistent five-step progress and virtual portfolio; one primary decision/action area; consultation is a layer/card after each level; evidence before question; obvious `Can't tell` and `Skip` actions.
 - End state: separate `Reward earned`, `Payout pending`, `Paid` states; never conflate earned amount with confirmed payment.
 - History: compact session rows/cards; status plus transaction details; never show fake transaction hash.
-- How it works/privacy/terms: readable short content; disclose scripted agent and centralized treasury model in MVP.
+- How it works/privacy/terms: readable short content; disclose the LLM-assisted agent, scripted fallback, and centralized treasury model in MVP.
 
 ### 14.3 Interaction rules
 
@@ -698,7 +720,7 @@ Before release verify all routes, global nav/footer, real links, mobile responsi
 
 ## 15. Design references, mockups, and approval gate
 
-No final visual reference has been approved as of this blueprint. The coding agent must not silently choose a final aesthetic. After Phase 5 E2E functionality gate:
+The operator approved **Direction 1 — Trading Terminal** on 4 November 2026. Directions 2, 3, and 4 were rejected and their artifacts removed. Final Phase 7 implementation may proceed under that approval. The historical gate process is retained below:
 1. Ask the operator to supply references or present three concise candidate directions for selection.
 2. Record reference URL/image, attribute to explore (layout, density, typography, color, motion), and original treatment required.
 3. Make mockups/prototypes for Home/Lobby, Game level + consequence, Consultation evidence card, cash-out/payout status, and History, in desktop and mobile views and key error/loading states.
@@ -719,7 +741,7 @@ No final visual reference has been approved as of this blueprint. The coding age
 
 ### Optional/not used in MVP
 
-- LLM provider: not used; requests are scripted.
+- LLM provider: optional, used only to draft the agent message; the scripted message is the required fallback. No live evidence fetching.
 - External analytics: not used unless separately approved.
 - Firecrawl, price APIs, RPC marketplace, push notifications: not used.
 
@@ -729,14 +751,14 @@ If chain consensus/read access is unavailable, new sessions cannot become funded
 
 ## 17. AI architecture
 
-No live AI model is used by the MVP. The “agent” persona is a scripted requester defined in static, versioned JSON. This is a deliberate scope constraint. Each prompt/evidence set is reviewed manually for clarity, neutrality, and answerability using only the supplied context. There is no hidden answer key, autonomous tool call, prompt injection channel, or live agent-to-player loop. Future live AI must be a separate product/architecture decision with structured outputs, deterministic validation, cost limits, prompt injection defenses, data minimization, and human confirmation controls.
+The agent persona is LLM-assisted with a deterministic scripted fallback. The LLM may draft a short contextual message using the current scenario, question, bundled evidence summary, and the player's own earned amount. It does not fetch live evidence, change the question or options, score answers, or trigger payments. The scripted `agentMessage` in `consultation-definitions.ts` is authoritative when `LLM_API_KEY` is absent or the provider fails. LLM calls are server-side, authenticated, rate-limited, time-limited, output-capped, and cached per run/question. Wallet addresses, auth material, secrets, and other players' data are never sent. Raw prompts and completions are not logged. This remains operator-controlled simulation infrastructure, not an independent agent marketplace.
 
 ## 18. Payment architecture
 
 ### 18.1 Chosen model
 
 - No HTLC in MVP.
-- Scripted demo requester sends an ordinary basic NIM transfer from its own separate server-side **testnet demo wallet** to the operator's treasury address.
+- LLM-assisted demo requester (scripted fallback) sends an ordinary basic NIM transfer from its own separate server-side **testnet demo wallet** to the operator's treasury address.
 - Backend verifies the deposit on-chain before activating the session.
 - The player finishes the session; the backend derives reward from accepted response rows.
 - Treasury sends the player a normal NIM transfer from a server-side treasury wallet.
@@ -744,14 +766,14 @@ No live AI model is used by the MVP. The “agent” persona is a scripted reque
 
 ### 18.2 Trust model and truthful positioning
 
-Session funding is a normal transfer into an operator-controlled treasury, not a contract-level lock. Database “reserved” funds are bookkeeping controls; they are not enforced by Nimiq consensus. The operator controls payout execution and can fail or misuse funds. The MVP is therefore **funded and auditable, but not trustless escrow**. The demo requester is scripted and controlled by the operator. Public wording must not imply a real independent AI agent paid out of its own funds.
+Session funding is a normal transfer into an operator-controlled treasury, not a contract-level lock. Database “reserved” funds are bookkeeping controls; they are not enforced by Nimiq consensus. The operator controls payout execution and can fail or misuse funds. The MVP is therefore **funded and auditable, but not trustless escrow**. The demo requester is LLM-assisted but operator-controlled, with a scripted fallback. Public wording must not imply a real independent AI agent paid out of its own funds.
 
 ### 18.3 Amount and rewards
 
 - NIM denomination: integer Luna; 1 NIM = 100,000 Luna.
 - Reward per accepted consultation: 500 Luna = 0.005 NIM.
-- MVP session: up to 3 accepted consultations.
-- Maximum liability per session: 1,500 Luna = 0.015 NIM.
+- MVP session: up to 5 accepted consultations.
+- Maximum liability per session: 2,500 Luna = 0.025 NIM.
 - Skip: 0 Luna.
 - A separate treasury operational balance covers any transfer fee if a fee is required; the reward budget must not be reduced silently.
 - Rewards display as pending until confirmed on-chain.
@@ -821,9 +843,9 @@ No mass-edit, arbitrary reward override, private-key reveal, or unrestricted arb
 
 ### Unit tests
 - Wallet challenge formatting, expiry, one-use consumption and signature verification adapter.
-- Scenario decision outcome for every branch at each of three levels.
+- Scenario decision outcome for every branch at each of five levels.
 - Portfolio state math and invariant checks.
-- Reward calculation for 0/1/2/3 answered consultations and skipped tasks.
+- Reward calculation for 0/1/2/3/4/5 answered consultations and skipped tasks.
 - Session state transition guards.
 - NIM/Luna conversion and formatting; financial storage uses integers.
 - Payout idempotency key derivation and outbox transition rules.
@@ -848,7 +870,7 @@ No mass-edit, arbitrary reward override, private-key reveal, or unrestricted arb
 ### E2E tests (Playwright)
 1. Unauthenticated landing and route navigation.
 2. Staging mock-auth mode (only enabled on preview) and wallet-auth unit/integration adapter path.
-3. Funded lobby -> start -> three scenario decisions -> three consultations (answer/skip variations) -> completion -> payout status.
+3. Funded lobby -> start -> five scenario decisions -> five consultations (answer/skip variations) -> completion -> payout status.
 4. Refresh mid-level and resume; state is unchanged.
 5. No funded session: cannot start; clear messaging.
 6. Double-click answer and payout/retry surfaces: one reward/payout only.
@@ -861,7 +883,7 @@ No mass-edit, arbitrary reward override, private-key reveal, or unrestricted arb
 - Replay signed login challenge.
 - Tamper address, nonce, origin, request body reward amount, user/run ID, state version, and transaction hash.
 - Try to read another player's session/history.
-- Submit more than three answers or duplicate answer IDs.
+- Submit more than five answers or duplicate answer IDs.
 - Replay payout endpoint concurrently.
 - Submit unverified incoming funding and a tx for another session.
 - Trigger logs/errors and confirm no secret or auth token appears.
@@ -872,7 +894,7 @@ All of these must pass on the deployed preview/testnet:
 1. Wallet identity authenticated or explicitly isolated preview mock is used without ever confusing mock mode with production.
 2. Session created and funded by demo requester transfer.
 3. Funding is verified from the chain before session is available.
-4. Player completes the 3-level game with an answer/skip combination.
+4. Player completes the 5-level game with an answer/skip combination.
 5. Server ledger records no duplicate decisions/responses/reward.
 6. Payout is built and broadcast from treasury; actual chain details match the stored recipient and reward.
 7. The UI distinguishes earned, submitted, and confirmed.
@@ -947,9 +969,14 @@ All backend variables are server-only. Values below are names/placeholders, not 
 - `NIMIQ_DEMO_AGENT_PRIVATE_KEY` — separate demo-agent testnet key; server-only; never used in production.
 - `NIMIQ_RPC_OR_CLIENT_CONFIG` — only if required by the tested Nimiq client configuration; server-only, no guessed placeholder endpoint until configured.
 - `NIMIQ_EXPLORER_BASE_URL` — real testnet explorer URL chosen and verified during integration; server-only or public configuration.
-- `FUNDING_MINIMUM_LUNA` — `1500` for MVP, server-only.
+- `FUNDING_MINIMUM_LUNA` — `2500` for MVP, server-only.
 - `REWARD_PER_ANSWER_LUNA` — `500`, server-only; no API client override.
-- `MAX_CONSULTATIONS_PER_SESSION` — `3`, server-only.
+- `MAX_CONSULTATIONS_PER_SESSION` — `5`, server-only.
+- `MAX_REWARD_LIABILITY_LUNA` — `2500`, server-only; must equal `REWARD_PER_ANSWER_LUNA * MAX_CONSULTATIONS_PER_SESSION`.
+- `LLM_API_KEY` — optional server-only key for an OpenAI-compatible chat-completions provider. If absent, the scripted fallback is used.
+- `LLM_BASE_URL` — optional OpenAI-compatible base URL, e.g. OpenAI or Groq.
+- `LLM_MODEL` — optional model name for the agent message.
+- `LLM_TIMEOUT_MS` — optional provider timeout, default 8000.
 - `PAYOUT_WORKER_ENABLED` — `false` by default in local dev; only enabled in explicitly configured testnet service.
 - `DEMO_FUNDING_ENABLED` — `false` by default; true only in isolated testnet demo environment.
 - `PREVIEW_MOCK_AUTH_ENABLED` — true only on preview when necessary for early shell; must be false in production and testnet money flows requiring wallet auth.
@@ -985,13 +1012,13 @@ The required nine-phase sequence, phase tasks, file expectations, acceptance cri
 1. **No HTLC in MVP:** supersedes the concept handoff's former HTLC settlement section. The user-side redemption path was not available in the documented Mini App APIs, and an agent-side HTLC did not solve player payment guarantees. Remove HTLC from the MVP rather than preserve an unnecessary primitive.
 2. **Funded-before-available:** session activation depends on verified ordinary NIM transfer to the treasury, not on client claim or a returned transaction hash.
 3. **Custodial operator treasury:** explicitly disclosed; database reservation is not on-chain escrow.
-4. **Scripted requester:** demo-agent wallet and treasury are both operator-controlled testnet wallets; describe the resulting flow as a simulation, not a real independent AI paying users.
-5. **Three tasks, not ten:** preserve the locked three-level product and one consultation per level. Three accepted responses max; reward cap 0.015 NIM. A ten-question design would require a separate approved product change.
+4. **LLM-assisted, operator-controlled requester:** the agent message may be LLM-drafted with a scripted fallback; the demo-agent wallet and treasury are both operator-controlled testnet wallets. Describe the flow as a simulation, not a real independent AI paying users.
+5. **Five tasks, not ten:** the operator approved a five-level product with one consultation per level. Five accepted responses max; reward cap 0.025 NIM. A ten-question design would require a separate approved product change.
 6. **Wallet auth not device ID:** Nimiq's device identifier is device-scoped and must not authenticate users.
 7. **Backend transaction adapter:** choose `@nimiq/core` with a persistent backend process as the initial implementation approach; Phase 2 must prove key import/derivation, normal transfer signing, broadcasting, and verification using dedicated testnet wallets. No production signing enabled before proof.
-8. **No UI final design yet:** no aesthetic is approved. Temporary UI is intentional until E2E payment flow passes.
+8. **Direction 1 approved:** the Trading Terminal direction was approved on 4 November 2026 after the Phase 5 E2E gate. Phase 7 implements that design.
 9. **Category:** Earn is appropriate given the rules' explicit inclusion of microtasks and learn-to-earn formats; submission wording should still be grounded in actual functionality.
 10. **Public source:** competition requires public MIT repository; real GitHub link will be inserted only after actual repo creation.
-11. **Deadline reality:** 13 calendar days remain on 29 October 2026. Prioritize an end-to-end 3-level run and actual testnet payout. Cut polish/features before cutting funding verification or payout safety.
+11. **Deadline reality:** the MVP now has five levels and a larger UI. Prioritize an end-to-end five-level run, LLM fallback safety, and actual testnet payout. Cut polish/features before cutting funding verification or payout safety.
 
 **Coding agent start point:** Read `AGENTS.md`, then inspect the repository and current environment without changing files. Execute Phase 1 only: produce the route-complete skeletal frontend, configure a safe test-only preview deploy, deploy it, and report the exact URL, commit, route checklist, and incomplete behavior. Do not implement payments or final visual styling in Phase 1.

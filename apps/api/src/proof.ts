@@ -13,7 +13,7 @@ async function main(): Promise<void> {
   const demoAddress = process.env.NIMIQ_DEMO_AGENT_ADDRESS;
   const demoKey = process.env.NIMIQ_DEMO_AGENT_PRIVATE_KEY;
   const treasuryAddress = process.env.NIMIQ_TREASURY_ADDRESS;
-  const amountLuna = BigInt(process.env.FUNDING_MINIMUM_LUNA || "1500");
+  const amountLuna = BigInt(process.env.FUNDING_MINIMUM_LUNA || "2500");
   const explorerBase = process.env.NIMIQ_EXPLORER_BASE_URL || null;
 
   if (!demoAddress || !demoKey || !treasuryAddress) {
