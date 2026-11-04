@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LevelBreak Arena — Connect your wallet</title>
+  <meta name="description" content="LevelBreak Arena Playful Learning Game design mockup — wallet connection states.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='10' fill='%23FBBF24'/%3E%3Cpath d='M16 25V13' stroke='%231F2937' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M16 16c-5.6 0-8.5-2.9-8.5-8.5C13.1 7.5 16 10.4 16 16Z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="_shared/tokens.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="01-landing.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-word">LevelBreak <span>Arena</span></span>
+        </a>
+        <nav class="topnav" aria-label="Primary">
+          <a href="02-wallet-connect.html" aria-current="page">Play</a>
+          <a href="11-history.html">History</a>
+          <a href="01-landing.html#how-it-works">How it works</a>
+        </nav>
+        <div class="wallet-zone">
+          <span class="testnet-chip"><span class="dot dot-amber"></span>Not connected</span>
+          <a class="btn btn-soft btn-sm" href="02-wallet-connect.html">Connect</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="ribbon">
+      <div class="ribbon-inner">
+        <span class="ribbon-item"><span class="dot dot-green"></span>Nimiq Testnet · play money</span>
+        <span class="ribbon-sep">·</span>
+        <span class="ribbon-item">Sign-in is a signature, not a transaction</span>
+        <span class="ribbon-spacer"></span>
+        <span class="ribbon-item ribbon-right">Private keys never leave your wallet</span>
+      </div>
+    </div>
+
+    <main class="page page-narrow">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow"><span class="spark">✦</span> Wallet check</span>
+          <h1>Let's get you in.</h1>
+          <p class="lead">We'll show both states here: Nimiq Pay is available, or you need to open the app on your phone. Either way, no private key leaves your wallet.</p>
+        </div>
+        <div class="page-head-side">
+          <span class="pill pill-blue">Two states</span>
+          <span class="mini">No transaction is signed at login</span>
+        </div>
+      </div>
+
+      <div class="connect-grid">
+        <section class="card card-lg connect-card" aria-labelledby="state-a-title">
+          <div class="connect-hero">
+            <span class="connect-icon" aria-hidden="true">NQ</span>
+            <div>
+              <h2 id="state-a-title">Nimiq Pay is ready</h2>
+              <p>We found a wallet provider on this device.</p>
+            </div>
+            <span class="pill pill-green" style="margin-left: auto;"><span class="dot dot-green dot-live"></span>Available</span>
+          </div>
+
+          <div class="card-body">
+            <div class="account-box">
+              <span class="account-avatar" aria-hidden="true">N</span>
+              <div>
+                <strong>NQ98 54S9 LBJR JUH9 MKL3 YACQ TD3T JBXJ PHEQ</strong>
+                <span>Detected account · Nimiq Testnet</span>
+              </div>
+            </div>
+
+            <div class="auth-points">
+              <div class="auth-point"><span class="tick">✓</span> One short-lived signature proves it's your wallet.</div>
+              <div class="auth-point"><span class="tick">✓</span> The signature can't move funds or approve a transfer.</div>
+              <div class="auth-point"><span class="tick">✓</span> We never ask for your seed phrase or private key.</div>
+            </div>
+
+            <div class="connect-spacer"></div>
+
+            <a class="btn btn-primary btn-block" href="03-lobby-available.html">Sign in with Nimiq Pay <span aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost btn-block" href="01-landing.html#how-it-works" style="margin-top: 8px;">How sign-in works</a>
+
+            <p class="disclosure" style="margin-top: 16px;"><span><strong>Heads up:</strong> this is a testnet demo. The NIM in the game isn't real money.</span></p>
+          </div>
+        </section>
+
+        <section class="card card-lg connect-card" aria-labelledby="state-b-title">
+          <div class="connect-hero" style="background: linear-gradient(180deg, var(--tint-blue), rgba(239,246,255,0));">
+            <span class="connect-icon" aria-hidden="true">NQ</span>
+            <div>
+              <h2 id="state-b-title">Open this in Nimiq Pay</h2>
+              <p>No wallet provider in this browser.</p>
+            </div>
+            <span class="pill pill-amber" style="margin-left: auto;">On your phone</span>
+          </div>
+
+          <div class="card-body">
+            <div class="phone-illustration" aria-hidden="true">
+              <div class="phone-screen">
+                <div class="phone-app">NQ</div>
+                <strong>LevelBreak Arena</strong>
+                <span>Open in Nimiq Pay</span>
+              </div>
+              <div class="phone-home"></div>
+            </div>
+
+            <div class="connect-copy" style="text-align: center;">
+              <h3>Three taps and you're in.</h3>
+              <p>Wallet sign-in only works inside the Nimiq Pay app.</p>
+            </div>
+
+            <div class="connect-steps">
+              <div class="connect-step"><b>1</b><span>Open <strong>Nimiq Pay</strong> on your phone.</span></div>
+              <div class="connect-step"><b>2</b><span>Open the LevelBreak Arena Mini App, or paste the link below.</span></div>
+              <div class="connect-step"><b>3</b><span>Come back here and tap connect.</span></div>
+            </div>
+
+            <div class="url-pill">
+              <span>levelbreak-arena.vercel.app</span>
+              <span class="copy-mini" aria-hidden="true"></span>
+            </div>
+
+            <a class="btn btn-soft btn-block" href="https://levelbreak-arena.vercel.app" target="_blank" rel="noreferrer" style="margin-top: 10px;">Open app link <span aria-hidden="true">↗</span></a>
+
+            <p class="disclosure disclosure-blue" style="margin-top: 16px;"><span><strong>Stay safe:</strong> don't install a wallet or share a seed phrase from this screen. We'll never ask for one.</span></p>
+          </div>
+        </section>
+      </div>
+
+      <div class="disclosure disclosure-mint" style="margin-top: 18px;">
+        <span aria-hidden="true">✓</span>
+        <span><strong>Why a signature?</strong> It proves wallet ownership without moving funds. Your payout is a normal testnet transfer from the operator treasury after the run — you don't sign a payment.</span>
+      </div>
+    </main>
+
+    <footer class="footer footer-slim">
+      <div class="footer-inner">
+        <span>LevelBreak Arena · wallet check</span>
+        <span>Nimiq Testnet · play money</span>
+        <span>Mockup — simulated states</span>
+      </div>
+    </footer>
+  </div>
+
+  <div class="watermark">Mockup — not implemented</div>
+</body>
+</html>

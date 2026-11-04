@@ -1,6 +1,6 @@
 # Design Decision Log
 
-**Status:** PROPOSED direction — Trading Terminal. Awaiting operator review. **NOT APPROVED.** Do not implement final styling before explicit operator approval.
+**Status:** PROPOSED directions — Trading Terminal and Playful Learning Game. Awaiting operator comparison and selection. **NEITHER APPROVED.** Do not implement final styling before explicit operator approval.
 
 ## Product/design decisions already locked
 
@@ -10,7 +10,7 @@
 - Answer classifications include `Can't tell`; skip is free.
 - Static/bundled evidence and scripted requester in MVP.
 - Temporary styling through functional verification.
-- Operator selected the **Trading Terminal** direction for Phase 6 mockups. Final visual implementation remains blocked until explicit approval.
+- Operator requested two proposed directions for comparison: **Trading Terminal** and **Playful Learning Game**. Neither is approved; final visual implementation remains blocked.
 
 ## Required late design process
 
@@ -30,7 +30,7 @@
 
 ### Direction and references
 
-The operator selected the Trading Terminal direction by brief rather than supplying external reference URLs. No external imagery, trademarks or protected brand assets were copied. The design studies the density, hierarchy and typographic discipline of professional trading terminals and operations tools, with an original LevelBreak Arena treatment.
+The operator requested the Trading Terminal direction by brief rather than supplying external reference URLs; it is one of two proposed directions, not a selected one. No external imagery, trademarks or protected brand assets were copied. The design studies the density, hierarchy and typographic discipline of professional trading terminals and operations tools, with an original LevelBreak Arena treatment.
 
 - Background `#0A0E14`; elevated surface `#131820`; border `#1F2937`.
 - Primary text `#E5E7EB`; secondary `#9CA3AF`; muted `#6B7280`; numeric bright `#F3F4F6`.
@@ -89,10 +89,82 @@ No transaction hash, block number, address, session reference or scenario value 
 
 This section records a **proposal**, not approval. The app remains on temporary styling and `apps/web/` / `apps/api/` are untouched.
 
+## Proposed direction: Playful Learning Game (Phase 6, Direction 2)
+
+**Status: PROPOSED — awaiting operator comparison and selection. Operator approval: NOT GIVEN.**
+**Date proposed:** 4 November 2026.
+**Scope:** mockups only. No application code, API, schema, auth, payment behavior or deployed environment was changed. Direction 1 mockups are untouched.
+
+### Direction and references
+
+The operator requested a second, parallel direction to compare against the Trading Terminal: a friendly, bright learning game that reduces intimidation while keeping every trust disclosure visible. No external reference URLs, imagery, trademarks or protected assets were supplied or copied. The treatment is original to LevelBreak Arena, with a leaf/plant growth motif for the scripted Guide.
+
+- Page `#FEFCF7`; cards `#FFFFFF`; pale-gold section tint `#FFF9EC`.
+- Text `#1F2937`; secondary `#6B7280`; muted `#9CA3AF`.
+- Nimiq gold `#FBBF24` with deep gold `#D97706`; success `#10B981`; pending `#F59E0B`; loss `#EF4444`; info `#3B82F6`.
+- Level markers: soft purple `#A78BFA`, pink `#F472B6`, mint `#34D399`.
+- Nunito 800–900 for headings; Inter 400–500 for body and tabular numbers (no monospace in product numbers).
+- 16px cards / 20px hero cards; pill primary CTAs; 8px rounded progress bars; soft elevation.
+- Bounce easing for reward/CTA motion; one celebratory coin pop and +500 Luna float; warm status language.
+
+### Artifacts
+
+- [Direction 2 mockup notes and comparison](../design/MOCKUP_NOTES_DIRECTION2.md)
+- [Direction 2 mockup set and viewing instructions](../design/mockups-direction2/README.md)
+- [Direction 2 desktop screenshots](../design/mockups-direction2/screenshots/desktop/)
+- [Direction 2 mobile screenshots](../design/mockups-direction2/screenshots/mobile/)
+- [Direction 2 validation results](../design/mockups-direction2/screenshots/validation.json)
+- Direction 1 remains at [design/mockups](../design/mockups/) and is frozen for comparison.
+
+### Content and evidence sources
+
+The same real server-owned content and Phase 5 evidence is used:
+
+- `apps/api/src/domain/scenario-definitions.ts`
+- `apps/api/src/domain/consultation-definitions.ts`
+- Level 1 MOVE: **800 vUSDT / −20%**.
+- 1,000 Luna: tx `139bfc81643ffb410c1f2a179d0d152ab7346f5205f31d99642a1e0e577421e4`, block `15838771`.
+- 1,500 Luna: tx `b693acd38fdac38008b7faabe921056e5b3ebbae02b36207031faee4435250bf`, block `15839460`.
+- Orphan recovery: tx `6456c17f557257fc39fb64277c853aa094ca0ccb4fcb8a7a040f15164e05cf29`, block `15838244`.
+
+No transaction hash, block, address, session reference or scenario value was fabricated. The history sheet is a composite of the two required Phase 5 rows, which came from different generated testnet wallets; recipient addresses are omitted and this is disclosed in the notes.
+
+### Deviations from the Direction 2 brief
+
+1. The content path differs: `apps/api/src/domain/` holds the real content because the brief’s paths do not exist.
+2. The Level 1 MOVE result is 800 vUSDT, not 850.
+3. The 320px stress test covers screens 05, 07 and 09 as requested; overflow was checked at 320px for every screen.
+4. Screenshots include exact viewport captures plus `-full` companions for scrolled pages.
+5. History shows the documented date only, not an invented completion clock time.
+6. The mockup marker is a ribbon chip plus a page-bottom pill, so it stays visible without covering game content.
+7. Level 2/3 are represented by the reusable Level 1 template; the 12-screen inventory is followed exactly.
+
+### Verification
+
+`node design/mockups-direction2/capture.mjs` produced 54 captures with:
+
+- 0 console errors, 0 page errors;
+- 0 horizontal overflow at 1440px, 375px and 320px across all 12 screens;
+- 0 off-screen elements at those widths;
+- 0 `<script>` tags in screen HTML;
+- all screens carrying the mockup marker;
+- validation recorded in `design/mockups-direction2/screenshots/validation.json`.
+
+### Comparison with Direction 1
+
+- **Learning framing:** Direction 2 lowers the confidence barrier with a game metaphor, friendlier copy and a visible reward ladder; Direction 1 projects competence and seriousness but asks more of a first-time player.
+- **Density and scan:** Direction 1 keeps portfolio and payout comparison dense and at-a-glance; Direction 2 trades compactness for larger type and more whitespace, which makes consultation and payout screens significantly longer on mobile.
+- **Trust expression:** Direction 1 keeps disclosures in terse operational labels; Direction 2 translates them into plain-language cards. Direction 2 is easier for non-crypto players to understand, but the warm tone makes it easier for those disclosures to blend into marketing if repeated carelessly.
+- **Reward emotion:** Direction 2 celebrates the +500 and the payout, making the loop clearer and more motivating; Direction 1 minimises celebration, which may undersell the reward but avoids implying real money. Direction 2 must keep “play money” adjacent to every celebration.
+- **Product signature:** Direction 1 is distinctive as a DeFi operations tool but risks being mistaken for a real trading product; Direction 2 is immediately legible as a learning game but fits a more familiar friendly-app category.
+
+This section records a **proposal and comparison**, not a selection or approval. The app remains on temporary styling; `apps/web/` and `apps/api/` are untouched.
+
 ## Approval log
 
-- Reference candidates: not applicable — the operator selected the Trading Terminal direction by brief; no external reference URLs were supplied.
-- Mockup set: created 4 November 2026 at `design/mockups/` — 12 screens, desktop and mobile, plus 320px stress tests.
-- Design decision record: PROPOSED — awaiting operator review.
-- Operator approval: **NOT GIVEN**.
+- Reference candidates: not applicable — the operator supplied two direction briefs; no external reference URLs were supplied.
+- Mockup set: Direction 1 at `design/mockups/` (12 screens, desktop/mobile plus 320px tests) and Direction 2 at `design/mockups-direction2/` (12 screens, desktop/mobile plus 320px tests for 05/07/09).
+- Design decision record: both directions **PROPOSED** — awaiting operator comparison and selection.
+- Operator approval: **NOT GIVEN** for either direction.
+- Selected direction: **NONE**.
 - Approved implementation may begin: **NO**.

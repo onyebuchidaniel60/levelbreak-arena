@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LevelBreak Arena — No reward this time</title>
+  <meta name="description" content="LevelBreak Arena Playful Learning Game design mockup — completed session with zero reward.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='10' fill='%23FBBF24'/%3E%3Cpath d='M16 25V13' stroke='%231F2937' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M16 16c-5.6 0-8.5-2.9-8.5-8.5C13.1 7.5 16 10.4 16 16Z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="_shared/tokens.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="01-landing.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-word">LevelBreak <span>Arena</span></span>
+        </a>
+        <nav class="topnav" aria-label="Primary">
+          <a href="03-lobby-available.html" aria-current="page">Play</a>
+          <a href="11-history.html">History</a>
+          <a href="01-landing.html#how-it-works">How it works</a>
+        </nav>
+        <div class="wallet-zone">
+          <span class="wallet-chip">
+            <span class="dot dot-green"></span>
+            <span class="addr-full">NQ98 54S9 … PHEQ</span>
+            <span class="addr-compact">NQ98…PHEQ</span>
+            <a class="disconnect" href="01-landing.html">Sign out</a>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <div class="ribbon">
+      <div class="ribbon-inner">
+        <span class="ribbon-item"><span class="dot dot-amber"></span>Run finished · no reward</span>
+        <span class="ribbon-sep">·</span>
+        <span class="ribbon-item">No payout was created</span>
+        <span class="ribbon-spacer"></span>
+        <span class="ribbon-item ribbon-right">You earned <strong>0 Luna</strong></span>
+      </div>
+    </div>
+
+    <main class="page page-narrow">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow"><span class="spark">✦</span> All done</span>
+          <h1>Session complete.</h1>
+          <p class="lead">You skipped all three questions this time. That's allowed — skipping simply earns zero.</p>
+        </div>
+        <div class="page-head-side">
+          <span class="pill pill-gray">No payout</span>
+          <span class="mini">Nothing was sent</span>
+        </div>
+      </div>
+
+      <div class="zero-wrap">
+        <section class="card card-lg zero-card" aria-labelledby="zero-title">
+          <div class="zero-hero">
+            <div class="zero-art" aria-hidden="true">
+              <svg viewBox="0 0 80 80" role="img" aria-label="A sleepy plant resting in a pot">
+                <ellipse cx="40" cy="66" rx="20" ry="4" fill="#F1E6CE"/>
+                <path d="M31 66h18l-3-15H34Z" fill="#E8CFA7"/>
+                <path d="M40 51V33" stroke="#A3B18A" stroke-width="3" stroke-linecap="round"/>
+                <path d="M40 41c-8 0-12-4-12-12 8 0 12 4 12 12Z" fill="#C8E6D5"/>
+                <path d="M40 37c7 0 10-4 10-10-7 0-10 4-10 10Z" fill="#A7DCC2"/>
+                <path d="M34 55c2 1 4 1 6 0" stroke="#9A8B72" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="35" cy="49" r="1.5" fill="#9A8B72"/>
+                <circle cx="45" cy="49" r="1.5" fill="#9A8B72"/>
+                <path d="M58 42c4-2 6-5 6-9" stroke="#E3C37F" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 4"/>
+              </svg>
+            </div>
+            <span class="label">Total earned</span>
+            <div class="zero-amount">0 <small>Luna</small></div>
+            <h1 id="zero-title">No reward this time.</h1>
+            <p>Every question was skipped, so the reward is zero. That's a valid way to play — nothing failed, and no payment was sent.</p>
+          </div>
+
+          <div class="zero-ledger" aria-label="Consultation outcomes">
+            <div class="skip-line">
+              <span class="level">Level 1</span>
+              <span class="status">Skipped</span>
+              <span class="amount">0 Luna</span>
+            </div>
+            <div class="skip-line">
+              <span class="level">Level 2</span>
+              <span class="status">Skipped</span>
+              <span class="amount">0 Luna</span>
+            </div>
+            <div class="skip-line">
+              <span class="level">Level 3</span>
+              <span class="status">Skipped</span>
+              <span class="amount">0 Luna</span>
+            </div>
+            <div class="zero-total">
+              <span>Total earned</span>
+              <strong>0 Luna / 0 NIM</strong>
+            </div>
+          </div>
+
+          <div class="zero-note">
+            <strong>No payout record, transaction hash or block was created.</strong> The terminal doesn't invent a success receipt for skipped work. Your history will show this run with a zero payout.
+          </div>
+
+          <div class="zero-cta">
+            <a class="btn btn-primary" href="04-lobby-empty.html">Back to the lobby</a>
+            <a class="btn btn-secondary" href="01-landing.html#how-it-works">How rewards work</a>
+          </div>
+        </section>
+
+        <p class="mini" style="margin-top: 14px; text-align: center;">This is a real product state. If you'd like to answer questions next time, a new funded session will appear in the lobby.</p>
+      </div>
+    </main>
+
+    <footer class="footer footer-slim">
+      <div class="footer-inner">
+        <span>LevelBreak Arena · zero reward</span>
+        <span>Nimiq Testnet · play money</span>
+        <span>No payout created</span>
+      </div>
+    </footer>
+  </div>
+
+  <div class="watermark">Mockup — not implemented</div>
+</body>
+</html>
