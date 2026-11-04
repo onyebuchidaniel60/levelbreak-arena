@@ -1,15 +1,19 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 4 November 2026
-**Current phase:** Phase 6 — Direction 4: The Conquest RPG interactive prototype complete; awaiting operator review
-**Status:** Phase 5 PASS / ACCEPTED. Direction 3 v3 REJECTED. Direction 4 NOT APPROVED. Phase 7 NOT STARTED.
+**Current phase:** Phase 7 — Direction 1 Trading Terminal UI, five-level ladder, LLM-assisted agent, and demo fiat off-ramp implemented and deployed
+**Status:** Phase 7 IMPLEMENTED / DEPLOYED / AWAITING OPERATOR ACCEPTANCE. Phase 8 NOT STARTED.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `7ad825690c6cb55798d8036631bcce7dd01286e4` (Phase 4 frontend + run-detail fix). Phase 5 changed backend, tests and docs only; the browser app code is unchanged.
+- Vercel deployed app-code commit: `cb816dad405138b13dbb1a3035485b43fbab9d01` (Phase 7). Production deployment `dpl_FDgg3Nf6vD1DvxrobDVDqo27HTyG`, alias ready.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: this Phase 5 checkpoint commit. Backend worker code `82b5815`; explorer URL fix `aa7f180`; deployed test coverage `01b94d1`.
+- Render deployed code: `cb816dad405138b13dbb1a3035485b43fbab9d01`, deploy `dep-dbljmac9v7es73d8btmg`, live 2026-11-04T14:04:18Z. `/health/live` 200, `/health/ready` 200.
+- Phase 7 database migration: `003_phase7_five_levels.sql` applied to Supabase at 2026-11-04T14:02:25.437Z.
+- Phase 7 Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`. `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`.
+- Phase 7 LLM env: `LLM_API_KEY` is NOT provisioned. The deployed preview therefore uses the scripted agent-message fallback; the LLM path is implemented and unit-tested with a mocked OpenAI-compatible provider.
+- Existing sessions: all previously funded sessions remain 3-level / 1,500 Luna. No new 5-level / 2,500 Luna session has been funded yet.
 - Repository URL: https://github.com/onyebuchidaniel60/levelbreak-arena
 - Render service: `levelbreak-arena`, `web_service`, branch `main`; `/health/live` and `/health/ready` verified 200 after the final worker-disable deploy.
 - Demo-agent wallet: `NQ23 RSJF DP1Q 894D Q346 V1HK C8F5 GM4F 0J9T`
@@ -24,14 +28,84 @@
 - All three Phase 5 payouts are `CONFIRMED`; total paid 3,500 Luna, fees 0. Treasury balance before the payout run: `11,000,006,000` Luna; after: `11,000,002,500` Luna.
 - `NIMIQ_EXPLORER_BASE_URL`: `https://test.nimiq.watch/#`; verified to render tx `899823e2…` and block `15766696`. The API returns `explorerUrl` and the UI/history show a working "View on explorer" link.
 - Design references: 3 operator-supplied VISE Staking Adventure images in `design/references/` (local design input, intentionally not committed)
-- Mockups: Direction 3 v2 rejected; Direction 3 v3 rejected (realistic textures/standard typography). Direction 4: The Conquest RPG interactive prototype at `design/mockups-direction3-interactive/` with 8 review screenshots; not applied to the app
-- Prototype deployment: NOT DEPLOYED (local standalone prototype)
-- Operator approval of final visual design: **NOT GIVEN**
+- Mockups: Direction 1 — Trading Terminal is **APPROVED**. Directions 2, 3, and 4 (including the interactive prototype) are **REJECTED** and their directories were removed. Direction 1 artifacts remain in `design/mockups/`.
+- Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
+- Operator approval of final visual design: **GIVEN — Direction 1, 4 November 2026**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 5 proof, disabled 2026-11-04T01:21:37Z).
+
+## Phase 7 — Direction 1 UI, five levels, LLM agent, demo off-ramp (4 November 2026)
+
+**Status:** IMPLEMENTED / DEPLOYED / AWAITING OPERATOR ACCEPTANCE. Phase 8 NOT STARTED.
+
+- **Preview:** https://levelbreak-arena.vercel.app
+- **App-code commit:** `cb816dad405138b13dbb1a3035485b43fbab9d01`.
+- **Vercel deployment:** `dpl_FDgg3Nf6vD1DvxrobDVDqo27HTyG`; production alias ready.
+- **Render deploy:** `dep-dbljmac9v7es73d8btmg`, commit `cb816dad`, live 2026-11-04T14:04:18Z.
+- **DB migration:** `003_phase7_five_levels.sql` applied to Supabase at 2026-11-04T14:02:25.437Z.
+- **Render env:** `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; worker and demo funding remain disabled.
+- **Source-of-truth updates:** `PROJECT_SPEC.md`, `ARCHITECTURE.md`, `AGENTS.md`, and `IMPLEMENTATION_PLAN.md` now record the operator-approved five-level / 2,500 Luna / LLM-assisted / demo off-ramp scope. `docs/DESIGN_DECISIONS.md` records Direction 1 as approved and Directions 2, 3, and 4 as rejected and removed.
+
+### What changed
+
+- Deleted `design/mockups-direction2/`, `design/mockups-direction3/`, and `design/mockups-direction3-interactive/`; retained `design/mockups/` (Direction 1).
+- Applied the approved Direction 1 Trading Terminal design across landing, lobby, five-level game, consultation, payout status, history, and support pages.
+- Added design tokens: `#0A0E14` page, `#131820` surface, `#1F2937` border, Inter UI type, JetBrains Mono for numbers/hashes, emerald earned/paid, amber pending, red errors, gold CTA.
+- Added bento-style layouts, glass sticky header, terminal-style run preview, five-segment progress rail, distinct `Earned` / `Pending` / `Paid` tiles, and accessible focus/reduced-motion handling.
+- Expanded backend scenarios and consultations to five levels: stablecoin peg, impermanent loss, yield sustainability, oracle manipulation, liquidation cascades.
+- Added migration 003 widening level checks to 1–5 and reward/payout caps to 2,500 Luna; session defaults now 5 consultations / 2,500 Luna.
+- Fixed run completion to use each session's stored `max_consultations`, so existing 3-level sessions remain finishable while new sessions can use 5 levels.
+- Added `GET /api/consultations/:questionId/generate-agent-prompt?runId=...` with player auth, ownership check, rate limit, per-run/question cache, bounded timeout, output sanitization, and deterministic scripted fallback.
+- Added `apps/api/src/services/llm.ts`; optional `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL`, `LLM_TIMEOUT_MS`. No wallet address, signature, token, key, or other player data is sent.
+- Replaced the static agent message in the consultation view with the LLM-drafted message when available, with a typewriter reveal, `LLM draft` / `Scripted fallback` badge, full screen-reader text, and reduced-motion support. Bundled evidence remains static and authoritative.
+- Added the **Withdraw to Fiat** action on confirmed payouts and a Nimiq Pay Off-Ramp modal showing the confirmed amount, 1 NIM = $0.85 demo rate, estimated fiat, and a simulated success state that explicitly states no fiat was transferred.
+- Added `tests/e2e/phase7.ui.spec.ts` and LLM unit/integration coverage.
+
+### Verification evidence (local)
+
+```text
+$ pnpm lint -> passed
+$ pnpm typecheck -> passed (contracts + apps/api + apps/web)
+$ pnpm test -> 42 unit tests passed; 17 integration tests skipped without DB;
+               22 Playwright tests passed; 4 deployed-E2E entries skipped without env
+$ pnpm build -> contracts, apps/api and apps/web built successfully
+$ LBA_INTEGRATION_DATABASE_URL=... pnpm test:integration
+  -> 17/17 integration tests passed against a fresh PostgreSQL 16 database
+  -> includes five-level ledger cases, 2,500 Luna cap, LLM scripted fallback,
+     non-owner rejection, and existing payout-worker safety cases
+$ DATABASE_URL_UNPOOLED=... pnpm db:migrate
+  -> 003_phase7_five_levels.sql applied successfully
+```
+
+### Deployed verification
+
+- `GET https://levelbreak-arena.onrender.com/api/config/public` -> `maxConsultations: 5`, reward 500 Luna.
+- `/health/live` -> 200 `{"status":"ok"}`; `/health/ready` -> 200 `{"status":"ready"}`.
+- Deployed landing page: title `LevelBreak Arena — DeFi judgment terminal`; H1 `Learn DeFi by breaking it.`; body background `rgb(10, 14, 20)`; Inter and JetBrains Mono loaded; no horizontal overflow at 1440 and 390.
+- Deployed game UI with a mocked consultation response: `Level 3 of 5`, `03 / 05`, `LLM DRAFT` badge, five-level run preview, and static evidence panel render correctly.
+- Deployed confirmed-payout UI: **Withdraw to Fiat** opens the `Nimiq Pay Off-Ramp` dialog and the demo success state.
+- Deployed LLM route: unauthenticated request -> 401; authenticated request with a non-owned/fake run -> 404 `NOT_FOUND`. This confirms the route is live behind auth; a real LLM call needs a provisioned key and a real active run.
+- Frontend bundle inspection: no `LLM_API_KEY`, `DATABASE_URL`, `PRIVATE_KEY`, treasury key, or `onrender.com` string. The only `sk-` matches are CSS `mask-` strings.
+
+### Known limitations / deliberate deferrals
+
+- **No `LLM_API_KEY` is provisioned in Render.** The deployed preview uses the scripted fallback. The LLM success path is covered by a mocked-provider unit test; the operator must add a server-side key to enable live generation.
+- **No new 5-level funded session exists yet.** `DEMO_FUNDING_ENABLED=false`; existing sessions are 3-level / 1,500 Luna and remain playable because completion uses the stored session limit. To demo a real 5-level run, the operator must fund a new 2,500 Luna session and may re-enable demo funding temporarily.
+- **No deployed 5-level on-chain payout proof.** The payout worker remains disabled and the five-level path was verified with integration tests and mocked UI data, not a new treasury transfer.
+- **Fiat off-ramp is a labelled demo.** It does not contact an exchange, start KYC, or move fiat. A production off-ramp needs a licensed provider and separate approval.
+- Nimiq Pay device/WebView verification remains the Phase 5 manual-demo limitation.
+- The LLM-generated message is not a source of evidence or scoring; the static evidence and fixed 500 Luna reward remain authoritative.
+
+### Single next task
+
+Await operator acceptance of Phase 7. Do not begin Phase 8. If the operator wants a live LLM demo, provision `LLM_API_KEY` and fund one new 2,500 Luna five-level session; both are operational follow-ups, not Phase 8 work.
+
+### STOPPED awaiting operator approval: yes
 
 ## Phase 6 — Direction 4: The Conquest RPG (4 November 2026)
 
-**Status:** READY FOR OPERATOR REVIEW. Visual direction NOT APPROVED. Phase 7 NOT STARTED.
+> **Superseded by Phase 7 (4 November 2026):** Direction 4 was rejected by the operator and `design/mockups-direction3-interactive/` was removed. This section is retained as historical context only.
+
+**Status:** REJECTED. Visual direction NOT APPROVED. Phase 7 subsequently implemented Direction 1.
 
 - **Location:** `design/mockups-direction3-interactive/` (directory retained from the previous design round; the inside is now Direction 4).
 - **Review URL:** NOT DEPLOYED — local standalone prototype. Run `cd design/mockups-direction3-interactive && npm install && npm run dev`.
