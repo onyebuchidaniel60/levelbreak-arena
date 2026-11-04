@@ -2,9 +2,9 @@
 
 LevelBreak Arena is a three-level simulated DeFi learning game for Nimiq Mini Apps. This repository is the implementation workspace for the approved blueprint.
 
-**Current phase:** Phase 4 — functional frontend integrated.
+**Current phase:** Phase 5 complete — end-to-end funded-session-to-payout proven; awaiting operator acceptance.
 
-Phase 4 connects the frontend to the Phase 3 APIs: real wallet challenge/signature authentication, funded-session lobby, three-level game decisions, evidence-backed consultations, reward display, finish/payout status and player history. Styling remains temporary; final visual design is Phase 6/7. No payout worker or demo funding is enabled on the deployed Render service.
+Phase 4 connected the frontend to the Phase 3 APIs: real wallet challenge/signature authentication, funded-session lobby, three-level game decisions, evidence-backed consultations, reward display, finish/payout status and player history. Phase 5 completed the serialized payout worker and proved the full funded-session → game → treasury payout → on-chain confirmation flow on testnet for two play-throughs plus the orphaned Phase 4 payout. Styling remains temporary; final visual design is Phase 6/7. `PAYOUT_WORKER_ENABLED` was enabled only for the proof and is disabled again; `DEMO_FUNDING_ENABLED` remains false on Render.
 
 ## Stack
 
@@ -58,6 +58,13 @@ LBA_INTEGRATION_DATABASE_URL="$DATABASE_URL" pnpm test:integration
 PHASE4_E2E_BASE_URL=https://levelbreak-arena.vercel.app \
 PHASE4_EXPECTED_PUBLIC_REF=fa4f30a2d178b6da \
   pnpm exec playwright test -c tests/e2e/playwright.deployed.config.ts
+
+PHASE5_E2E_BASE_URL=https://levelbreak-arena.vercel.app \
+PHASE5_SESSION_REF=<publicRef> \
+PHASE5_EXPECTED_LUNA=1000 \
+PHASE5_PATTERN=ANSWER,SKIP,ANSWER \
+PHASE5_LABEL=a \
+  pnpm exec playwright test -c tests/e2e/playwright.phase5.config.ts
 ```
 
 The API exposes health routes plus auth, player game, and protected operator
@@ -76,7 +83,7 @@ disabled by default (`PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`
 - `/docs` — in-app documentation overview
 - `*` — not-found page with a working link home
 
-The frontend is functional in Phase 4 using temporary Tailwind styling. Wallet signing requires Nimiq Pay; a normal browser shows the “Open this app in Nimiq Pay” prompt. Payment status is shown only from API responses and remains distinct from an earned amount.
+The frontend is functional through Phase 5 using temporary Tailwind styling. Wallet signing requires Nimiq Pay; a normal browser shows the “Open this app in Nimiq Pay” prompt. Payment status is shown only from API responses and remains distinct from an earned amount. Phase 5 confirmed three testnet payouts on-chain; Nimiq Pay device verification is still a manual operator demo before submission.
 
 ## Preview
 
@@ -94,6 +101,6 @@ The verified preview URL and deployed commit SHA are recorded in [`AI_HANDOFF.md
 ## Safety and scope
 
 - Testnet only; no mainnet path is enabled.
-- No HTLC and no trustless-escrow claim. The planned MVP uses an operator-controlled treasury and ordinary NIM transfers.
-- The requester is planned as a scripted demo requester, not a live AI agent.
+- No HTLC and no trustless-escrow claim. The MVP uses an operator-controlled treasury and ordinary NIM transfers; database reservations are accounting, not on-chain locks.
+- The requester is a scripted demo requester controlled by the operator, not a live AI agent.
 - No secrets belong in the repository. `.env.example` contains blank placeholders only.

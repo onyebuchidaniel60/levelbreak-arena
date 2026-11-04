@@ -1,30 +1,169 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 4 November 2026
-**Current phase:** Phase 4 accepted — awaiting Phase 5 prompt
-**Status:** Phase 4 PASS / ACCEPTED; Phase 5 NOT STARTED.
+**Current phase:** Phase 5 complete — end-to-end funded-session-to-payout proven; awaiting operator acceptance
+**Status:** Phase 5 PASS. Phase 6 NOT STARTED.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed code commit: `7ad825690c6cb55798d8036631bcce7dd01286e4` (Phase 4 frontend + run-detail fix); final `9764b770bf65f4b143299f981f0b51d4541d42a5` is a script-only CI ordering fix with identical app code
+- Vercel deployed app-code commit: `7ad825690c6cb55798d8036631bcce7dd01286e4` (Phase 4 frontend + run-detail fix). Phase 5 changed backend, tests and docs only; the browser app code is unchanged.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code commit: `9764b770bf65f4b143299f981f0b51d4541d42a5`; backend includes the `7ad8256` scenario serialization fix
+- Render deployed code: this Phase 5 checkpoint commit. Backend worker code `82b5815`; explorer URL fix `aa7f180`; deployed test coverage `01b94d1`.
 - Repository URL: https://github.com/onyebuchidaniel60/levelbreak-arena
-- Render service: `levelbreak-arena`; `/health/live` and `/health/ready` verified 200 after the Phase 4 deploy.
+- Render service: `levelbreak-arena`, `web_service`, branch `main`; `/health/live` and `/health/ready` verified 200 after the final worker-disable deploy.
 - Demo-agent wallet: `NQ23 RSJF DP1Q 894D Q346 V1HK C8F5 GM4F 0J9T`
 - Treasury wallet: `NQ83 S85U 0B01 BVY2 RR74 C23E 845S NAKE 1YM3`
 - `NIMIQ_NETWORK`: `"testnet"`
 - Phase 2 transfer proof: `899823e284e64c1f8dd0671c85598ca739948a653f400ae87bc7dc8433db793e`
 - Phase 3 funded-session proof: `82c8c1f977fa2a743059a494efc1d1a962944fc090f6d1e18fcce7569854d55e`
 - Phase 3 proof session: `d242581a-2590-4ac0-944a-6b41fc626f80`, public ref `fa4f30a2d178b6da`
-- Phase 4 E2E run: `087f39ee-6bcc-492b-a062-ebc04ea14a4c`; session now `PAYOUT_PENDING`, run `PAYOUT_QUEUED`, payout `b00c882f-72e1-4fb1-acc1-0cde06dcaedf` for `1000` Luna (`QUEUED`)
-- Testnet payout: **NOT YET RUN** — payout worker disabled, so the Phase 4 payout remains `QUEUED`
-- `NIMIQ_EXPLORER_BASE_URL`: **still unset**; no explorer URL was fabricated. Payout UI shows the tx hash text and "Explorer link not available" when a hash exists without a configured explorer.
+- Phase 4 E2E run: `087f39ee-6bcc-492b-a062-ebc04ea14a4c`; session `d242581a-2590-4ac0-944a-6b41fc626f80` is now `SETTLED`; payout `b00c882f-72e1-4fb1-acc1-0cde06dcaedf` confirmed on testnet at tx `6456c17f557257fc39fb64277c853aa094ca0ccb4fcb8a7a040f15164e05cf29`, block `15838244`.
+- Phase 5 Session A: `1435e21b-9e55-4143-92d8-e4a6da01e893`, ref `0f566d594fc30388`; run `4b1e2889-2e1e-476e-a957-042c4b5b69c3`; payout `dcab12c0-b19c-4eeb-951b-7918e5a459a6`, 1,000 Luna, tx `139bfc81643ffb410c1f2a179d0d152ab7346f5205f31d99642a1e0e577421e4`, block `15838771`.
+- Phase 5 Session B: `f96476d6-ba9b-4ff9-b555-8761d52da6e6`, ref `685638bc542dad71`; run `03de2187-83dd-46df-a2e0-7573ef678a7b`; payout `5975746e-306b-41e1-88c7-ddf8fc15349e`, 1,500 Luna, tx `b693acd38fdac38008b7faabe921056e5b3ebbae02b36207031faee4435250bf`, block `15839460`.
+- All three Phase 5 payouts are `CONFIRMED`; total paid 3,500 Luna, fees 0. Treasury balance before the payout run: `11,000,006,000` Luna; after: `11,000,002,500` Luna.
+- `NIMIQ_EXPLORER_BASE_URL`: `https://test.nimiq.watch/#`; verified to render tx `899823e2…` and block `15766696`. The API returns `explorerUrl` and the UI/history show a working "View on explorer" link.
 - Design references: not collected
 - Mockups: not created
 - Operator approval of final visual design: **NOT GIVEN**
-- Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`
+- Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 5 proof, disabled 2026-11-04T01:21:37Z).
+
+## Phase 5 preflight and incidents (4 November 2026)
+
+### P0 — credentials and service identity
+
+- `RENDER_API_KEY`, `RENDER_SERVICE_ID`, `DATABASE_URL`, `DATABASE_URL_UNPOOLED` and `OPERATOR_AUTH_SECRET` were recovered from the previous session's `/tmp/opencode/lba-env.sh` and the root shell history. Values were never printed or committed.
+- `GET /v1/services/{id}` returned `levelbreak-arena`, type `web_service`, branch `main`, not suspended.
+
+### P1 — funded sessions
+
+- **Session A:** `1435e21b-9e55-4143-92d8-e4a6da01e893`, ref `0f566d594fc30388`, funding tx `1bf53b8172828088b4ad2ebe60e70b5ca417ef5e7818096dc42495f329798ed9`, block `15836900`, 1,500 Luna, demo-agent → treasury, reference `LBA1:0f566d594fc30388`. DB: `AVAILABLE`, funding `VERIFIED`, `FUNDING_CONFIRMED` 1,500 CREDIT.
+- **Session B:** `f96476d6-ba9b-4ff9-b555-8761d52da6e6`, ref `685638bc542dad71`, funding tx `a50373943218ebad1e48e6988df20796d48791768341f38c1e060486fbf04756`, block `15836905`, 1,500 Luna, demo-agent → treasury, reference `LBA1:685638bc542dad71`. DB: `AVAILABLE`, funding `VERIFIED`, `FUNDING_CONFIRMED` 1,500 CREDIT.
+- Both were independently verified with `verify:tx` (`proof=PASS` for network 5, sender, recipient, value, reference, inclusion).
+
+### P2 — worker enablement
+
+- `PAYOUT_WORKER_ENABLED=true` via Render API at `2026-11-04T00:39:29Z`; only this env var was changed.
+- The first attempt exposed the pre-hardening worker's ambiguous-send behavior (below).
+- `PAYOUT_WORKER_ENABLED=false` at `2026-11-04T01:21:37Z` after Task 7; redeploy live at `2026-11-04T01:22:28Z`; `/health/live` and `/health/ready` 200.
+
+### P3 — explorer
+
+- Verified `https://test.nimiq.watch/#899823e284e64c1f8dd0671c85598ca739948a653f400ae87bc7dc8433db793e` and `https://test.nimiq.watch/#15766696` in Chromium: both render the transaction/block with the actual sender, recipient, value and `LBA1:1bfa7f2473dd7fb9` reference.
+- `NIMIQ_EXPLORER_BASE_URL=https://test.nimiq.watch/#` set at `2026-11-04T01:03:55Z`. A fresh redeploy was required because the env change landed three seconds after the previous deploy snapshot began. Redeploy `dep-dbl8c9142hec739tvo7g` went live at `01:11:50`.
+- `GET /api/runs/:runId/payout` now returns `explorerUrl = https://test.nimiq.watch/#<txHash>`; the game page and history page show a working "View on explorer" link.
+
+### P4 — Nimiq Pay limitation
+
+Nimiq Pay device verification not performed. Playwright with a generated Ed25519 key provides auth code proof; runtime verification in Nimiq Pay WebView is deferred to the operator's manual demo before competition submission. Not a Phase 5 acceptance blocker per OPERATOR_AUTHORIZATION.
+
+### Funding-deadline exception
+
+Both funded sessions' 30-minute lobby deadlines expired while the worker safety fix was being completed. Because both remained `AVAILABLE`, fully funded and unclaimed, their `funding_deadline` was extended once through the application `recordAudit` helper inside a database transaction. No funding, state, reward, ledger or claim field changed.
+
+- Session A audit `46ac5a63-b126-44fd-8e2c-a49c7c6954c2`, old `2026-11-04T01:06:07.524Z` → new `2026-11-04T02:07:05.746Z`.
+- Session B audit `740ed349-d178-455e-a40b-e634a1172073`, old `2026-11-04T01:06:12.939Z` → new `2026-11-04T02:07:05.770Z`.
+
+### Ambiguous-send incident and recovery
+
+- The first Phase 5 worker enablement ran the pre-hardening `e110f10` worker. At `00:40:15Z` it attempted payout `b00c882f-72e1-4fb1-acc1-0cde06dcaedf`; at `00:40:38Z` it logged `Outbound error: No response after asking a couple of peers` and set `RECONCILING` / `BROADCAST_AMBIGUOUS` with no `tx_hash`.
+- Before any retry, reconciliation checked: treasury balance unchanged at `11,000,006,000` Luna; treasury transaction history since block `15836800` contained only the two incoming funding transfers; the stored recipient `NQ34 9MUU 15ML PSFX CJDT BB3K DLCS 60RX 5M1B` had no transaction history. No outgoing transfer existed.
+- The hardened worker (`82b5815`) persists the signed hash before broadcast. After it deployed, the payout was reconciled to `FAILED` / `NO_TRANSACTION_HASH` (audit `0980dc07-570b-4985-a334-bacf807e43b7`) and requeued (audits `4a6e4464-b2b3-4dee-9717-bd4052f4184f`, `cf329ee2-1f7a-42ed-bcff-43bc4ba1b797`).
+- The requeued payout was submitted at `00:58:31Z` with tx `6456c17f557257fc39fb64277c853aa094ca0ccb4fcb8a7a040f15164e05cf29` and confirmed at `00:58:33Z`; independently verified at block `15838244`, 1,000 Luna, treasury → `NQ34 9MUU…`, reference `LBA1:fa4f30a2d178b6da`.
+- Note: the requeue produced two `payout_requeued` audit rows (one from the service, one from the operator route). Non-blocking audit noise; no duplicate transfer.
+
+## Phase 5 checkpoint (4 November 2026)
+
+```text
+Project: LevelBreak Arena
+Current phase: Phase 5 complete — end-to-end funded-session-to-payout proven
+Status: PASS
+Preview URL: https://levelbreak-arena.vercel.app
+Deployed commit SHA: 7ad825690c6cb55798d8036631bcce7dd01286e4 (Vercel app code, unchanged in Phase 5); backend worker 82b5815, explorer fix aa7f180, deployed test coverage 01b94d1; this docs checkpoint is the new commit containing this file
+What changed:
+  - Payout worker: signed transaction hash persisted before broadcast via a new onSigned hook; SUBMITTED only after the hash is stored; advisory-lock serialization; pre-broadcast network ID and treasury balance checks (amount + fee reserve); 60-second QUEUED retry backoff for insufficient balance/chain preflight; bounded confirmation polling; chain outage keeps SUBMITTED; details mismatch moves to RECONCILING; startup recovery for interrupted BUILDING rows; SUBMITTED/RECONCILING payouts block new broadcasts until terminal.
+  - Nimiq adapter: BasicTransferOptions.onSigned, signed-hash/broadcast-hash equality check.
+  - Explorer URL builder supports fragment bases such as https://test.nimiq.watch/#.
+  - Seven new payout-worker integration tests (16 total) and Phase 5 deployed play-through coverage.
+  - docs/TESTING.md and docs/OPERATIONS.md updated.
+What works on the deployed preview:
+  - Real Ed25519 auth, available-session lobby, claim/conflict, three-level game, answer/skip, finish, live payout status, confirmed transaction, explorer link, history.
+  - Two funded play-throughs paid from treasury and confirmed on testnet.
+  - Operator payout/audit endpoints show all three payouts and Phase 5 actions.
+What is intentionally incomplete:
+  - Nimiq Pay device/WebView verification — deferred manual demo (P4).
+  - Final visual design and mockups — Phase 6, hard approval gate.
+  - Footer Documentation/GitHub links — Phase 8.
+Tests run and actual results:
+  $ pnpm lint -> passed
+  $ pnpm typecheck -> passed (contracts + apps/api + apps/web)
+  $ pnpm test -> 37 unit tests passed, 16 integration tests skipped without DB; 18 Playwright route tests passed; 4 deployed-E2E entries skipped without env
+  $ pnpm build -> contracts, apps/api and apps/web built successfully
+  $ LBA_INTEGRATION_DATABASE_URL=postgres://... pnpm exec vitest run apps/api/src/services/phase3.integration.test.ts --reporter=verbose
+    16/16 integration tests passed, including all Phase 5 worker safety cases
+  Deployed Phase 5 Playwright execution:
+    A: auth, concurrent claim (one 200 / one 409), three levels (ANSWER/SKIP/ANSWER), duplicate answer keys, finish, duplicate finish -> payout dcab12c0. The post-finish payout poll received a Vercel Security Checkpoint HTML page instead of JSON; the test now retries non-JSON responses. The same real-auth session was recovered from the Playwright trace to capture the confirmed UI/history/explorer evidence.
+    B: auth, concurrent claim (one 200 / one 409), level 1 answer, duplicate answer key -> payout path started. The test stopped on a test-only selector: level 2's RISKY label is "Impermanent loss", not "Risky". The same real-auth session was resumed to complete levels 2-3, finish, duplicate finish, payout and confirmed UI/history/explorer evidence.
+    Both are product passes. A clean single-process rerun was not performed to avoid a third funded session/payout beyond the authorized two.
+Payment evidence (TESTNET ONLY):
+  Play-through A: payout dcab12c0-b19c-4eeb-951b-7918e5a459a6; tx 139bfc81643ffb410c1f2a179d0d152ab7346f5205f31d99642a1e0e577421e4; block 15838771; 1,000 Luna; treasury -> NQ98 54S9 LBJR JUH9 MKL3 YACQ TD3T JBXJ PHEQ; reference LBA1:0f566d594fc30388; network 5; included.
+  Play-through B: payout 5975746e-306b-41e1-88c7-ddf8fc15349e; tx b693acd38fdac38008b7faabe921056e5b3ebbae02b36207031faee4435250bf; block 15839460; 1,500 Luna; treasury -> NQ15 UQ1C N85L V8TB 9Y3S FCVF SEUL 8F2N 2623; reference LBA1:685638bc542dad71; network 5; included.
+  Orphaned Phase 4 payout: payout b00c882f-72e1-4fb1-acc1-0cde06dcaedf; tx 6456c17f557257fc39fb64277c853aa094ca0ccb4fcb8a7a040f15164e05cf29; block 15838244; 1,000 Luna; treasury -> NQ34 9MUU 15ML PSFX CJDT BB3K DLCS 60RX 5M1B; reference LBA1:fa4f30a2d178b6da; network 5; included.
+  Treasury balance before payout run: 11,000,006,000 Luna. After: 11,000,002,500 Luna. Decrease = 3,500 Luna; fees = 0.
+Preflight record:
+  Session A id 1435e21b-9e55-4143-92d8-e4a6da01e893, ref 0f566d594fc30388, funding tx 1bf53b81…, block 15836900.
+  Session B id f96476d6-ba9b-4ff9-b555-8761d52da6e6, ref 685638bc542dad71, funding tx a5037394…, block 15836905.
+  PAYOUT_WORKER_ENABLED enabled 2026-11-04T00:39:29Z; disabled 2026-11-04T01:21:37Z; final redeploy live 01:22:28Z.
+  NIMIQ_EXPLORER_BASE_URL=https://test.nimiq.watch/# set 2026-11-04T01:03:55Z; verified transaction and block pages; fresh redeploy at 01:11:00Z.
+  Nimiq Pay device verification: NOT PERFORMED — exact P4 limitation recorded above; not a Phase 5 blocker per OPERATOR_AUTHORIZATION.
+Failure scenario results (expected vs observed):
+  Double-click Finish: expected one payout row, one tx, same payoutId twice. Observed: A and B duplicate same-key finish returned the same payoutId; DB has one payout per run, one PAYOUT_CONFIRMED ledger entry, one tx. PASS.
+  Double-click ANSWER: expected one response, one reward, same responseId twice. Observed: A and B duplicate same-key respond returned the same responseId; DB has exactly one response per level and one REWARD_RESERVED per accepted answer; skip earned zero. PASS.
+  Concurrent claim: expected one 200 and one 409. Observed on Session A and Session B: exactly one 200 with a run, one 409 SESSION_UNAVAILABLE; one run per session. PASS.
+  Operator reconcile on SUBMITTED: expected status update without a new tx. Observed in integration test: CONFIRMED with the existing tx hash and broadcast count unchanged. PASS (local/mock).
+  Insufficient balance: expected QUEUED with safe failure_code. Observed in integration test: QUEUED, TREASURY_INSUFFICIENT_BALANCE, no broadcast; 60-second backoff enforced; after funding/aging, confirmed. PASS (local/mock).
+  Chain outage: expected SUBMITTED, no false CONFIRMED. Observed in integration test: SUBMITTED, CHAIN_UNAVAILABLE, zero PAYOUT_CONFIRMED ledger rows; after chain recovery, CONFIRMED. PASS (local/mock).
+  Broadcast response lost / worker restart: expected SUBMITTED, no duplicate, restart reconciles. Observed in integration test: SUBMITTED with persisted hash, new worker instance reconciled the existing tx, broadcast count still 1. PASS (local/mock).
+  Deployed ambiguous send: observed BROADCAST_AMBIGUOUS with no hash; reconciled via treasury balance/history and recipient history; after the hardened worker, reconcile → FAILED → requeue → confirmed at tx 6456c17f…. PASS.
+Worker behavior confirmed:
+  - One logical broadcaster via pg_try_advisory_lock; two concurrent workers test produced exactly one broadcast and one TREASURY_WORKER_BUSY exit.
+  - Signed hash persisted before broadcast; the deployed orphan recovery proved the hash was stored before the send and confirmed without a duplicate.
+  - Reconcile-before-retry: no payout was retried without checking the existing hash/chain history; the no-hash ambiguous payout was investigated and reconciled before requeue.
+  - No duplicate treasury tx for any payout; DB unique payout/run/tx constraints and one PAYOUT_CONFIRMED ledger entry per run.
+  - Startup recovery handles interrupted BUILDING rows; SUBMITTED/RECONCILING payouts take priority over new broadcasts.
+Nimiq Pay device verification: not tested (recorded as a known limitation; operator to demo manually before submission; not a Phase 5 blocker per OPERATOR_AUTHORIZATION).
+Known issues/blockers:
+  - Vercel Security Checkpoint returned HTML for one post-finish payout poll in play-through A. The UI stayed functional; the test now retries non-JSON responses. Not a payment/worker failure.
+  - Phase 5 E2E had a test-only level-2 selector bug ("Risky" vs "Impermanent loss"); fixed in 01b94d1. Play-through B was completed via a resumed real-auth session.
+  - The orphan requeue created two payout_requeued audit rows (service + route). Audit-only noise; no duplicate transfer.
+  - apps/api/dist contains stale local build artifacts including test JS. It is already gitignored and not tracked; Phase 8 follow-up is to clean it and confirm tests are excluded from production builds.
+  - Nimiq client still emits benign bls_cache/autonat warnings; /health/ready can briefly 503 during reconnect; /health/live is the Render health check.
+  - Nimiq Pay device/WebView verification is not performed.
+  - No mainnet path was enabled or tested.
+Design references/mockups status: none — Phase 6.
+Operator visual approval status: NOT GIVEN — Phase 6 hard gate.
+Documentation/footer-link status: docs/ present and updated for Phase 5; footer Documentation/GitHub links remain Phase 8.
+Security/configuration notes:
+  - No private keys, mnemonics, DB URLs, auth tokens, raw signatures or raw challenges are in the repository, this checkpoint, or structured logs.
+  - Testnet only; NIMIQ_NETWORK=testnet; mainnet sends remain disabled/fail-closed.
+  - DEMO_FUNDING_ENABLED=false; PAYOUT_WORKER_ENABLED=false after the proof.
+  - Amounts remain integer Luna; rewards are derived from persisted response rows; no client reward/recipient is accepted.
+  - The Vercel rewrite keeps the session cookie same-site; HttpOnly/Secure/SameSite=Lax and CSRF remain unchanged.
+Git commit:
+  82b5815 — feat: complete serialized payout worker with on-chain confirmation
+  aa7f180 — fix: support fragment-based testnet explorer URLs
+  01b94d1 — test: add Phase 5 deployed play-through coverage
+  This docs checkpoint is the new commit containing this file.
+Single next task: Awaiting operator acceptance of Phase 5 before starting Phase 6 (design references and mockups — hard approval gate).
+STOPPED awaiting operator approval: yes
+```
+
+## Phase 8 follow-up list
+
+- Clean stale local `apps/api/dist` build artifacts and verify production builds exclude test files. `dist/` is already in `.gitignore` and is **not** tracked despite an earlier note; no `.gitignore` change is needed.
+- Consider collapsing the duplicate `payout_requeued` audit rows into a single operator audit event.
+- Keep the Phase 5 E2E's non-JSON Vercel checkpoint retry and per-level answer labels.
+- Footer Documentation and GitHub links, final metadata/icons, 404 and accessibility polish.
 
 ## Cross-origin cookie decision (3 November 2026)
 
@@ -43,6 +182,8 @@
 - **Scope:** `apps/api/` has no diff for this fix; no API contract, schema, game logic, cookie attribute, CSRF rule or `APP_ORIGIN` was changed.
 
 ## Phase 4 acceptance (4 November 2026)
+
+> Historical note (Phase 5, 4 November 2026): the queued payout below was subsequently processed and confirmed at tx `6456c17f557257fc39fb64277c853aa094ca0ccb4fcb8a7a040f15164e05cf29`, block `15838244`, 1,000 Luna. The text in this section records the Phase 4 state.
 
 - Operator accepted Phase 4 based on the deployed real-auth E2E: auth, funded-session claim, three-level play, finish, payout `QUEUED` without fabricated confirmation, and history showing 1,000 Luna earned.
 - Decision B: the queued payout `b00c882f-72e1-4fb1-acc1-0cde06dcaedf` is accepted as testnet cost. Phase 5 will process it when the worker is enabled, sending 1,000 testnet Luna to the unrecoverable generated key used by the E2E player. There is no cancellation path and no DB change now. Phase 5 should expect this payout to appear on-chain.
@@ -66,7 +207,7 @@
   - Verification: the session row still has state `PAYOUT_PENDING`, the same deadline `2026-11-03T09:41:06.474Z`, the same claimed run `087f39ee-6bcc-492b-a062-ebc04ea14a4c`, reserved liability `1500`, unused credit `0`, and the same `updated_at` `2026-11-03T07:41:20.053Z`. No state, funding, ledger or reward field changed.
 - **B — Queued payout accepted:** payout `b00c882f-72e1-4fb1-acc1-0cde06dcaedf` remains `QUEUED`, amount `1000` Luna, no transaction hash. It is accepted as testnet cost and is expected to appear on-chain when Phase 5 enables the worker. No DB change or cancellation was made.
 
-## Phase 4 checkpoint
+## Phase 4 checkpoint (historical — Phase 5 confirmed the payout)
 
 ```text
 Project: LevelBreak Arena
@@ -323,7 +464,8 @@ STOPPED awaiting operator approval: yes
 - Core flow: player authenticates with Nimiq Pay wallet -> starts a funded session -> makes three simulated decisions -> answers or skips one consultation per level -> backend calculates rewards -> treasury pays NIM -> chain verifies payout.
 - Requester: scripted demo agent in MVP, not a live LLM and not an independent external agent.
 - Funding: the scripted demo requester uses a separate operator-controlled testnet wallet to send an ordinary NIM transfer to the treasury. A session stays unavailable until its incoming transfer has been verified on-chain.
-- Payout: ordinary NIM transfer from operator-controlled treasury to player's verified wallet address. **No HTLC in the MVP.** The funds are treasury-custodied; database reservations do not lock them on-chain.
+- Payout: ordinary NIM transfer from operator-controlled treasury to player's verified wallet address. **No HTLC in the MVP.** The funds are treasury-custodied; database reservations do not lock them on-chain. Phase 5 proved three confirmed payouts (1,000 + 1,000 + 1,500 Luna) from the treasury; the worker is now disabled.
+- Explorer: `NIMIQ_EXPLORER_BASE_URL=https://test.nimiq.watch/#`; the API appends the tx hash and the UI/history render a working link.
 - Reward: 500 Luna (0.005 NIM) per accepted response; skip earns zero; one consultation per each of three levels; max per session 1,500 Luna (0.015 NIM).
 - Scenario content and evidence are static/bundled; no live market data and no real trades.
 - Stack: React + TypeScript + Vite; Node 24 + TypeScript + Fastify; PostgreSQL; `@nimiq/mini-app-sdk` for player wallet identity/signature; `@nimiq/core` for server-side ordinary transfers; Vercel frontend; Render persistent API/worker.
@@ -332,15 +474,17 @@ STOPPED awaiting operator approval: yes
 
 ## Critical blockers / risks
 
-1. The payout worker and treasury payout verification have not been run against a real treasury transfer. Do not claim payment completion.
-2. Nimiq Pay in-WebView wallet signature authentication still needs end-to-end frontend verification in Phase 4.
-3. `NIMIQ_EXPLORER_BASE_URL` must be supplied before Phase 4; no URL is guessed.
-4. The Web Client requires the explicit TestAlbatross seed; do not revert to the client default seed list.
-5. No mainnet send path is allowed during preview/development. Any mainnet launch requires separate explicit operator authorization and a security/treasury review.
+1. Nimiq Pay in-WebView wallet signature authentication has not been runtime-verified on a device. The Playwright Ed25519 proof covers the auth code path; the operator must run the manual Nimiq Pay demo before competition submission. This is a recorded Phase 5 limitation, not a Phase 5 acceptance blocker per OPERATOR_AUTHORIZATION.
+2. `NIMIQ_EXPLORER_BASE_URL` is now set and verified. Do not change it to an unverified URL; a fragment base must keep the `#` and the app appends the tx hash.
+3. The Web Client requires the explicit TestAlbatross seed; do not revert to the client default seed list.
+4. Vercel Security Checkpoint can return HTML for a burst of API requests. The Phase 5 E2E retries non-JSON responses; the product UI itself remained functional. Do not interpret a checkpoint page as a payout failure.
+5. No mainnet send path is allowed during preview/development. Any mainnet launch requires separate explicit operator authorization, dedicated keys, treasury cap, and a security/treasury review.
+6. Phase 6 is a hard visual approval gate. Do not collect or propose design references, create mockups, or change styling until the operator accepts Phase 5 and explicitly approves the Phase 6 direction.
+7. Non-blocking cleanup: duplicate `payout_requeued` audit rows and stale local `apps/api/dist` artifacts are recorded in the Phase 8 follow-up list.
 
 ## Current task for coding agent
 
-**STOP.** Phase 4 is accepted. Do not start Phase 5, enable the payout worker, enable demo funding on Render, or begin final visual design. Phase 5 owns the treasury payout worker, a new funded session, explorer configuration and the hard end-to-end payment gate.
+**STOP.** Phase 5 is complete and awaiting operator acceptance. Do not start Phase 6, do not collect or propose design references or mockups, and do not apply final visual design. Do not re-enable `PAYOUT_WORKER_ENABLED` or `DEMO_FUNDING_ENABLED`. The next action is the operator's explicit Phase 5 acceptance, followed by a separate Phase 6 design-reference/mockup approval gate.
 
 ## Checkpoint requirements
 
