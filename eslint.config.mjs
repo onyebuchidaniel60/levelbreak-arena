@@ -10,6 +10,10 @@ export default tseslint.config(
       "**/coverage/**",
       "**/playwright-report/**",
       "**/test-results/**",
+      // Standalone design prototypes are linted by their own app tooling.
+      "design/**",
+      // Locally installed agent skills are tooling, not product code.
+      ".agents/**",
     ],
   },
   js.configs.recommended,

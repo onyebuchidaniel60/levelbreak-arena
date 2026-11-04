@@ -1,0 +1,118 @@
+:root {
+  --bg: #02030a;
+  --bg-raised: #070b15;
+  --ink: #f1f5ff;
+  --ink-soft: #ccd6e8;
+  --muted: #8c9ab4;
+  --dim: #5d6a81;
+  --line: rgba(181, 204, 255, 0.13);
+  --line-strong: rgba(193, 216, 255, 0.26);
+  --mint: #67f5d1;
+  --mint-strong: #a8ffea;
+  --gold: #f5c56a;
+  --amber: #ffb45c;
+  --coral: #ff7d88;
+  --violet: #b8a6ff;
+  --glass: rgba(8, 12, 23, 0.78);
+  --glass-raised: rgba(13, 19, 35, 0.9);
+  --panel-shadow:
+    0 40px 100px rgba(0, 0, 0, 0.68),
+    0 10px 30px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --font-display: "Space Grotesk", "Inter", system-ui, -apple-system, sans-serif;
+  --font-body: "Space Grotesk", "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --sector-accent: var(--mint);
+  --sector-accent-soft: rgba(103, 245, 209, 0.1);
+  --sector-accent-line: rgba(103, 245, 209, 0.36);
+
+  color-scheme: dark;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  min-width: 320px;
+  overflow-x: hidden;
+  background: var(--bg);
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+p,
+dl,
+dd,
+dt,
+ul,
+ol,
+blockquote {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+::selection {
+  color: #03120e;
+  background: var(--mint);
+}
+
+:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
