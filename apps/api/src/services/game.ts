@@ -649,6 +649,16 @@ export async function submitConsultationResponse(input: {
   });
 }
 
+export function buildExplorerUrl(baseUrl: string, txHash: string): string {
+  if (baseUrl.includes("#")) {
+    return `${baseUrl}${txHash}`;
+  }
+  return new URL(
+    txHash,
+    baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`,
+  ).toString();
+}
+
 function payoutDTO(row: PayoutRow | undefined) {
   if (!row) {
     return {
@@ -661,12 +671,7 @@ function payoutDTO(row: PayoutRow | undefined) {
   }
   const explorerUrl =
     row.tx_hash && config.nimiqExplorerBaseUrl
-      ? new URL(
-          row.tx_hash,
-          config.nimiqExplorerBaseUrl.endsWith("/")
-            ? config.nimiqExplorerBaseUrl
-            : `${config.nimiqExplorerBaseUrl}/`,
-        ).toString()
+      ? buildExplorerUrl(config.nimiqExplorerBaseUrl, row.tx_hash)
       : null;
   return {
     payoutId: row.id,
