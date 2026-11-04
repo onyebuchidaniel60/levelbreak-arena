@@ -82,5 +82,5 @@ jobs:
       - name: Apply migrations to ephemeral Postgres
         run: pnpm db:migrate
 
-      - name: Run Phase 3 concurrency integration tests
+      - name: Run integration tests (Phase 3 + Phase 5 payout worker)
         run: pnpm test:integration

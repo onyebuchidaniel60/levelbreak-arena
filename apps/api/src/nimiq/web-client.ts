@@ -153,6 +153,7 @@ export class NimiqWebClientService implements NimiqService {
 
   async buildSignAndBroadcastBasicTransfer(
     input: BasicTransferInput,
+    options?: { onSigned?: (txHash: string) => Promise<void> },
   ): Promise<BasicTransferResult> {
     await this.start();
     const client = this.requireClient();
@@ -188,9 +189,16 @@ export class NimiqWebClientService implements NimiqService {
       );
 
       transaction.sign(keyPair, undefined);
+      const signedHash = transaction.hash();
+      // Persist the hash before broadcasting. If the send response is lost,
+      // the worker can reconcile this hash instead of sending again.
+      await options?.onSigned?.(signedHash);
       const details = await client.sendTransaction(transaction);
+      if (details.transactionHash !== signedHash) {
+        throw new Error("Broadcast returned a different transaction hash");
+      }
       return {
-        txHash: details.transactionHash,
+        txHash: signedHash,
         transaction: mapTransaction(details),
       };
     } finally {

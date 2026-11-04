@@ -40,6 +40,15 @@ export interface BasicTransferInput {
   data: string;
 }
 
+export interface BasicTransferOptions {
+  /**
+   * Invoked after the transaction is signed and before it is broadcast.
+   * The worker uses this to persist the transaction hash so an ambiguous
+   * broadcast can always be reconciled without sending a second transfer.
+   */
+  onSigned?: (txHash: string) => Promise<void>;
+}
+
 export interface BasicTransferResult {
   txHash: string;
   transaction: NimiqTransactionDetails;
@@ -61,6 +70,7 @@ export interface NimiqService {
   getTransaction(txHash: string): Promise<NimiqTransactionDetails>;
   buildSignAndBroadcastBasicTransfer(
     input: BasicTransferInput,
+    options?: BasicTransferOptions,
   ): Promise<BasicTransferResult>;
   verifyIncomingFunding(input: {
     txHash: string;

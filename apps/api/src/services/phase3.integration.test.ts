@@ -27,7 +27,7 @@ import {
   submitConsultationResponse,
   submitDecision,
 } from "./game";
-import { processQueuedPayout } from "./payouts";
+import { processQueuedPayout, processSubmittedPayout, reconcilePayout } from "./payouts";
 
 const integration = process.env.LBA_INTEGRATION_DATABASE_URL
   ? describe
@@ -43,8 +43,17 @@ class FakeNimiq implements NimiqService {
   verifyReason: VerifiedFunding["reason"] = "VERIFIED";
   fixedTxHash: string | null = null;
   balanceLuna = "100000000";
+  chainReadUnavailable = false;
+  failBroadcastAfterSign = false;
+  broadcastState: NimiqTransactionDetails["state"] = "included";
+  broadcastDelayMs = 0;
+  broadcasts: BasicTransferInput[] = [];
+  transactions: Map<string, NimiqTransactionDetails>;
   private counter = 0;
-  private transactions = new Map<string, NimiqTransactionDetails>();
+
+  constructor(transactions?: Map<string, NimiqTransactionDetails>) {
+    this.transactions = transactions ?? new Map();
+  }
 
   async start(): Promise<void> {}
   async waitForConsensus(): Promise<boolean> {
@@ -60,14 +69,17 @@ class FakeNimiq implements NimiqService {
     return { type: "basic", balanceLuna: this.balanceLuna };
   }
   async getTransaction(txHash: string): Promise<NimiqTransactionDetails> {
+    if (this.chainReadUnavailable) throw new Error("mock chain unavailable");
     const transaction = this.transactions.get(txHash);
     if (!transaction) throw new Error("transaction not found");
     return transaction;
   }
   async buildSignAndBroadcastBasicTransfer(
     input: BasicTransferInput,
+    options?: { onSigned?: (txHash: string) => Promise<void> },
   ): Promise<BasicTransferResult> {
     this.counter += 1;
+    this.broadcasts.push(input);
     const txHash =
       this.fixedTxHash ??
       createHash("sha256")
@@ -77,16 +89,23 @@ class FakeNimiq implements NimiqService {
         .digest("hex");
     const transaction: NimiqTransactionDetails = {
       transactionHash: txHash,
-      state: "included",
+      state: this.broadcastState,
       sender: input.fromAddress,
       recipient: input.toAddress,
       valueLuna: input.amountLuna.toString(),
       feeLuna: "0",
       network: "TestAlbatross",
-      blockHeight: 1,
+      blockHeight: this.broadcastState === "included" ? 1 : undefined,
       dataHex: Buffer.from(input.data, "utf8").toString("hex"),
     };
+    await options?.onSigned?.(txHash);
+    if (this.broadcastDelayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, this.broadcastDelayMs));
+    }
     this.transactions.set(txHash, transaction);
+    if (this.failBroadcastAfterSign) {
+      throw new Error("mock broadcast response timeout");
+    }
     return { txHash, transaction };
   }
   async verifyIncomingFunding(input: {
@@ -115,11 +134,30 @@ class FakeNimiq implements NimiqService {
     }
     return checkIncomingFunding(transaction, input);
   }
-  async getTransactionStatus(): Promise<{
+  async getTransactionStatus(txHash: string): Promise<{
     status: "PENDING" | "INCLUDED" | "REJECTED" | "UNKNOWN";
     transaction: NimiqTransactionDetails | null;
   }> {
-    return { status: "UNKNOWN", transaction: null };
+    if (this.chainReadUnavailable) {
+      return { status: "UNKNOWN", transaction: null };
+    }
+    const transaction = this.transactions.get(txHash);
+    if (!transaction) {
+      return { status: "UNKNOWN", transaction: null };
+    }
+    if (
+      transaction.state === "included" ||
+      transaction.state === "confirmed"
+    ) {
+      return { status: "INCLUDED", transaction };
+    }
+    if (
+      transaction.state === "invalidated" ||
+      transaction.state === "expired"
+    ) {
+      return { status: "REJECTED", transaction };
+    }
+    return { status: "PENDING", transaction };
   }
   async health(): Promise<NimiqHealth> {
     return { ready: true, networkId: 5, headHeight: 1, peers: 3 };
@@ -287,6 +325,103 @@ async function sessionState(sessionId: string): Promise<string> {
     [sessionId],
   );
   return result.rows[0].state;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Keep only the target payout available to the worker. Tests share one
+ * database, and a leftover QUEUED/SUBMITTED row would otherwise be claimed
+ * before the row under test.
+ */
+async function isolatePayout(payoutId: string): Promise<void> {
+  await query(
+    `UPDATE payouts
+        SET status = 'CANCELLED', updated_at = now()
+      WHERE id <> $1
+        AND status IN ('QUEUED', 'BUILDING', 'SUBMITTED', 'RECONCILING')`,
+    [payoutId],
+  );
+}
+
+async function agePayoutAttempt(payoutId: string): Promise<void> {
+  await query(
+    `UPDATE payouts
+        SET attempted_at = now() - interval '61 seconds'
+      WHERE id = $1`,
+    [payoutId],
+  );
+}
+
+async function payoutStatus(payoutId: string): Promise<{
+  status: string;
+  tx_hash: string | null;
+  failure_code: string | null;
+  amount_luna: string;
+  attempt_count: number;
+}> {
+  const result = await query<{
+    status: string;
+    tx_hash: string | null;
+    failure_code: string | null;
+    amount_luna: string;
+    attempt_count: number;
+  }>(
+    `SELECT status, tx_hash, failure_code, amount_luna, attempt_count
+       FROM payouts WHERE id = $1`,
+    [payoutId],
+  );
+  return result.rows[0];
+}
+
+async function confirmedLedger(payoutId: string): Promise<{
+  count: number;
+  total: string;
+}> {
+  const result = await query<{ count: string; total: string }>(
+    `SELECT count(*)::text AS count, COALESCE(SUM(amount_luna), 0)::text AS total
+       FROM ledger_entries
+      WHERE idempotency_key = $1`,
+    [`payout_confirmed:${payoutId}`],
+  );
+  return {
+    count: Number(result.rows[0].count),
+    total: result.rows[0].total,
+  };
+}
+
+async function createQueuedPayout(
+  nimiq: FakeNimiq,
+  actions: Array<"ANSWER" | "SKIP">,
+): Promise<{
+  session: { sessionId: string; publicRef: string; fundingTxHash: string };
+  player: string;
+  run: { runId: string };
+  payoutId: string;
+  earnedLuna: string;
+}> {
+  const session = await createAvailableSession(nimiq);
+  const player = await makePlayer();
+  const run = await claim(player, session.sessionId);
+  await playRun(run.runId, player, actions);
+  const finished = await finishRun({
+    runId: run.runId,
+    playerId: player,
+    idempotencyKey: randomUUID(),
+  });
+  expect(finished.payoutId).toBeTruthy();
+  tracking.payouts.add(finished.payoutId!);
+  // Funding already used the same mock adapter; only count payout broadcasts.
+  nimiq.broadcasts = [];
+  return {
+    session,
+    player,
+    run,
+    payoutId: finished.payoutId!,
+    earnedLuna: finished.earnedLuna,
+  };
 }
 
 integration("Phase 3 domain integration", () => {
@@ -603,17 +738,20 @@ integration("Phase 3 domain integration", () => {
     tracking.payouts.add(finished.payoutId!);
 
     // Isolate the worker test from payout rows queued by earlier cases.
-    await query(
-      `UPDATE payouts
-          SET status = 'CANCELLED', updated_at = now()
-        WHERE status = 'QUEUED' AND id <> $1`,
-      [finished.payoutId],
-    );
+    await isolatePayout(finished.payoutId!);
+    nimiq.broadcasts = [];
 
-    const confirmed = await processQueuedPayout({ nimiq, logger });
+    const confirmed = await processQueuedPayout({
+      nimiq,
+      logger,
+      confirmPollDelaysMs: [],
+    });
     expect(confirmed?.status).toBe("CONFIRMED");
     expect(confirmed?.amount_luna).toBe("500");
     expect(confirmed?.tx_hash).toHaveLength(64);
+    expect(nimiq.broadcasts).toHaveLength(1);
+    expect(nimiq.broadcasts[0].toAddress).toBe(confirmed?.recipient_address);
+    expect(nimiq.broadcasts[0].amountLuna).toBe(500n);
 
     const state = await query<{
       run_state: string;
@@ -633,14 +771,261 @@ integration("Phase 3 domain integration", () => {
       payout_status: "CONFIRMED",
     });
 
-    const ledger = await query<{ count: string; total: string }>(
-      `SELECT count(*)::text AS count, COALESCE(SUM(amount_luna), 0)::text AS total
-         FROM ledger_entries
-        WHERE player_run_id = $1 AND entry_type = 'PAYOUT_CONFIRMED'`,
-      [run.runId],
+    const ledger = await confirmedLedger(finished.payoutId!);
+    expect(ledger.count).toBe(1);
+    expect(ledger.total).toBe("500");
+  });
+
+  it("keeps SUBMITTED when the broadcast response is lost, then reconciles on restart without a duplicate", async () => {
+    const chain = new Map<string, NimiqTransactionDetails>();
+    const nimiq = new FakeNimiq(chain);
+    const { payoutId, run, earnedLuna } = await createQueuedPayout(nimiq, [
+      "ANSWER",
+      "SKIP",
+      "SKIP",
+    ]);
+    await isolatePayout(payoutId);
+    expect(earnedLuna).toBe("500");
+
+    nimiq.broadcastState = "pending";
+    nimiq.failBroadcastAfterSign = true;
+    const submitted = await processQueuedPayout({
+      nimiq,
+      logger,
+      confirmPollDelaysMs: [],
+    });
+
+    expect(submitted?.status).toBe("SUBMITTED");
+    expect(submitted?.failure_code).toBe("BROADCAST_AMBIGUOUS");
+    expect(submitted?.tx_hash).toHaveLength(64);
+    expect(nimiq.broadcasts).toHaveLength(1);
+    expect((await payoutStatus(payoutId)).status).toBe("SUBMITTED");
+    expect((await confirmedLedger(payoutId)).count).toBe(0);
+
+    const txHash = submitted!.tx_hash!;
+    const mined = chain.get(txHash)!;
+    chain.set(txHash, { ...mined, state: "included", blockHeight: 2 });
+
+    // A new worker instance with the same chain state represents a restart.
+    const restarted = new FakeNimiq(chain);
+    restarted.broadcasts = [];
+    const confirmed = await processSubmittedPayout({
+      nimiq: restarted,
+      logger,
+    });
+
+    expect(confirmed?.status).toBe("CONFIRMED");
+    expect(confirmed?.tx_hash).toBe(txHash);
+    expect(restarted.broadcasts).toHaveLength(0);
+    expect((await confirmedLedger(payoutId)).count).toBe(1);
+    expect((await confirmedLedger(payoutId)).total).toBe("500");
+    expect((await sessionState(
+      (await query<{ requester_session_id: string }>(
+        `SELECT requester_session_id FROM player_runs WHERE id = $1`,
+        [run.runId],
+      )).rows[0].requester_session_id,
+    ))).toBe("SETTLED");
+  });
+
+  it("keeps SUBMITTED and does not confirm while chain status is unavailable", async () => {
+    const nimiq = new FakeNimiq();
+    const { payoutId } = await createQueuedPayout(nimiq, [
+      "ANSWER",
+      "SKIP",
+      "SKIP",
+    ]);
+    await isolatePayout(payoutId);
+
+    nimiq.broadcastState = "pending";
+    nimiq.chainReadUnavailable = true;
+    const submitted = await processQueuedPayout({
+      nimiq,
+      logger,
+      confirmPollDelaysMs: [],
+    });
+
+    expect(submitted?.status).toBe("SUBMITTED");
+    expect(submitted?.failure_code).toBe("CHAIN_UNAVAILABLE");
+    expect(submitted?.tx_hash).toBeTruthy();
+    expect(nimiq.broadcasts).toHaveLength(1);
+    expect((await payoutStatus(payoutId)).status).toBe("SUBMITTED");
+    expect((await confirmedLedger(payoutId)).count).toBe(0);
+
+    const txHash = submitted!.tx_hash!;
+    const tx = nimiq.transactions.get(txHash)!;
+    nimiq.transactions.set(txHash, {
+      ...tx,
+      state: "included",
+      blockHeight: 3,
+    });
+    nimiq.chainReadUnavailable = false;
+    const confirmed = await processSubmittedPayout({ nimiq, logger });
+
+    expect(confirmed?.status).toBe("CONFIRMED");
+    expect(confirmed?.tx_hash).toBe(txHash);
+    expect(nimiq.broadcasts).toHaveLength(1);
+    expect((await confirmedLedger(payoutId)).count).toBe(1);
+  });
+
+  it("keeps a payout QUEUED with a failure code when treasury balance is insufficient", async () => {
+    const nimiq = new FakeNimiq();
+    const { payoutId } = await createQueuedPayout(nimiq, [
+      "ANSWER",
+      "ANSWER",
+      "SKIP",
+    ]);
+    await isolatePayout(payoutId);
+    nimiq.balanceLuna = "999";
+
+    const result = await processQueuedPayout({ nimiq, logger });
+    expect(result?.status).toBe("QUEUED");
+    expect(result?.failure_code).toBe("TREASURY_INSUFFICIENT_BALANCE");
+    expect(result?.tx_hash).toBeNull();
+    expect(nimiq.broadcasts).toHaveLength(0);
+    expect((await payoutStatus(payoutId)).status).toBe("QUEUED");
+
+    const stillQueued = await query<{
+      run_state: string;
+      session_state: string;
+    }>(
+      `SELECT r.state AS run_state, s.state AS session_state
+         FROM payouts p
+         JOIN player_runs r ON r.id = p.player_run_id
+         JOIN requester_sessions s ON s.id = r.requester_session_id
+        WHERE p.id = $1`,
+      [payoutId],
     );
-    expect(ledger.rows[0].count).toBe("1");
-    expect(ledger.rows[0].total).toBe("500");
+    expect(stillQueued.rows[0]).toMatchObject({
+      run_state: "PAYOUT_QUEUED",
+      session_state: "PAYOUT_PENDING",
+    });
+
+    // The 60-second backoff prevents an immediate retry.
+    const throttled = await processQueuedPayout({ nimiq, logger });
+    expect(throttled).toBeNull();
+    expect(nimiq.broadcasts).toHaveLength(0);
+
+    await agePayoutAttempt(payoutId);
+    nimiq.balanceLuna = "100000000";
+    const confirmed = await processQueuedPayout({
+      nimiq,
+      logger,
+      confirmPollDelaysMs: [],
+    });
+    expect(confirmed?.status).toBe("CONFIRMED");
+    expect(nimiq.broadcasts).toHaveLength(1);
+  });
+
+  it("serializes two concurrent workers so only one broadcasts", async () => {
+    const nimiq = new FakeNimiq();
+    const { payoutId } = await createQueuedPayout(nimiq, [
+      "ANSWER",
+      "SKIP",
+      "SKIP",
+    ]);
+    await isolatePayout(payoutId);
+    nimiq.broadcastDelayMs = 300;
+
+    const first = processQueuedPayout({
+      nimiq,
+      logger,
+      confirmPollDelaysMs: [],
+    });
+    await sleep(50);
+    const second = processQueuedPayout({
+      nimiq,
+      logger,
+      confirmPollDelaysMs: [],
+    });
+    const results = await Promise.allSettled([first, second]);
+
+    const fulfilled = results.filter(
+      (result): result is PromiseFulfilledResult<Awaited<typeof first>> =>
+        result.status === "fulfilled",
+    );
+    const rejected = results.filter(
+      (result): result is PromiseRejectedResult =>
+        result.status === "rejected",
+    );
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+    expect(rejected[0].reason).toBeInstanceOf(AppError);
+    expect((rejected[0].reason as AppError).code).toBe("TREASURY_WORKER_BUSY");
+    expect(fulfilled[0].value?.status).toBe("CONFIRMED");
+    expect(nimiq.broadcasts).toHaveLength(1);
+  });
+
+  it("operator reconcile confirms a SUBMITTED payout without a new transaction", async () => {
+    const nimiq = new FakeNimiq();
+    const { payoutId } = await createQueuedPayout(nimiq, [
+      "ANSWER",
+      "SKIP",
+      "SKIP",
+    ]);
+    await isolatePayout(payoutId);
+    nimiq.failBroadcastAfterSign = true;
+
+    const submitted = await processQueuedPayout({
+      nimiq,
+      logger,
+      confirmPollDelaysMs: [],
+    });
+    expect(submitted?.status).toBe("SUBMITTED");
+    expect(nimiq.broadcasts).toHaveLength(1);
+
+    const reconciled = await reconcilePayout({ payoutId, nimiq });
+    expect(reconciled.status).toBe("CONFIRMED");
+    expect(reconciled.tx_hash).toBe(submitted?.tx_hash);
+    expect(nimiq.broadcasts).toHaveLength(1);
+    expect((await confirmedLedger(payoutId)).count).toBe(1);
+  });
+
+  it("creates no payout row for a zero-reward run", async () => {
+    const nimiq = new FakeNimiq();
+    const session = await createAvailableSession(nimiq);
+    const player = await makePlayer();
+    const run = await claim(player, session.sessionId);
+    await playRun(run.runId, player, ["SKIP", "SKIP", "SKIP"]);
+    const finished = await finishRun({
+      runId: run.runId,
+      playerId: player,
+      idempotencyKey: randomUUID(),
+    });
+
+    expect(finished.state).toBe("COMPLETED_NO_REWARD");
+    expect(finished.payoutId).toBeNull();
+    expect((await payoutTotals(run.runId)).count).toBe(0);
+
+    await query(
+      `UPDATE payouts SET status = 'CANCELLED', updated_at = now()
+        WHERE status IN ('QUEUED', 'BUILDING', 'SUBMITTED', 'RECONCILING')`,
+    );
+    const processed = await processQueuedPayout({ nimiq, logger });
+    expect(processed).toBeNull();
+  });
+
+  it("returns the same payout for a repeated finish without a second row", async () => {
+    const nimiq = new FakeNimiq();
+    const session = await createAvailableSession(nimiq);
+    const player = await makePlayer();
+    const run = await claim(player, session.sessionId);
+    await playRun(run.runId, player, ["ANSWER", "SKIP", "SKIP"]);
+    const first = await finishRun({
+      runId: run.runId,
+      playerId: player,
+      idempotencyKey: randomUUID(),
+    });
+    tracking.payouts.add(first.payoutId!);
+
+    const second = await finishRun({
+      runId: run.runId,
+      playerId: player,
+      idempotencyKey: randomUUID(),
+    });
+
+    expect(second.payoutId).toBe(first.payoutId);
+    expect((await payoutTotals(run.runId)).count).toBe(1);
+    expect((await payoutTotals(run.runId)).total).toBe("500");
   });
 
   it("serializes run detail without BigInt and strips scenario outcomes", async () => {
