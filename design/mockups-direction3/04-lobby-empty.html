@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LevelBreak Arena — No mission in orbit</title>
+  <meta name="description" content="LevelBreak Arena Gamified design mockup — empty mission board.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23050814'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%23FBBF24'/%3E%3Cellipse cx='16' cy='17' rx='13' ry='4' fill='none' stroke='%2322D3EE' stroke-width='1.5' transform='rotate(-14 16 17)'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="_shared/tokens.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="01-landing.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-word"><strong>LevelBreak</strong><span>Risk Orbit</span></span>
+        </a>
+        <nav class="topnav" aria-label="Primary">
+          <a href="04-lobby-empty.html" aria-current="page">Play</a>
+          <a href="11-history.html">History</a>
+          <a href="01-landing.html#how-it-works">How it works</a>
+        </nav>
+        <div class="wallet-zone">
+          <span class="wallet-chip">
+            <span class="dot dot-green"></span>
+            <span class="addr-full">NQ98 54S9 … PHEQ</span>
+            <span class="addr-compact">NQ98…PHEQ</span>
+            <a class="disconnect" href="01-landing.html">Sign out</a>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <div class="strip">
+      <div class="strip-inner">
+        <span class="strip-item"><span class="dot dot-gold"></span>Orbit scan / no mission</span>
+        <span class="strip-sep">/</span>
+        <span class="strip-item">Nimiq Testnet · not real money</span>
+        <span class="strip-spacer"></span>
+        <span class="strip-item strip-right">0 runs open</span>
+      </div>
+    </div>
+
+    <main class="page page-narrow">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Mission board / scan</span>
+          <h1>No mission in orbit.</h1>
+          <p class="lead">We'll save your spot. A run appears only after its testnet funding is verified on-chain.</p>
+        </div>
+        <div class="page-head-side">
+          <span class="chip chip-gold"><span class="dot dot-gold dot-live"></span>Scanning</span>
+          <span class="micro">Auto-scan every 30s</span>
+        </div>
+      </div>
+
+      <div class="empty-hero">
+        <section class="empty-card" aria-labelledby="empty-title">
+          <div class="empty-core">
+            <div class="radar" aria-hidden="true"></div>
+            <span class="chip chip-muted" style="margin-bottom: 8px;">Sector feed / 0 open</span>
+            <h1 id="empty-title">No run to launch yet.</h1>
+            <p>New missions show up here once the funding transfer clears verification. Waiting costs nothing, and the NIM is play money.</p>
+            <span class="last-scan"><span class="dot dot-green"></span> Last scan <strong>04 Nov 2026 · 01:22 UTC</strong></span>
+            <div class="empty-actions">
+              <a class="btn btn-primary" href="04-lobby-empty.html">Scan again</a>
+              <a class="btn btn-ghost" href="11-history.html">Mission log</a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="gate-grid" aria-label="How a mission becomes available">
+        <div class="gate-card">
+          <div class="gate-num">01</div>
+          <strong>Signal received</strong>
+          <p>The scripted requester sends testnet NIM to the operator treasury.</p>
+        </div>
+        <div class="gate-card">
+          <div class="gate-num">02</div>
+          <strong>Chain verified</strong>
+          <p>Network, sender, recipient, amount and reference must all match.</p>
+        </div>
+        <div class="gate-card">
+          <div class="gate-num">03</div>
+          <strong>Mission unlocked</strong>
+          <p>Only then does the run appear here. A returned hash alone is not enough.</p>
+        </div>
+      </div>
+
+      <div class="trust-inline" style="max-width: 920px; margin: 14px auto 0;">
+        <span class="trust-icon">🛡</span>
+        <span><strong>No session, no charge.</strong> This is a testnet demo. Waiting is free, and the NIM in the game is not real money. Payouts come from an operator treasury, not escrow.</span>
+      </div>
+    </main>
+
+    <footer class="footer footer-slim">
+      <div class="footer-inner">
+        <span>LevelBreak Arena · mission scan</span>
+        <span>Nimiq Testnet · not real money</span>
+        <span>Signed in as NQ98…PHEQ</span>
+      </div>
+    </footer>
+  </div>
+
+  <div class="watermark">Mockup — not implemented</div>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LevelBreak Arena — Enter the Risk Orbit</title>
+  <meta name="description" content="LevelBreak Arena Gamified design mockup — landing screen.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23050814'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%23FBBF24'/%3E%3Cellipse cx='16' cy='17' rx='13' ry='4' fill='none' stroke='%2322D3EE' stroke-width='1.5' transform='rotate(-14 16 17)'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="_shared/tokens.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="01-landing.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-word"><strong>LevelBreak</strong><span>Risk Orbit</span></span>
+        </a>
+        <nav class="topnav" aria-label="Primary">
+          <a href="03-lobby-available.html">Play</a>
+          <a href="11-history.html">History</a>
+          <a href="#how-it-works">How it works</a>
+        </nav>
+        <div class="wallet-zone">
+          <span class="testnet-chip"><span class="dot dot-green"></span>Testnet</span>
+          <a class="btn btn-ghost btn-sm" href="02-wallet-connect.html">Connect wallet</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="strip">
+      <div class="strip-inner">
+        <span class="strip-item"><span class="dot dot-gold"></span>Nimiq Testnet · not real money</span>
+        <span class="strip-sep">/</span>
+        <span class="strip-item">Guide is scripted · not a live AI</span>
+        <span class="strip-spacer"></span>
+        <span class="strip-item strip-right">Season 01 / <strong>3 sectors</strong></span>
+      </div>
+    </div>
+
+    <main class="page">
+      <section class="hero">
+        <div class="hero-copy">
+          <span class="eyebrow">Orbit run / season 01</span>
+          <h1>Enter the<br><span class="gold">risk orbit.</span></h1>
+          <p class="lead">Three sectors. Three calls. One run. Read the intel, make the call, and earn <strong>testnet NIM</strong> for every accepted answer. No real money — just a game worth getting good at.</p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary btn-lg" href="02-wallet-connect.html">Launch run <span aria-hidden="true">→</span></a>
+            <a class="btn btn-cyan btn-lg" href="#mission-map">See the map</a>
+          </div>
+
+          <div class="hero-badges">
+            <span class="chip chip-gold">🛡 Testnet · not real money</span>
+            <span class="chip chip-cyan">✦ Scripted Guide</span>
+            <span class="chip chip-muted">🏦 Operator treasury</span>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat"><strong>3</strong><span>Sectors</span></div>
+            <div class="hero-stat"><strong>500 <span style="font-size: 9px; color: var(--muted);">Luna</span></strong><span>Per answer</span></div>
+            <div class="hero-stat"><strong>1,500 <span style="font-size: 9px; color: var(--muted);">Luna</span></strong><span>Max reward</span></div>
+            <div class="hero-stat"><strong>300 <span style="font-size: 9px; color: var(--muted);">XP</span></strong><span>Run score</span></div>
+          </div>
+        </div>
+
+        <div class="orbit-stage" aria-label="Risk Orbit level map: sector 1 active, sectors 2 and 3 locked">
+          <svg viewBox="0 0 620 480" role="img" aria-label="A dashed orbital path connecting three planets. Sector one is active; sectors two and three are locked.">
+            <defs>
+              <linearGradient id="route" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#34D399" stop-opacity=".8"/>
+                <stop offset=".45" stop-color="#FBBF24" stop-opacity=".7"/>
+                <stop offset="1" stop-color="#A78BFA" stop-opacity=".35"/>
+              </linearGradient>
+              <radialGradient id="nebula" cx=".5" cy=".5" r=".5">
+                <stop offset="0" stop-color="#7C3AED" stop-opacity=".22"/>
+                <stop offset="1" stop-color="#7C3AED" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <circle cx="345" cy="225" r="185" fill="url(#nebula)"/>
+            <path d="M92 300 C150 220 215 235 286 250 C370 268 400 170 468 142 C505 128 535 138 560 158" fill="none" stroke="url(#route)" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 11"/>
+            <path d="M92 300 C150 220 215 235 286 250" fill="none" stroke="#34D399" stroke-width="5" stroke-linecap="round" opacity=".45"/>
+            <circle cx="130" cy="392" r="2" fill="#22D3EE" opacity=".7"/>
+            <circle cx="490" cy="330" r="2" fill="#F472B6" opacity=".7"/>
+            <circle cx="390" cy="92" r="1.5" fill="#fff" opacity=".7"/>
+            <circle cx="218" cy="120" r="1.5" fill="#fff" opacity=".5"/>
+          </svg>
+
+          <div class="stage-planet planet-peg active" style="width: 112px; height: 112px; left: 52%; top: 43%; transform: translate(-50%, -50%);">
+            <span class="planet-num">01</span>
+          </div>
+          <div class="stage-label" style="left: 37%; top: 60%;">ACTIVE SECTOR<strong>Stablecoin peg</strong></div>
+
+          <div class="stage-planet planet-locked" style="width: 72px; height: 72px; left: 76%; top: 25%;">
+            <span class="planet-num" style="color: var(--muted);">02</span>
+          </div>
+          <div class="stage-label" style="left: 68%; top: 36%;">LOCKED<strong>Pool risk</strong></div>
+
+          <div class="stage-planet planet-locked" style="width: 54px; height: 54px; left: 83%; top: 67%;">
+            <span class="planet-num" style="color: var(--muted);">03</span>
+          </div>
+          <div class="stage-label" style="left: 73%; top: 78%;">LOCKED<strong>Yield risk</strong></div>
+
+          <div class="craft" style="left: 46%; top: 34%;" aria-hidden="true"></div>
+
+          <div class="orbit-caption">
+            <div>
+              <strong>Sector 01 open</strong>
+              <span>2 sectors locked · complete the previous sector to unlock</span>
+            </div>
+            <span class="chip chip-gold">300 XP run</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="mission-map" aria-labelledby="mission-map-title">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Mission map</span>
+            <h2 id="mission-map-title">Three sectors. No skipping the learning.</h2>
+          </div>
+          <span class="micro">One run / three calls</span>
+        </div>
+
+        <div class="missions-grid">
+          <article class="mission-tile">
+            <div class="tile-top">
+              <span class="chip chip-mint">Sector 01 · open</span>
+              <span class="micro">+100 XP</span>
+            </div>
+            <h3>Stablecoin peg risk</h3>
+            <p>A 12% APY newcomer wants your balance. Read the numbers before you move.</p>
+            <div class="tile-meta"><span class="chip chip-gold">500 Luna</span><span class="chip chip-muted">1 decision + 1 intel</span></div>
+          </article>
+          <article class="mission-tile locked">
+            <div class="tile-top">
+              <span class="chip chip-muted">🔒 Sector 02 · locked</span>
+              <span class="micro">Clear 01</span>
+            </div>
+            <h3>Liquidity pool and impermanent loss</h3>
+            <p>ETH moves 30%. Does the pool keep up with holding the assets?</p>
+            <div class="tile-meta"><span class="chip chip-muted">500 Luna</span><span class="chip chip-muted">Unlock after sector 01</span></div>
+          </article>
+          <article class="mission-tile locked">
+            <div class="tile-top">
+              <span class="chip chip-muted">🔒 Sector 03 · locked</span>
+              <span class="micro">Clear 02</span>
+            </div>
+            <h3>Yield-farming sustainability</h3>
+            <p>A 400% farm with thin documents wants your principal. Read the risk first.</p>
+            <div class="tile-meta"><span class="chip chip-muted">500 Luna</span><span class="chip chip-muted">Unlock after sector 02</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" style="margin-top: 24px;" id="how-it-works" aria-labelledby="how-title">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">How the run works</span>
+            <h2 id="how-title">Pick a side. Read the intel. Earn the reward.</h2>
+          </div>
+          <span class="micro">About 5 minutes</span>
+        </div>
+
+        <div class="trust-grid">
+          <div class="trust-tile"><span class="trust-icon">01</span><div><h3>Make the decision</h3><p>Each sector starts with a real simulated scenario. No outcomes are previewed.</p></div></div>
+          <div class="trust-tile"><span class="trust-icon">02</span><div><h3>Read Guide's intel</h3><p>Evidence comes before the question. Guide is a scripted requester, not a live AI.</p></div></div>
+          <div class="trust-tile"><span class="trust-icon">03</span><div><h3>Collect testnet NIM</h3><p>500 Luna per accepted answer. Paid from the operator treasury after the run, confirmed on-chain.</p></div></div>
+        </div>
+      </section>
+
+      <section class="section" style="margin-top: 24px;" aria-labelledby="trust-title">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Before you launch</span>
+            <h2 id="trust-title">The truth is part of the game.</h2>
+          </div>
+          <span class="micro">Not a footer fine print</span>
+        </div>
+        <div class="trust-grid">
+          <div class="trust-tile"><span class="trust-icon">🛡</span><div><h3>Testnet · not real money</h3><p>The NIM in this game has no cash value. Every reward is testnet only.</p></div></div>
+          <div class="trust-tile"><span class="trust-icon">🏦</span><div><h3>Operator treasury</h3><p>Rewards are normal transfers from an operator-controlled demo treasury, not escrow.</p></div></div>
+          <div class="trust-tile"><span class="trust-icon">✦</span><div><h3>Scripted Guide</h3><p>Guide follows bundled scenarios and evidence. It is not a live model or a real person.</p></div></div>
+        </div>
+      </section>
+
+      <section class="section" style="margin-top: 24px;" aria-labelledby="badge-title">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Trophy bay</span>
+            <h2 id="badge-title">Badges are proof you read the intel.</h2>
+          </div>
+          <span class="micro">3 earnable</span>
+        </div>
+        <div class="badge-shelf">
+          <div class="badge-medal"><div class="medal">✦</div><span>Peg navigator</span></div>
+          <div class="badge-medal"><div class="medal">◈</div><span>Pool diver</span></div>
+          <div class="badge-medal"><div class="medal">☄</div><span>Yield sentinel</span></div>
+          <span class="micro" style="align-self: center; margin-left: 8px;">Unlock each badge by clearing its sector.</span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a class="brand" href="01-landing.html">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span class="brand-word"><strong>LevelBreak</strong><span>Risk Orbit</span></span>
+          </a>
+          <p>A three-sector simulated DeFi learning game on Nimiq Testnet. No real DeFi positions, no investment advice, no live agent.</p>
+        </div>
+        <div class="footer-col">
+          <h3>Orbit</h3>
+          <ul>
+            <li><a href="03-lobby-available.html">Mission board</a></li>
+            <li><a href="11-history.html">Mission log</a></li>
+            <li><a href="#how-it-works">How it works</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Reference</h3>
+          <ul>
+            <li><span class="placeholder-link">Documentation</span></li>
+            <li><span class="placeholder-link">GitHub repository</span></li>
+            <li><span class="placeholder-link">Privacy &amp; terms</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>Direction 3 mockup · Phase 6</span>
+        <span>Nimiq Testnet · not real money</span>
+        <span>Simulation only — not financial advice</span>
+      </div>
+    </footer>
+  </div>
+
+  <div class="watermark">Mockup — not implemented</div>
+</body>
+</html>

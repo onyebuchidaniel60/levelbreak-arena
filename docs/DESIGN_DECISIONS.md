@@ -1,6 +1,6 @@
 # Design Decision Log
 
-**Status:** PROPOSED directions — Trading Terminal and Playful Learning Game. Awaiting operator comparison and selection. **NEITHER APPROVED.** Do not implement final styling before explicit operator approval.
+**Status:** PROPOSED directions — Trading Terminal, Playful Learning Game and Gamified (reference-driven). Awaiting operator comparison and selection. **NONE APPROVED.** Do not implement final styling before explicit operator approval.
 
 ## Product/design decisions already locked
 
@@ -10,7 +10,7 @@
 - Answer classifications include `Can't tell`; skip is free.
 - Static/bundled evidence and scripted requester in MVP.
 - Temporary styling through functional verification.
-- Operator requested two proposed directions for comparison: **Trading Terminal** and **Playful Learning Game**. Neither is approved; final visual implementation remains blocked.
+- Operator requested three proposed directions for comparison: **Trading Terminal**, **Playful Learning Game** and **Gamified (reference-driven)**. None is approved; final visual implementation remains blocked.
 
 ## Required late design process
 
@@ -30,7 +30,7 @@
 
 ### Direction and references
 
-The operator requested the Trading Terminal direction by brief rather than supplying external reference URLs; it is one of two proposed directions, not a selected one. No external imagery, trademarks or protected brand assets were copied. The design studies the density, hierarchy and typographic discipline of professional trading terminals and operations tools, with an original LevelBreak Arena treatment.
+The operator requested the Trading Terminal direction by brief rather than supplying external reference URLs; it is one of three proposed directions, not a selected one. No external imagery, trademarks or protected brand assets were copied. The design studies the density, hierarchy and typographic discipline of professional trading terminals and operations tools, with an original LevelBreak Arena treatment.
 
 - Background `#0A0E14`; elevated surface `#131820`; border `#1F2937`.
 - Primary text `#E5E7EB`; secondary `#9CA3AF`; muted `#6B7280`; numeric bright `#F3F4F6`.
@@ -160,11 +160,85 @@ No transaction hash, block, address, session reference or scenario value was fab
 
 This section records a **proposal and comparison**, not a selection or approval. The app remains on temporary styling; `apps/web/` and `apps/api/` are untouched.
 
+## Proposed direction: Gamified (reference-driven) (Phase 6, Direction 3)
+
+**Status: PROPOSED — awaiting operator comparison and selection. Operator approval: NOT GIVEN.**
+**Date proposed:** 4 November 2026.
+**Scope:** mockups only. No application code, API, schema, auth, payment behavior or deployed environment was changed. Direction 1 and Direction 2 are untouched.
+
+### Direction and reference
+
+The operator supplied three cosmic staking-game screenshots in `design/references/` and asked for a genuinely gamified direction, not another skin. The reference extraction was written before screen production in [Direction 3 mockup notes](../design/MOCKUP_NOTES_DIRECTION3.md). The reference is used as a structural anchor — planet route, locked future destinations, fuel/progress bar, collectible vehicle cards, trophy room, claim action, allocated/claimed ledger — not as artwork to copy.
+
+- Deep-space base `#050814`; glass panels `#0D1530` with cyan-tinted borders.
+- Nimiq gold `#FBBF24`/`#FCD34D` for primary action and earned value; mint `#34D399` for confirmed/progress; cyan `#22D3EE` for links/info; purple `#A78BFA` and magenta `#F472B6` for level markers.
+- Space Grotesk for the wide uppercase display voice; Inter for body and tabular figures.
+- Original CSS/SVG planets, dashed orbit routes, starfields, glow and badge geometry. No reference image or trademark is reproduced.
+- 18px panel / 24px hero radii; bright rectangular game CTAs; thin XP tracks; 12px trust panels.
+- Run XP, answer streak, three sector nodes, badge unlocks, loot-reveal reward, level-up burst, reward-vault ledger and a full-run summary.
+- Motion is CSS-only: orbit rings, coin drop, loot-card reveal, XP fill, badge pop. `prefers-reduced-motion` presents the same information in a static final state.
+
+### Artifacts
+
+- [Direction 3 notes, reference extraction, trust table and accessibility decisions](../design/MOCKUP_NOTES_DIRECTION3.md)
+- [Direction 3 mockup set and viewing instructions](../design/mockups-direction3/README.md)
+- [Direction 3 desktop screenshots](../design/mockups-direction3/screenshots/desktop/)
+- [Direction 3 mobile screenshots](../design/mockups-direction3/screenshots/mobile/)
+- [Direction 3 validation results](../design/mockups-direction3/screenshots/validation.json)
+- Reference files: `design/references/direction3-reference1.webp`, `direction3-reference2.webp`, `direction3-reference3.webp`.
+
+Fourteen screens are proposed: the same twelve as the other directions plus **13 — Sector 01 complete** and **14 — Session summary**.
+
+### Content and evidence sources
+
+The same real server-owned content and Phase 5 evidence is used:
+
+- `apps/api/src/domain/scenario-definitions.ts`
+- `apps/api/src/domain/consultation-definitions.ts`
+- Level 1 MOVE: **800 vUSDT / −20%**.
+- 1,000 Luna: tx `139bfc81643ffb410c1f2a179d0d152ab7346f5205f31d99642a1e0e577421e4`, block `15838771`.
+- 1,500 Luna: tx `b693acd38fdac38008b7faabe921056e5b3ebbae02b36207031faee4435250bf`, block `15839460`.
+- Orphan recovery: tx `6456c17f557257fc39fb64277c853aa094ca0ccb4fcb8a7a040f15164e05cf29`, block `15838244`.
+
+No hash, block, address, session reference or scenario value was fabricated. The mission log is a composite of the two required Phase 5 rows, which came from different generated testnet wallets; recipient addresses are omitted and this is disclosed in the notes.
+
+### Deviations from the Direction 3 brief
+
+1. The content path is `apps/api/src/domain/`; the named contract/seed content directories do not exist. No scenario text was invented.
+2. The Level 1 MOVE result is the real 800 vUSDT, not 850.
+3. The 14-screen inventory includes the two requested extras (13 level complete, 14 session summary); 320px captures cover 05, 07, 09, 13 and 14, while overflow is checked at 320px for every screen.
+4. Screenshots include exact viewport captures plus `-full` companions.
+5. History shows the documented date only, not an invented completion clock time.
+6. The mockup marker is a “MOCKUP” chip in the status strip plus a page-bottom pill, so it remains visible without covering a reward or trust panel.
+7. Level 2/3 reuse the Level 1 template and the real content; they are not separate full screens. The screen 13 “Enter sector 02” CTA links to the full-run summary as a review shortcut.
+8. XP and badges are invented game-layer metrics. They are explicitly labelled as score/learning proof, never money.
+
+### Verification
+
+`node design/mockups-direction3/capture.mjs` produced 66 captures with:
+
+- 0 console errors, 0 page errors;
+- 0 horizontal overflow and 0 off-screen elements at 1440px, 375px and 320px across all 14 screens;
+- 0 `<script>` tags in screen HTML;
+- mockup marker present on every screen;
+- required trust copy present per screen (case-insensitive, tag-stripped text check);
+- validation recorded in `design/mockups-direction3/screenshots/validation.json`.
+
+### Three-way comparison
+
+- **Time to understanding:** Direction 1 communicates the numbers fastest for a DeFi-literate user; Direction 2 is fastest for a non-crypto newcomer; Direction 3 is fastest at communicating *what to do next* through the route and level HUD, but the added game chrome makes the underlying numbers slower to scan.
+- **Trust legibility:** Direction 2 states the truth in the plainest language; Direction 3 keeps disclosures visually adjacent to every celebration but the celebration itself is the biggest attention competitor; Direction 1 is precise and technical but easy for a non-crypto player to skim as jargon.
+- **Reward motivation:** Direction 3 has the strongest loop — XP, streak, badge, level-up, loot reveal and vault — and makes the reward feel earned; Direction 2 is warm and encouraging but less systemic; Direction 1 deliberately under-sells the reward and may fail to excite.
+- **Density and mobile length:** Direction 1 is the densest and shortest to scan; Direction 3 is medium-high density with 14 screens and more surface area; Direction 2 is the roomiest and longest on mobile. Direction 3's 320px game screens are the heaviest of the three.
+- **Implementation and brand risk:** Direction 3 has the highest implementation cost and the greatest risk of game chrome obscuring product truth or looking like a speculative crypto game; Direction 2 has the lowest intimidation barrier but the most generic “friendly app” signature; Direction 1 has the most distinctive serious-tool signature but may feel cold to the target learner.
+
+This section records a **proposal and comparison**, not a selection or approval. The app remains on temporary styling; `apps/web/` and `apps/api/` are untouched.
+
 ## Approval log
 
-- Reference candidates: not applicable — the operator supplied two direction briefs; no external reference URLs were supplied.
-- Mockup set: Direction 1 at `design/mockups/` (12 screens, desktop/mobile plus 320px tests) and Direction 2 at `design/mockups-direction2/` (12 screens, desktop/mobile plus 320px tests for 05/07/09).
-- Design decision record: both directions **PROPOSED** — awaiting operator comparison and selection.
-- Operator approval: **NOT GIVEN** for either direction.
+- Reference candidates: Direction 3 is anchored on the three operator-supplied files in `design/references/`; Directions 1 and 2 used operator briefs with no external URLs.
+- Mockup sets: Direction 1 at `design/mockups/` (12 screens), Direction 2 at `design/mockups-direction2/` (12 screens), Direction 3 at `design/mockups-direction3/` (14 screens). All have desktop/mobile captures and 320px stress tests as specified.
+- Design decision record: all three directions **PROPOSED** — awaiting operator comparison and selection.
+- Operator approval: **NOT GIVEN** for any direction.
 - Selected direction: **NONE**.
 - Approved implementation may begin: **NO**.

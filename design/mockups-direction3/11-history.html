@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LevelBreak Arena — Mission log</title>
+  <meta name="description" content="LevelBreak Arena Gamified design mockup — run history and payout receipts.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23050814'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%23FBBF24'/%3E%3Cellipse cx='16' cy='17' rx='13' ry='4' fill='none' stroke='%2322D3EE' stroke-width='1.5' transform='rotate(-14 16 17)'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="_shared/tokens.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="01-landing.html">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-word"><strong>LevelBreak</strong><span>Risk Orbit</span></span>
+        </a>
+        <nav class="topnav" aria-label="Primary">
+          <a href="03-lobby-available.html">Play</a>
+          <a href="11-history.html" aria-current="page">History</a>
+          <a href="01-landing.html#how-it-works">How it works</a>
+        </nav>
+        <div class="wallet-zone">
+          <span class="wallet-chip">
+            <span class="dot dot-green"></span>
+            <span class="addr-full">NQ98 54S9 … PHEQ</span>
+            <span class="addr-compact">NQ98…PHEQ</span>
+            <a class="disconnect" href="01-landing.html">Sign out</a>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <div class="strip">
+      <div class="strip-inner">
+        <span class="strip-item"><span class="dot dot-green"></span>Mission log / own wallet only</span>
+        <span class="strip-sep">/</span>
+        <span class="strip-item">Payout status checked against chain</span>
+        <span class="strip-spacer"></span>
+        <span class="strip-item strip-right">Confirmed <strong>2,500 Luna</strong></span>
+      </div>
+    </div>
+
+    <main class="page">
+      <div class="page-head">
+        <div>
+          <span class="eyebrow">Pilot record / mission log</span>
+          <h1>Your orbit history.</h1>
+          <p class="lead">Every completed run with the XP, badges and payout receipt. Only your signed-in wallet can see this log.</p>
+        </div>
+        <div class="page-head-side">
+          <span class="chip chip-mint">2 paid</span>
+          <span class="micro">Testnet · not real money</span>
+        </div>
+      </div>
+
+      <div class="log-summary" aria-label="Mission log summary">
+        <div class="log-stat"><span class="label">Total earned</span><strong>2,500 <span style="font-size: 9px; color: var(--muted);">Luna</span></strong><span>0.025 NIM · play money</span></div>
+        <div class="log-stat"><span class="label">Runs completed</span><strong>2</strong><span>Both paid to your wallet</span></div>
+        <div class="log-stat"><span class="label">Answers accepted</span><strong>5 <span style="font-size: 9px; color: var(--muted);">/ 6</span></strong><span>Skips earn 0 Luna</span></div>
+      </div>
+
+      <section class="panel panel-lg log-card" aria-labelledby="log-title">
+        <div class="panel-head">
+          <span class="panel-title"><strong id="log-title">Completed runs</strong> / newest first</span>
+          <span class="panel-meta">Season 01 · Nimiq Testnet</span>
+        </div>
+
+        <table class="log-table">
+          <thead>
+            <tr>
+              <th scope="col">Session</th>
+              <th scope="col">Completed</th>
+              <th scope="col" class="num">Answers</th>
+              <th scope="col" class="num">Earned</th>
+              <th scope="col">Payout</th>
+              <th scope="col">Receipt</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="Session"><span class="log-ref"><span class="hash">0f566d59…c30388</span></span></td>
+              <td data-label="Completed"><span class="log-date">04 Nov 2026</span></td>
+              <td data-label="Answers" class="num">2 / 3</td>
+              <td data-label="Earned" class="num"><span class="log-earned"><strong>1,000 Luna</strong><small>0.010 NIM</small></span></td>
+              <td data-label="Payout"><span class="chip chip-mint">✓ Paid</span></td>
+              <td data-label="Receipt"><a class="log-tx" href="https://test.nimiq.watch/#139bfc81643ffb410c1f2a179d0d152ab7346f5205f31d99642a1e0e577421e4" target="_blank" rel="noreferrer">139bfc81…577421e4 ↗</a></td>
+            </tr>
+            <tr>
+              <td data-label="Session"><span class="log-ref"><span class="hash">685638bc…2dad71</span></span></td>
+              <td data-label="Completed"><span class="log-date">04 Nov 2026</span></td>
+              <td data-label="Answers" class="num">3 / 3</td>
+              <td data-label="Earned" class="num"><span class="log-earned"><strong>1,500 Luna</strong><small>0.015 NIM</small></span></td>
+              <td data-label="Payout"><span class="chip chip-mint">✓ Paid</span></td>
+              <td data-label="Receipt"><a class="log-tx" href="https://test.nimiq.watch/#b693acd38fdac38008b7faabe921056e5b3ebbae02b36207031faee4435250bf" target="_blank" rel="noreferrer">b693acd3…435250bf ↗</a></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="panel-foot">
+          <span>Completed 04 Nov 2026 · Phase 5 testnet evidence</span>
+          <span style="color: var(--mint-bright);"><span class="dot dot-green"></span> 2 of 2 paid</span>
+        </div>
+      </section>
+
+      <div class="log-empty">
+        <div>
+          <span class="label">Empty state / new pilot</span>
+          <h3 style="margin-top: 4px;">No completed runs yet.</h3>
+          <p>Finished runs appear here with answers, XP, badges and a verified payout receipt. Your log stays scoped to your wallet.</p>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="03-lobby-available.html">Find a mission</a>
+      </div>
+
+      <div class="log-note">
+        <span>Only you can see this log · signed-in wallet scope</span>
+        <span>“Paid” means recipient, amount, network and inclusion matched on-chain.</span>
+      </div>
+
+      <div class="trust-inline" style="margin-top: 10px;">
+        <span class="trust-icon">🛡</span>
+        <span><strong>Testnet · not real money.</strong> All receipts above are Nimiq Testnet transactions paid from the operator treasury. They are play money, not cash.</span>
+      </div>
+    </main>
+
+    <footer class="footer footer-slim">
+      <div class="footer-inner">
+        <span>LevelBreak Arena · mission log</span>
+        <span>Nimiq Testnet · not real money</span>
+        <span>Signed in as NQ98…PHEQ</span>
+      </div>
+    </footer>
+  </div>
+
+  <div class="watermark">Mockup — not implemented</div>
+</body>
+</html>
