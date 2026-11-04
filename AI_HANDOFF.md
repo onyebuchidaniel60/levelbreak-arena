@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 4 November 2026
-**Current phase:** Phase 5 complete — end-to-end funded-session-to-payout proven; awaiting operator acceptance
-**Status:** Phase 5 PASS. Phase 6 NOT STARTED.
+**Current phase:** Phase 5 complete — accepted; awaiting the Phase 6 visual-direction conversation
+**Status:** Phase 5 PASS / ACCEPTED. Phase 6 NOT STARTED.
 
 ## Current deployment and wallets
 
@@ -27,6 +27,21 @@
 - Mockups: not created
 - Operator approval of final visual design: **NOT GIVEN**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 5 proof, disabled 2026-11-04T01:21:37Z).
+
+## Phase 5 acceptance (operator-confirmed, 4 November 2026)
+
+- Operator accepted Phase 5 after independently verifying all three payout transactions via RPC: network ID 5, expected blocks, recipients and amounts all match.
+  - Orphaned Phase 4 payout `b00c882f`: tx `6456c17f557257fc39fb64277c853aa094ca0ccb4fcb8a7a040f15164e05cf29`, block `15838244`, 1,000 Luna to `NQ34 9MUU 15ML PSFX CJDT BB3K DLCS 60RX 5M1B`.
+  - Play-through A `dcab12c0`: tx `139bfc81643ffb410c1f2a179d0d152ab7346f5205f31d99642a1e0e577421e4`, block `15838771`, 1,000 Luna to `NQ98 54S9 LBJR JUH9 MKL3 YACQ TD3T JBXJ PHEQ`.
+  - Play-through B `5975746e`: tx `b693acd38fdac38008b7faabe921056e5b3ebbae02b36207031faee4435250bf`, block `15839460`, 1,500 Luna to `NQ15 UQ1C N85L V8TB 9Y3S FCVF SEUL 8F2N 2623`.
+- Operator confirmed the treasury delta exactly: `11,000,006,000` → `11,000,002,500` Luna, `3,500` Luna of payouts, `0` fees.
+- The b00c882f ambiguous-broadcast incident is accepted as evidence that the reconcile-before-retry safety design holds, not as a defect.
+- Accepted disclosed deviations:
+  - **A:** Play-through A stopped on a Vercel Security Checkpoint HTML response during the post-finish poll; resumed with the same real-auth session. DB evidence is intact and independent of harness continuity. Do not create a third funded session.
+  - **B:** Play-through B stopped on the test-only selector “Impermanent loss” vs “Risky”; resumed with the same real-auth session; selector fixed in `01b94d1`.
+  - **C:** Duplicate `payout_requeued` audit rows from the service + route dual write. Added to the Phase 8 cleanup list; no code change in Phase 5.
+  - **D:** Nimiq Pay device verification not performed. Recorded as a known limitation; the operator will perform a manual demo before competition submission.
+- Phase 5 status: **PASS / ACCEPTED**.
 
 ## Phase 5 preflight and incidents (4 November 2026)
 
@@ -64,20 +79,19 @@ Both funded sessions' 30-minute lobby deadlines expired while the worker safety 
 - Session A audit `46ac5a63-b126-44fd-8e2c-a49c7c6954c2`, old `2026-11-04T01:06:07.524Z` → new `2026-11-04T02:07:05.746Z`.
 - Session B audit `740ed349-d178-455e-a40b-e634a1172073`, old `2026-11-04T01:06:12.939Z` → new `2026-11-04T02:07:05.770Z`.
 
-### Ambiguous-send incident and recovery
+### Phase 5 — incident evidence
 
-- The first Phase 5 worker enablement ran the pre-hardening `e110f10` worker. At `00:40:15Z` it attempted payout `b00c882f-72e1-4fb1-acc1-0cde06dcaedf`; at `00:40:38Z` it logged `Outbound error: No response after asking a couple of peers` and set `RECONCILING` / `BROADCAST_AMBIGUOUS` with no `tx_hash`.
-- Before any retry, reconciliation checked: treasury balance unchanged at `11,000,006,000` Luna; treasury transaction history since block `15836800` contained only the two incoming funding transfers; the stored recipient `NQ34 9MUU 15ML PSFX CJDT BB3K DLCS 60RX 5M1B` had no transaction history. No outgoing transfer existed.
-- The hardened worker (`82b5815`) persists the signed hash before broadcast. After it deployed, the payout was reconciled to `FAILED` / `NO_TRANSACTION_HASH` (audit `0980dc07-570b-4985-a334-bacf807e43b7`) and requeued (audits `4a6e4464-b2b3-4dee-9717-bd4052f4184f`, `cf329ee2-1f7a-42ed-bcff-43bc4ba1b797`).
-- The requeued payout was submitted at `00:58:31Z` with tx `6456c17f557257fc39fb64277c853aa094ca0ccb4fcb8a7a040f15164e05cf29` and confirmed at `00:58:33Z`; independently verified at block `15838244`, 1,000 Luna, treasury → `NQ34 9MUU…`, reference `LBA1:fa4f30a2d178b6da`.
-- Note: the requeue produced two `payout_requeued` audit rows (one from the service, one from the operator route). Non-blocking audit noise; no duplicate transfer.
+- The first Phase 5 worker enablement ran the pre-hardening `e110f10` worker. At `00:40:15Z` it attempted payout `b00c882f-72e1-4fb1-acc1-0cde06dcaedf`; at `00:40:38Z` it received `Outbound error: No response after asking a couple of peers` and left the payout in `RECONCILING` / `BROADCAST_AMBIGUOUS` with no transaction hash.
+- Before any retry, the agent checked the treasury balance (unchanged at `11,000,006,000` Luna), treasury transaction history since block `15836800` (only the incoming funding transactions), and the stored recipient's history (`NQ34 9MUU 15ML PSFX CJDT BB3K DLCS 60RX 5M1B`, empty). This confirmed no outgoing transfer existed.
+- After the hardened worker (`82b5815`) deployed, the payout was reconciled to `FAILED` / `NO_TRANSACTION_HASH` (audit `0980dc07-570b-4985-a334-bacf807e43b7`), requeued (audits `4a6e4464-b2b3-4dee-9717-bd4052f4184f`, `cf329ee2-1f7a-42ed-bcff-43bc4ba1b797`), submitted, and confirmed at tx `6456c17f557257fc39fb64277c853aa094ca0ccb4fcb8a7a040f15164e05cf29`, block `15838244`, 1,000 Luna to `NQ34 9MUU…`, reference `LBA1:fa4f30a2d178b6da`.
+- No duplicate was ever attempted. The safety net worked in a real production ambiguity: this is the strongest possible evidence that reconcile-before-retry is correctly implemented. The duplicate `payout_requeued` audit rows from the service + route dual write are cleanup-only noise and are recorded in the Phase 8 list.
 
 ## Phase 5 checkpoint (4 November 2026)
 
 ```text
 Project: LevelBreak Arena
-Current phase: Phase 5 complete — end-to-end funded-session-to-payout proven
-Status: PASS
+Current phase: Phase 5 complete — accepted; awaiting the Phase 6 visual-direction conversation
+Status: PASS / ACCEPTED
 Preview URL: https://levelbreak-arena.vercel.app
 Deployed commit SHA: 7ad825690c6cb55798d8036631bcce7dd01286e4 (Vercel app code, unchanged in Phase 5); backend worker 82b5815, explorer fix aa7f180, deployed test coverage 01b94d1; this docs checkpoint is the new commit containing this file
 What changed:
@@ -110,6 +124,7 @@ Payment evidence (TESTNET ONLY):
   Play-through B: payout 5975746e-306b-41e1-88c7-ddf8fc15349e; tx b693acd38fdac38008b7faabe921056e5b3ebbae02b36207031faee4435250bf; block 15839460; 1,500 Luna; treasury -> NQ15 UQ1C N85L V8TB 9Y3S FCVF SEUL 8F2N 2623; reference LBA1:685638bc542dad71; network 5; included.
   Orphaned Phase 4 payout: payout b00c882f-72e1-4fb1-acc1-0cde06dcaedf; tx 6456c17f557257fc39fb64277c853aa094ca0ccb4fcb8a7a040f15164e05cf29; block 15838244; 1,000 Luna; treasury -> NQ34 9MUU 15ML PSFX CJDT BB3K DLCS 60RX 5M1B; reference LBA1:fa4f30a2d178b6da; network 5; included.
   Treasury balance before payout run: 11,000,006,000 Luna. After: 11,000,002,500 Luna. Decrease = 3,500 Luna; fees = 0.
+  Operator independent verification: all three tx hashes verified via RPC; networkId 5, blocks, recipients and values match. Treasury delta confirmed at 3,500 Luna with 0 fees.
 Preflight record:
   Session A id 1435e21b-9e55-4143-92d8-e4a6da01e893, ref 0f566d594fc30388, funding tx 1bf53b81…, block 15836900.
   Session B id f96476d6-ba9b-4ff9-b555-8761d52da6e6, ref 685638bc542dad71, funding tx a5037394…, block 15836905.
@@ -135,9 +150,10 @@ Nimiq Pay device verification: not tested (recorded as a known limitation; opera
 Known issues/blockers:
   - Vercel Security Checkpoint returned HTML for one post-finish payout poll in play-through A. The UI stayed functional; the test now retries non-JSON responses. Not a payment/worker failure.
   - Phase 5 E2E had a test-only level-2 selector bug ("Risky" vs "Impermanent loss"); fixed in 01b94d1. Play-through B was completed via a resumed real-auth session.
-  - The orphan requeue created two payout_requeued audit rows (service + route). Audit-only noise; no duplicate transfer.
-  - apps/api/dist contains stale local build artifacts including test JS. It is already gitignored and not tracked; Phase 8 follow-up is to clean it and confirm tests are excluded from production builds.
+  - Duplicate payout_requeued audit rows from the service + route dual write. Accepted as cleanup-only noise; no duplicate transfer. Phase 8 cleanup; no code change in Phase 5.
+  - apps/api/dist contains stale local build artifacts including test JS. It is already gitignored and not tracked; Phase 8 must remove any tracked copy and verify tests are excluded from production builds.
   - Nimiq client still emits benign bls_cache/autonat warnings; /health/ready can briefly 503 during reconnect; /health/live is the Render health check.
+  - Phase 9 mainnet readiness must account for transient Web Client broadcast failures ("Outbound error: No response after asking a couple of peers"); the b00c882f reconcile-before-retry safety net is required and proven.
   - Nimiq Pay device/WebView verification is not performed.
   - No mainnet path was enabled or tested.
 Design references/mockups status: none — Phase 6.
@@ -154,16 +170,20 @@ Git commit:
   aa7f180 — fix: support fragment-based testnet explorer URLs
   01b94d1 — test: add Phase 5 deployed play-through coverage
   This docs checkpoint is the new commit containing this file.
-Single next task: Awaiting operator acceptance of Phase 5 before starting Phase 6 (design references and mockups — hard approval gate).
+Single next task: Awaiting the operator's separate Phase 6 visual-direction conversation before any reference/mockup work or code. Do not begin Phase 6.
 STOPPED awaiting operator approval: yes
 ```
 
 ## Phase 8 follow-up list
 
-- Clean stale local `apps/api/dist` build artifacts and verify production builds exclude test files. `dist/` is already in `.gitignore` and is **not** tracked despite an earlier note; no `.gitignore` change is needed.
-- Consider collapsing the duplicate `payout_requeued` audit rows into a single operator audit event.
+- Clean stale local `apps/api/dist` build artifacts and verify production builds exclude test files. `dist/` is already in `.gitignore`; any tracked copy should be removed.
+- Collapse the duplicate `payout_requeued` audit rows produced by the service + route dual write into one operator audit event. No code change in Phase 5.
 - Keep the Phase 5 E2E's non-JSON Vercel checkpoint retry and per-level answer labels.
 - Footer Documentation and GitHub links, final metadata/icons, 404 and accessibility polish.
+
+## Phase 9 readiness note
+
+The Nimiq Web Client broadcast path can fail with `Outbound error: No response after asking a couple of peers` under transient peer conditions. The reconciliation safety net — persist the signed hash before broadcast, query the chain and treasury history, and never blindly retry — is required and was proven in the Phase 5 b00c882f incident. The mainnet readiness review must explicitly account for this failure mode and demonstrate the same reconcile-before-retry behavior with mainnet keys and monitoring.
 
 ## Cross-origin cookie decision (3 November 2026)
 
@@ -479,12 +499,12 @@ STOPPED awaiting operator approval: yes
 3. The Web Client requires the explicit TestAlbatross seed; do not revert to the client default seed list.
 4. Vercel Security Checkpoint can return HTML for a burst of API requests. The Phase 5 E2E retries non-JSON responses; the product UI itself remained functional. Do not interpret a checkpoint page as a payout failure.
 5. No mainnet send path is allowed during preview/development. Any mainnet launch requires separate explicit operator authorization, dedicated keys, treasury cap, and a security/treasury review.
-6. Phase 6 is a hard visual approval gate. Do not collect or propose design references, create mockups, or change styling until the operator accepts Phase 5 and explicitly approves the Phase 6 direction.
+6. Phase 6 is a separate hard visual-direction gate. Phase 5 is accepted, but do not collect or propose design references, create mockups, or change styling until the operator explicitly starts the Phase 6 visual-direction conversation and approves the direction.
 7. Non-blocking cleanup: duplicate `payout_requeued` audit rows and stale local `apps/api/dist` artifacts are recorded in the Phase 8 follow-up list.
 
 ## Current task for coding agent
 
-**STOP.** Phase 5 is complete and awaiting operator acceptance. Do not start Phase 6, do not collect or propose design references or mockups, and do not apply final visual design. Do not re-enable `PAYOUT_WORKER_ENABLED` or `DEMO_FUNDING_ENABLED`. The next action is the operator's explicit Phase 5 acceptance, followed by a separate Phase 6 design-reference/mockup approval gate.
+**STOP.** Phase 5 is accepted. Do not begin Phase 6, do not collect or propose design references or mockups, and do not apply final visual design. Phase 6 requires a separate explicit visual-direction conversation with the operator before any mockup work or code. Do not re-enable `PAYOUT_WORKER_ENABLED` or `DEMO_FUNDING_ENABLED`.
 
 ## Checkpoint requirements
 
