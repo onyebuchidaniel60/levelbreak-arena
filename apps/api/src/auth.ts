@@ -10,6 +10,7 @@ import { normalizeAddress } from "./nimiq/address";
 const SESSION_COOKIE = "lba_session";
 const CSRF_COOKIE = "lba_csrf";
 const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
+const NIMIQ_SIGNED_MESSAGE_PREFIX = "\x16Nimiq Signed Message:\n";
 
 const AddressSchema = z.string().min(1).max(100);
 const NonceBodySchema = z.object({
@@ -43,20 +44,29 @@ function randomToken(bytes = 32): string {
 }
 
 function challengeFor(input: {
-  address: string;
   nonce: string;
   issuedAt: Date;
   expiresAt: Date;
 }): string {
+  // The challenge intentionally does not name a specific account. Nimiq Pay's
+  // listAccounts() order is not guaranteed, and sign() has no address
+  // parameter, so the wallet may sign with a different account than index 0.
+  // The signer is derived from the public key returned by sign().
   return [
     "LevelBreak Arena login",
     `Origin: ${config.appOrigin}`,
-    `Address: ${input.address}`,
     `Nonce: ${input.nonce}`,
     "Purpose: authenticate-player",
     `Issued At: ${input.issuedAt.toISOString()}`,
     `Expires At: ${input.expiresAt.toISOString()}`,
   ].join("\n");
+}
+
+function nimiqSignedMessageDigest(message: string): Buffer {
+  // Nimiq Keyguard/Hub framing:
+  // sha256("\x16Nimiq Signed Message:\n" + message.length + message)
+  const framed = `${NIMIQ_SIGNED_MESSAGE_PREFIX}${message.length}${message}`;
+  return createHash("sha256").update(Buffer.from(framed, "utf8")).digest();
 }
 
 function assertExactOrigin(request: FastifyRequest): void {
@@ -174,7 +184,7 @@ export async function registerAuthRoutes(app: FastifyInstance): Promise<void> {
       const expiresAt = new Date(
         issuedAt.getTime() + config.authNonceTtlSeconds * 1000,
       );
-      const challenge = challengeFor({ address, nonce, issuedAt, expiresAt });
+      const challenge = challengeFor({ nonce, issuedAt, expiresAt });
 
       const result = await query<{ id: string }>(
         `INSERT INTO auth_nonces
@@ -253,19 +263,23 @@ export async function registerAuthRoutes(app: FastifyInstance): Promise<void> {
 
         let publicKey: PublicKey;
         let signature: Signature;
+        let signerAddress: string;
         try {
           publicKey = PublicKey.fromHex(parsed.data.publicKey);
           signature = Signature.fromHex(parsed.data.signature);
-          if (normalizeAddress(publicKey.toAddress().toUserFriendlyAddress()) !== address) {
-            throw new Error("Public key does not derive the claimed address");
-          }
+          // The public key returned by Nimiq Pay's sign() is authoritative.
+          // listAccounts() order is not guaranteed and sign() cannot be
+          // targeted at a specific address.
+          signerAddress = normalizeAddress(
+            publicKey.toAddress().toUserFriendlyAddress(),
+          );
         } catch {
           throw new AppError(401, "INVALID_SIGNATURE", "Signature verification failed.");
         }
 
         const valid = publicKey.verify(
           signature,
-          Buffer.from(parsed.data.challenge, "utf8"),
+          nimiqSignedMessageDigest(parsed.data.challenge),
         );
         if (!valid) {
           throw new AppError(401, "INVALID_SIGNATURE", "Signature verification failed.");
@@ -287,7 +301,7 @@ export async function registerAuthRoutes(app: FastifyInstance): Promise<void> {
                  last_authenticated_at = now(),
                  status = 'ACTIVE'
            RETURNING id, nimiq_address`,
-          [address, parsed.data.publicKey],
+          [signerAddress, parsed.data.publicKey],
         );
 
         const player = playerResult.rows[0];

@@ -19,7 +19,7 @@
 ## Required controls
 
 - Testnet-only keys in server environment, separate demo-agent/treasury keys, never in frontend or Git.
-- Wallet signature nonce is single-use, expires, and binds app origin/address/purpose.
+- Wallet signature nonce is single-use, expires, and binds the exact challenge, origin, purpose and expiry. Verify the Nimiq signed-message framing (`sha256("\x16Nimiq Signed Message:\n" + message.length + message)`) and derive the signer address from the returned public key. Never trust `listAccounts()[0]` or a client-supplied address as identity.
 - Cookie authentication uses HttpOnly/Secure/SameSite settings with CSRF and Origin defenses.
 - Server derives the player identity; never trust client player ID, reward amount, payout recipient, or transaction state.
 - Strict request validation and parameterized SQL; ownership scopes on every resource lookup.

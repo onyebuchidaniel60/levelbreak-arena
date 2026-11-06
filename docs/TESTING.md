@@ -166,7 +166,9 @@ answer label is “Impermanent loss”, not “Risky”.
 
 ## Security tests
 
-Replay signed challenge; forge/wrong address; cross-player IDOR; modify reward amount; send duplicate funding hash; use transaction for wrong session; concurrent claim/answer/payout; CSRF; rate-limit routes; inspect logs for secrets; try mainnet configuration in preview.
+Replay signed challenge; raw/unframed signature; tampered challenge; signer different from `listAccounts()[0]`; cross-player IDOR; modify reward amount; send duplicate funding hash; use transaction for wrong session; concurrent claim/answer/payout; CSRF; rate-limit routes; inspect logs for secrets; try mainnet configuration in preview.
+
+`apps/api/src/auth.integration.test.ts` covers Nimiq signed-message verification, session cookie issuance, a non-first account signer, raw-signature rejection, and tampered-challenge rejection.
 
 ## Design gate
 

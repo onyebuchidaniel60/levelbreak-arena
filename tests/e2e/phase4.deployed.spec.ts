@@ -1,9 +1,16 @@
+import { createHash } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import { KeyPair } from "@nimiq/core";
 
 const baseURL = process.env.PHASE4_E2E_BASE_URL;
 const expectedPublicRef =
   process.env.PHASE4_EXPECTED_PUBLIC_REF ?? "fa4f30a2d178b6da";
+
+function signNimiqMessage(keyPair: KeyPair, message: string): string {
+  const framed = `\x16Nimiq Signed Message:\n${message.length}${message}`;
+  const hash = createHash("sha256").update(Buffer.from(framed, "utf8")).digest();
+  return keyPair.sign(hash).toHex();
+}
 
 test.describe.configure({ mode: "serial" });
 
@@ -43,7 +50,7 @@ test("Phase 4 real-auth play-through on the deployed preview", async ({
       `Origin: ${new URL(baseURL as string).origin}`,
     );
 
-    const signature = keyPair.sign(Buffer.from(nonce.body.challenge, "utf8")).toHex();
+    const signature = signNimiqMessage(keyPair, nonce.body.challenge);
     const verify = await page.evaluate(async ({ input }) => {
       const response = await fetch("/api/auth/verify", {
         method: "POST",

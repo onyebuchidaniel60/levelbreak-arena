@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { api, isApiError } from "../lib/api";
 import {
+  buildVerifyRequest,
   detectNimiqWallet,
   friendlyAuthError,
   type WalletDetection,
@@ -104,13 +105,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const nonce = await api.nonce(wallet.address, window.location.origin);
       const signed = await wallet.provider.sign(nonce.challenge);
-      await api.verify({
-        nonceId: nonce.nonceId,
-        address: wallet.address,
-        publicKey: signed.publicKey,
-        signature: signed.signature,
-        challenge: nonce.challenge,
-      });
+      const verifyRequest = buildVerifyRequest(nonce, signed, wallet.address);
+      if (import.meta.env.DEV) {
+        // Local diagnostic only. Production never logs signatures.
+        console.debug("[auth] challenge", verifyRequest.challenge);
+        console.debug("[auth] signature", verifyRequest.signature);
+      }
+      await api.verify(verifyRequest);
       await queryClient.refetchQueries({ queryKey: queryKeys.me });
       navigate("/play");
     } catch (error) {

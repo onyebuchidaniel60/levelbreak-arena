@@ -33,6 +33,70 @@
 - Operator approval of final visual design: **GIVEN — Direction 1, 4 November 2026**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 5 proof, disabled 2026-11-04T01:21:37Z).
 
+## Phase 7.1 — Nimiq Pay signature verification hotfix (6 November 2026)
+
+**Status:** FIX IMPLEMENTED / TESTS PASSING / DEPLOYMENT PENDING.
+
+### Exact failure
+
+- Operator inside Nimiq Pay saw: **“The wallet signature could not be verified. Please try again.”**
+- Render logs for the failed attempt:
+  - `POST /api/auth/nonce` `200` at `2026-11-06T14:30:17.658Z`.
+  - `POST /api/auth/verify` `401` at `2026-11-06T14:30:19.096Z`, request ID `ce76e7c4-5dcf-4e6d-9a38-16a2f7819c08`, response time `31.05 ms`.
+- Render does not log `AppError` response bodies, so the log shows the status but not the code. `401` is the status used by `INVALID_SIGNATURE` in this path, and the client message is the `INVALID_SIGNATURE` mapping. The 31 ms response time is consistent with the crypto check, not a database failure.
+
+### Root cause
+
+1. **Wrong signed-message framing.** The backend verified the raw challenge bytes:
+   `publicKey.verify(signature, Buffer.from(challenge, "utf8"))`.
+   Nimiq Pay/Keyguard signs:
+   `sha256("\x16Nimiq Signed Message:\n" + message.length + message)`.
+   A Nimiq Pay signature therefore fails the backend’s raw-message verification. This is the primary failure.
+2. **Wrong account assumption.** The backend required the public-key-derived address to equal the `listAccounts()[0]` address sent by the browser. Nimiq Pay’s `listAccounts()` order is not guaranteed and `sign()` has no address parameter, so the wallet can sign with a different account than index 0. That also produced the same `401 INVALID_SIGNATURE`.
+3. Phase 7 did not change `apps/api/src/auth.ts` or the wallet provider code. The Phase 4/5 E2E signed the challenge with a raw generated `KeyPair.sign(challenge)`, which masked the real Nimiq Pay framing. The regression was latent until the operator tested inside Nimiq Pay.
+
+### Fix
+
+- `apps/api/src/auth.ts` now computes the Nimiq signed-message digest exactly:
+  `sha256("\x16Nimiq Signed Message:\n" + message.length + message)`.
+- The backend derives the signer address from the public key returned by `sign()` and uses that derived address as the player. The requested address remains nonce metadata, not identity.
+- The challenge no longer names a specific account; it contains product, origin, nonce, purpose, issue time and expiry. This avoids a misleading account label when Nimiq Pay signs with a non-default account.
+- `apps/web/src/lib/nimiq.ts` adds `buildVerifyRequest`, which sends the exact challenge and signature returned by the provider. `AuthProvider` uses it and prints the challenge/signature in development only for local diagnosis.
+- Updated `tests/e2e/phase4.deployed.spec.ts` and `tests/e2e/phase5.deployed.spec.ts` to sign the Nimiq framed digest.
+
+### Verification (local)
+
+```text
+pnpm lint       -> passed
+pnpm typecheck  -> passed
+pnpm test       -> 44 unit passed; 22 Playwright passed; 4 deployed entries skipped
+pnpm build      -> passed
+pnpm test:integration (fresh PostgreSQL 16)
+  -> 21/21 passed: 17 Phase 3/5 tests + 4 Nimiq Pay auth tests
+```
+
+The auth integration tests prove:
+
+- a prefixed Nimiq Pay signature returns `200` and sets `lba_session` + `lba_csrf`;
+- `/api/me` succeeds with that session;
+- a signer different from `listAccounts()[0]` authenticates as the signer;
+- a raw/unframed signature is rejected with `401 INVALID_SIGNATURE`;
+- a tampered challenge is rejected with `400 CHALLENGE_MISMATCH`.
+
+Local crypto proof:
+
+```text
+prefixed verify: true
+raw verify against raw message: true
+raw verify against prefixed hash: false
+prefixed verify against raw message: false
+```
+
+### Deployment
+
+- Render and Vercel deployment details are recorded after the fix is pushed and verified.
+- **Single next task:** operator retries sign-in inside Nimiq Pay. If it still fails, capture the development-console challenge/signature and the matching Render `POST /api/auth/verify` request ID/status, then stop and report.
+
 ## Phase 7 — Direction 1 UI, five levels, LLM agent, demo off-ramp (4 November 2026)
 
 **Status:** IMPLEMENTED / DEPLOYED / AWAITING OPERATOR ACCEPTANCE. Phase 8 NOT STARTED.

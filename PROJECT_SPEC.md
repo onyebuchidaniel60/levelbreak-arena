@@ -161,15 +161,15 @@ No operator override that edits a reward silently is permitted. Any exceptional 
 1. Frontend loads shell and shows connection state.
 2. SDK `init()` waits for the injected Nimiq provider.
 3. Frontend asks for the user's Nimiq account address through the supported account-listing method.
-4. Backend issues a short-lived, single-use nonce tied to the normalized address and origin.
+4. Backend issues a short-lived, single-use nonce bound to the origin, purpose and expiry. The requested address is recorded as nonce metadata, but the signer identity is derived from the public key returned by Nimiq Pay.
 5. Frontend asks Nimiq Pay to sign a human-readable challenge containing app name, origin, nonce, and expiry. Do not ask the wallet to sign a vague or reusable string.
-6. Frontend submits address, nonce ID, signature, public key (if returned), and challenge to backend.
-7. Backend verifies signature and that the public key/address match, consumes nonce atomically, then creates a short-lived secure session cookie.
+6. Frontend submits the requested address, nonce ID, signature, public key, and the exact challenge string to the backend.
+7. Backend verifies the Nimiq signed-message framing and signature against the public key, derives the signer address from that public key, consumes the nonce atomically, then creates a short-lived secure session cookie.
 8. Frontend opens the game lobby.
 
 **State changes:** nonce transitions `issued -> consumed`; auth session is created. No financial or game state changes.
 
-**Failure paths:** provider not present, user denies, expired/used nonce, invalid signature, address/public-key mismatch, backend unavailable. Keep user signed out; allow safe retry. The device identifier is not an identity or authentication factor.
+**Failure paths:** provider not present, user denies, expired/used nonce, invalid signature, tampered challenge, backend unavailable. Keep user signed out; allow safe retry. The device identifier is not an identity or authentication factor.
 
 **Exit:** authenticated player sees funded demo sessions or a clear “no funded session available” state.
 
@@ -293,10 +293,10 @@ Persist authoritative state on each completed decision/answer. Frontend can be c
 ### FR-01 Wallet authentication
 - **Actor:** player.
 - **Inputs:** wallet address, nonce ID, signature, public key if provided.
-- **Rules:** one-time nonce, expiring challenge bound to app origin and address; server verifies signature and address/public-key relation.
+- **Rules:** one-time nonce, expiring challenge bound to app origin, purpose and expiry; server verifies the Nimiq signed-message digest and derives the signer address from the returned public key.
 - **Permissions:** creates only the principal for the proven wallet.
 - **Errors:** provider unavailable, denied, expired nonce, invalid signature.
-- **Acceptance:** valid signatures create a session; altered challenge, replay, expired nonce, or wrong address is rejected.
+- **Acceptance:** valid Nimiq Pay signatures create a session; altered challenge, replay, expired nonce, or an unprefixed/raw signature is rejected. A signature from a non-first listed account authenticates that signer.
 
 ### FR-02 Funded session lifecycle
 - **Actor:** LLM-assisted agent/system (scripted fallback).
@@ -647,14 +647,14 @@ All state-changing finance/game operations use a Postgres transaction with const
 
 ## 12. Authentication and authorization
 
-Player login is a Nimiq-wallet signature challenge, not a device ID. Backend creates single-use nonces that expire after five minutes; signature verification binds exact challenge text, origin, address, and nonce. On success use an opaque random session cookie with `HttpOnly`, `Secure` in HTTPS, `SameSite=Lax` or stricter compatible setting, and server-side session record. Rotate session tokens on login; revoke on logout; enforce expiry. CSRF protection is required for cookie-authenticated mutating endpoints (same-site checks plus CSRF token or equivalent double-submit protection).
+Player login is a Nimiq-wallet signature challenge, not a device ID. Backend creates single-use nonces that expire after five minutes; signature verification binds the exact challenge text, origin, purpose, and nonce. The signer address is derived from the public key, because Nimiq Pay's `listAccounts()` order is not guaranteed and `sign()` has no address parameter. On success use an opaque random session cookie with `HttpOnly`, `Secure` in HTTPS, `SameSite=Lax` or stricter compatible setting, and server-side session record. Rotate session tokens on login; revoke on logout; enforce expiry. CSRF protection is required for cookie-authenticated mutating endpoints (same-site checks plus CSRF token or equivalent double-submit protection).
 
 Every player endpoint derives player identity from the authenticated server session. Never accept `player_id` as authoritative ownership input. All record accesses include ownership conditions. Operator endpoints require a separate operator authorization path; a player wallet alone does not imply operator access.
 
 ## 13. Security architecture
 
 1. **Key security:** demo-agent and treasury private keys are testnet-only, server-only, separate, never returned from API, never logged, and never bundled. Before mainnet use, require a dedicated key-management review and explicit operator approval.
-2. **Wallet authentication:** challenge is unpredictable, single-use, short-lived, origin-bound, and consumed atomically. Reject replay, wrong address, altered challenge, and signatures that do not map to claimed address.
+2. **Wallet authentication:** challenge is unpredictable, single-use, short-lived, origin-bound, and consumed atomically. Verify `sha256("\x16Nimiq Signed Message:\n" + message.length + message)`; reject replay, altered challenge, and raw/unframed signatures. Derive the signer address from the public key and never treat `listAccounts()[0]` as authoritative.
 3. **IDOR:** all run, response, payout, and session queries are scoped to authenticated wallet and server-derived ownership.
 4. **Payment manipulation:** server computes payouts from immutable answer rows; never trust client reward totals, payout amount, recipient, or transaction status. Payout destination is bound to the authenticated wallet at run start.
 5. **Double spending/duplicate payouts:** unique DB idempotency keys, unique payout per run, serialized worker, treasury balance checks, and reconciliation before retry.

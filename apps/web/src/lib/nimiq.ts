@@ -12,6 +12,30 @@ export type WalletDetection =
   | { status: "denied"; message: string }
   | { status: "error"; message: string };
 
+export type WalletSignature = {
+  publicKey: string;
+  signature: string;
+};
+
+/**
+ * Build the exact verification payload. The challenge string is passed to
+ * Nimiq Pay unchanged and sent back unchanged; the backend verifies the
+ * Nimiq signed-message framing and derives the signer address from publicKey.
+ */
+export function buildVerifyRequest(
+  nonce: { nonceId: string; challenge: string },
+  signed: WalletSignature,
+  requestedAddress: string,
+) {
+  return {
+    nonceId: nonce.nonceId,
+    address: requestedAddress,
+    publicKey: signed.publicKey,
+    signature: signed.signature,
+    challenge: nonce.challenge,
+  };
+}
+
 export async function detectNimiqWallet(): Promise<WalletDetection> {
   let provider: NimiqProvider;
   try {

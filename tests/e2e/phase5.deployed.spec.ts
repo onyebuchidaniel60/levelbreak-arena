@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import {
   Client,
@@ -16,6 +17,12 @@ const pattern = (process.env.PHASE5_PATTERN ?? "")
 const treasuryAddress =
   process.env.PHASE5_TREASURY_ADDRESS ??
   "NQ83 S85U 0B01 BVY2 RR74 C23E 845S NAKE 1YM3";
+
+function signNimiqMessage(keyPair: KeyPair, message: string): string {
+  const framed = `\x16Nimiq Signed Message:\n${message.length}${message}`;
+  const hash = createHash("sha256").update(Buffer.from(framed, "utf8")).digest();
+  return keyPair.sign(hash).toHex();
+}
 
 test.describe.configure({ mode: "serial" });
 test.skip(!baseURL || !sessionRef || !expectedLuna, "Phase 5 E2E env is not set");
@@ -44,9 +51,7 @@ async function authenticate(page: Page): Promise<Auth> {
     `Origin: ${new URL(baseURL as string).origin}`,
   );
 
-  const signature = keyPair
-    .sign(Buffer.from(nonce.body.challenge, "utf8"))
-    .toHex();
+  const signature = signNimiqMessage(keyPair, nonce.body.challenge);
   const verify = await page.evaluate(async ({ input }) => {
     const response = await fetch("/api/auth/verify", {
       method: "POST",

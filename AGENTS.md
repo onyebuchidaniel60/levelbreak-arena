@@ -37,7 +37,7 @@ Do not change the stack, database architecture, payment model, API contracts, st
 
 ## Security rules
 
-- Player identity is authenticated using a short-lived, one-time Nimiq wallet signature challenge. `requestDeviceIdentifier()` is not an identity or authentication method.
+- Player identity is authenticated using a short-lived, one-time Nimiq wallet signature challenge. Verify the Nimiq signed-message framing (`sha256("\x16Nimiq Signed Message:\n" + message.length + message)`), derive the signer address from the public key returned by `sign()`, and never treat `listAccounts()[0]` or a client-supplied address as authoritative. `requestDeviceIdentifier()` is not an identity or authentication method.
 - Use secure HttpOnly cookies, exact-origin controls, CSRF defence, short-lived single-use nonces, and rate limits.
 - Derive player ID/address from the server session, never from a client-supplied owner ID. Scope all data reads/writes by owner.
 - Validate request bodies, params and all third-party chain data. Parameterize database queries.

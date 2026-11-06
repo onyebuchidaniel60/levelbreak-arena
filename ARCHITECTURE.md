@@ -67,7 +67,7 @@ At repository setup, pin a supported Node.js 24 LTS version and exact dependency
 
 ### 3.1 Frontend wallet integration
 
-Initialize the provider with the official SDK helper before invoking Nimiq APIs. Use the provider to request/list the player's account address and sign a short-lived authentication challenge. The app must handle provider unavailable, user rejection, and provider-normalized errors as normal states.
+Initialize the provider with the official SDK helper before invoking Nimiq APIs. Use the provider to list available accounts and sign a short-lived authentication challenge. `listAccounts()` order is not guaranteed and `sign()` has no address parameter; the wallet chooses the signer. Treat the public key returned by `sign()` as authoritative and derive the signer address from it. The app must handle provider unavailable, user rejection, and provider-normalized errors as normal states.
 
 The player payout is sent by the backend treasury; the player does not sign an HTLC redemption and does not need to approve a payout transaction. Do not imply that the player's wallet sends the payout.
 
@@ -174,12 +174,12 @@ Domain modules must not write database tables directly from route handlers. Rout
 - **Request:** `{ "address":"NQ…", "origin":"https://actual-app-origin" }`.
 - **Validation:** normalize address, compare origin to exact `APP_ORIGIN`, reject malformed address.
 - **Response:** `{ "nonceId":"uuid", "challenge":"LevelBreak Arena login…", "expiresAt":"ISO" }`.
-- **Side effects:** store nonce hash and expiry; challenge includes product, origin, address, nonce, and timestamp.
+- **Side effects:** store nonce hash and expiry; challenge includes product, origin, nonce, purpose, issue time and expiry. It does not name a specific account, because Nimiq Pay may sign with a different account than `listAccounts()[0]`.
 
 ### `POST /api/auth/verify`
 - **Auth:** none; rate-limited.
 - **Request:** `{ "nonceId":"uuid", "address":"NQ…", "publicKey":"hex", "signature":"hex", "challenge":"exact signed text" }`.
-- **Validation/logic:** load nonce; ensure unexpired and unused; verify exact signed bytes; verify public key corresponds to wallet address; atomically consume nonce; upsert player; create opaque server session; set HttpOnly cookie.
+- **Validation/logic:** load nonce; ensure unexpired and unused; verify the exact challenge text and origin; verify the signature over `sha256("\x16Nimiq Signed Message:\n" + message.length + message)` with the supplied public key; derive the signer address from the public key; atomically consume nonce; upsert the signer as the player; create opaque server session; set HttpOnly cookie. The requested `address` is a nonce hint, not the authenticated identity.
 - **Response:** `{ "player":{"address":"NQ…"}, "expiresAt":"ISO" }`.
 - **Errors:** `401 INVALID_SIGNATURE`, `409 NONCE_ALREADY_USED`, `410 NONCE_EXPIRED`, `400 ORIGIN_MISMATCH`.
 
