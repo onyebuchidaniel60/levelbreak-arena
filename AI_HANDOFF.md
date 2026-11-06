@@ -1,15 +1,15 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 4 November 2026
-**Current phase:** Phase 7 — Direction 1 Trading Terminal UI, five-level ladder, LLM-assisted agent, and demo fiat off-ramp implemented and deployed
-**Status:** Phase 7 IMPLEMENTED / DEPLOYED / AWAITING OPERATOR ACCEPTANCE. Phase 8 NOT STARTED.
+**Current phase:** Phase 7.1 — Nimiq Pay wallet signature verification hotfix deployed; awaiting operator retry
+**Status:** Phase 7 deployed. Phase 7.1 auth hotfix deployed and locally verified. Phase 8 NOT STARTED.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `cb816dad405138b13dbb1a3035485b43fbab9d01` (Phase 7). Production deployment `dpl_FDgg3Nf6vD1DvxrobDVDqo27HTyG`, alias ready.
+- Vercel deployed app-code commit: `6b669255b531c2407a411759b371ec9b281dabda` (Phase 7.1 auth hotfix). Production deployment `dpl_685WTrxph8xaVNPQtfe2mdMjcDig`, alias ready.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `e680d82e` (docs/cleanup commit; app code is `cb816dad`), deploy `dep-dbljojo473hc73bah340`, live 2026-11-04T14:08:57Z. `/health/live` 200; `/health/ready` returned 503 during the post-deploy Nimiq resync and returned 200 after a service restart at approximately 2026-11-04T14:15Z.
+- Render deployed code: `6b669255b531c2407a411759b371ec9b281dabda`, deploy `dep-dbmufvks728c739locj0`, live 2026-11-06T14:46:15Z. `/health/live` 200 and `/health/ready` 200 after deploy.
 - Phase 7 database migration: `003_phase7_five_levels.sql` applied to Supabase at 2026-11-04T14:02:25.437Z.
 - Phase 7 Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`. `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`.
 - Phase 7 LLM env: `LLM_API_KEY` is NOT provisioned. The deployed preview therefore uses the scripted agent-message fallback; the LLM path is implemented and unit-tested with a mocked OpenAI-compatible provider.
@@ -35,7 +35,7 @@
 
 ## Phase 7.1 — Nimiq Pay signature verification hotfix (6 November 2026)
 
-**Status:** FIX IMPLEMENTED / TESTS PASSING / DEPLOYMENT PENDING.
+**Status:** FIX IMPLEMENTED / DEPLOYED / AWAITING OPERATOR RETRY.
 
 ### Exact failure
 
@@ -92,19 +92,27 @@ raw verify against prefixed hash: false
 prefixed verify against raw message: false
 ```
 
-### Deployment
+### Deployment and live verification
 
-- Render and Vercel deployment details are recorded after the fix is pushed and verified.
+- Fix commit: `6b669255b531c2407a411759b371ec9b281dabda`.
+- Vercel: `dpl_685WTrxph8xaVNPQtfe2mdMjcDig`; alias https://levelbreak-arena.vercel.app.
+- Render: `dep-dbmufvks728c739locj0`, live 2026-11-06T14:46:15Z; `/health/live` 200, `/health/ready` 200.
+- `@nimiq/mini-app-sdk` is `0.2.4` (>= 0.2.0). `@nimiq/core` remains `2.23.0`; it was not bumped in Phase 7.
+- Live `POST /api/auth/verify` with a generated key and the Nimiq framed signature returned `200`; `lba_session` and `lba_csrf` cookies were set; `/api/me` returned the signer address.
+- Live mismatch test: nonce requested for address A, signature produced by address B. Verify returned `200`, `/api/me` returned B, and both cookies were set. This proves the backend no longer relies on `listAccounts()[0]`.
+- Live frontend provider test: a mocked Nimiq provider reported address A, signed the exact challenge with address B, the app navigated to `/play`, and the header displayed B. This exercises the real `AuthProvider`/`buildVerifyRequest` path through the Vercel rewrite to Render.
 - **Single next task:** operator retries sign-in inside Nimiq Pay. If it still fails, capture the development-console challenge/signature and the matching Render `POST /api/auth/verify` request ID/status, then stop and report.
 
 ## Phase 7 — Direction 1 UI, five levels, LLM agent, demo off-ramp (4 November 2026)
 
-**Status:** IMPLEMENTED / DEPLOYED / AWAITING OPERATOR ACCEPTANCE. Phase 8 NOT STARTED.
+> **Superseded for authentication by Phase 7.1 (6 November 2026).** The Phase 7 UI, five-level, LLM and off-ramp work remains deployed; Phase 7.1 fixes the Nimiq Pay signature verification path. Use the Phase 7.1 section above for current auth status.
+
+**Status:** IMPLEMENTED / DEPLOYED. Auth superseded by Phase 7.1. Phase 8 NOT STARTED.
 
 - **Preview:** https://levelbreak-arena.vercel.app
 - **App-code commit:** `cb816dad405138b13dbb1a3035485b43fbab9d01`.
-- **Vercel deployment:** `dpl_FDgg3Nf6vD1DvxrobDVDqo27HTyG`; production alias ready.
-- **Render deploy:** `dep-dbljojo473hc73bah340`, commit `e680d82e` (docs/cleanup; app code `cb816dad`), live 2026-11-04T14:08:57Z. A manual restart restored `/health/ready` to 200 after a transient Nimiq resync.
+- **Vercel deployment:** `dpl_685WTrxph8xaVNPQtfe2mdMjcDig` (Phase 7.1); production alias ready.
+- **Render deploy:** `dep-dbmufvks728c739locj0`, commit `6b669255`, live 2026-11-06T14:46:15Z; `/health/live` and `/health/ready` 200.
 - **DB migration:** `003_phase7_five_levels.sql` applied to Supabase at 2026-11-04T14:02:25.437Z.
 - **Render env:** `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; worker and demo funding remain disabled.
 - **Source-of-truth updates:** `PROJECT_SPEC.md`, `ARCHITECTURE.md`, `AGENTS.md`, and `IMPLEMENTATION_PLAN.md` now record the operator-approved five-level / 2,500 Luna / LLM-assisted / demo off-ramp scope. `docs/DESIGN_DECISIONS.md` records Direction 1 as approved and Directions 2, 3, and 4 as rejected and removed.
