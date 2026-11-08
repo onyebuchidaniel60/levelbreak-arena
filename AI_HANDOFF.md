@@ -1,15 +1,15 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 8 November 2026
-**Current phase:** Phase 8 — five-level testnet proof and final polish complete; final deployment in progress
-**Status:** Phase 8 PASS / PROOF COMPLETE. Phase 9 NOT STARTED.
+**Current phase:** Phase 8 — five-level testnet proof and final polish complete and deployed; awaiting operator acceptance
+**Status:** Phase 8 PASS / PROOF COMPLETE / DEPLOYED. Phase 9 NOT STARTED.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `a9db80a` (Phase 8 proof/polish). Production deployment `https://levelbreak-arena-g81hyworg-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. Automated `curl` currently receives a Vercel Security Checkpoint (403), so operator browser verification is required.
+- Vercel deployed app-code commit: `a9db80a` (Phase 8 proof/polish). Production deployment `https://levelbreak-arena-g81hyworg-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. Verified in a headful Chromium browser: footer Documentation/GitHub links, Phase 8 docs, 320px routes, and authenticated history all pass. Raw `curl` still receives the Vercel Security Checkpoint, but normal browser access works.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `a9db80a8`, deploy `dep-dbocg3dg1s2s738ctsi0`, live 2026-11-08T19:06:35Z. `/health/live` 200 and `/health/ready` 200.
+- Render deployed code: `c193db6e` (docs checkpoint; app code `a9db80a8`), deploy `dep-dboch8i9lscs73csg48g`, live 2026-11-08T19:09:06Z. `/health/live` 200 and `/health/ready` 200 after restart.
 - Phase 7 database migration: `003_phase7_five_levels.sql` applied to Supabase at 2026-11-04T14:02:25.437Z.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
@@ -46,7 +46,7 @@
 - **Pattern:** ANSWER, ANSWER, SKIP, ANSWER, ANSWER — four accepted responses, one skip, **2,000 Luna earned**.
 - **Payout:** `91e87e32-0202-4f65-affc-fa422f0dc883`, status `CONFIRMED`, exactly **2,000 Luna**.
 - **Payout tx:** `da6464fcd931429249bcafa89ebc0dbebcf098c29e43de40fb6b3b9f95d99575`, block `16247449`, sender treasury `NQ83 S85U 0B01 BVY2 RR74 C23E 845S NAKE 1YM3`, recipient player, value 2,000 Luna, fee 0, reference `LBA1:b88d21098b76a471`, network 5, included. Independent RPC verification: `proof=PASS`.
-- **UI proof:** Playwright logged in with a real Nimiq-prefixed signature, claimed the session, played all five levels, clicked Finish, waited for `CONFIRMED`, opened **Withdraw to Fiat**, saw the Nimiq Pay Off-Ramp modal and simulated success, and verified the payout on-chain. The process exited at the final `/history` navigation on a **Vercel Security Checkpoint** (bot mitigation), not an application error. The same authenticated history was verified directly via `/api/history`: 200, publicRef `b88d21098b76a471`, earned 2,000 Luna, payout `CONFIRMED`, tx `da6464fc…`. The 320px history UI is covered by `tests/e2e/phase8.polish.spec.ts`.
+- **UI proof:** Playwright logged in with a real Nimiq-prefixed signature, claimed the session, played all five levels, clicked Finish, waited for `CONFIRMED`, opened **Withdraw to Fiat**, saw the Nimiq Pay Off-Ramp modal and simulated success, and verified the payout on-chain. The headless test process exited at `/history` on a **Vercel Security Checkpoint** (automated-client mitigation), not an application error. A headful Chromium re-check with the saved test player key passed: the history page showed publicRef `b88d21098b76a471`, `2,000 Luna`, `Payout confirmed`, tx `da6464fc…`, and no horizontal overflow. The authenticated `/api/history` endpoint also returned 200 with the same confirmed payout.
 
 ### Disclosed extra proof attempt
 
@@ -85,9 +85,9 @@ pnpm test:integration (fresh PostgreSQL 16)
 
 ### Deployment / flags
 
-- Final Phase 8 app-code commit: `a9db80a`.
-- Render: `dep-dbocg3dg1s2s738ctsi0`, live `2026-11-08T19:06:35Z`; `/health/live` and `/health/ready` 200.
-- Vercel: `https://levelbreak-arena-g81hyworg-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. The alias currently returns a Vercel Security Checkpoint (403) to automated `curl`; the operator must verify in a normal browser session. Local `pnpm test` covers the footer links, docs copy, history state, and 320px overflow.
+- Final Phase 8 app-code commit: `a9db80a`; docs checkpoint `c193db6`.
+- Render: `dep-dboch8i9lscs73csg48g`, live `2026-11-08T19:09:06Z`; `/health/live` and `/health/ready` 200 after restart.
+- Vercel: `https://levelbreak-arena-g81hyworg-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. Headful Chromium verification passed for footer/docs/320px/authenticated history; raw automated `curl` is challenged by Vercel Security Checkpoint.
 - `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` after the proof; confirmed in Render env.
 - **Single next task:** Await operator acceptance of the Phase 8 five-level proof and final polish. Do not begin Phase 9.
 
@@ -171,7 +171,7 @@ prefixed verify against raw message: false
 
 - **Preview:** https://levelbreak-arena.vercel.app
 - **App-code commit:** `cb816dad405138b13dbb1a3035485b43fbab9d01`.
-- **Vercel deployment:** `https://levelbreak-arena-g81hyworg-uhhh2.vercel.app` (Phase 8); alias `https://levelbreak-arena.vercel.app`. Automated curl is challenged by Vercel Security Checkpoint.
+- **Vercel deployment:** `https://levelbreak-arena-g81hyworg-uhhh2.vercel.app` (Phase 8); alias `https://levelbreak-arena.vercel.app`. Verified with headful Chromium; raw automated curl is challenged by Vercel Security Checkpoint.
 - **Render deploy:** `dep-dbocg3dg1s2s738ctsi0`, commit `a9db80a8`, live 2026-11-08T19:06:35Z; `/health/live` and `/health/ready` 200.
 - **DB migration:** `003_phase7_five_levels.sql` applied to Supabase at 2026-11-04T14:02:25.437Z.
 - **Render env:** `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; worker and demo funding remain disabled.
