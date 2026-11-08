@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
-**Last updated:** 4 November 2026
-**Current phase:** Phase 7.1 — Nimiq Pay wallet signature verification hotfix deployed; awaiting operator retry
-**Status:** Phase 7 deployed. Phase 7.1 auth hotfix deployed and locally verified. Phase 8 NOT STARTED.
+**Last updated:** 8 November 2026
+**Current phase:** Phase 8 — five-level testnet proof and final polish complete; final deployment in progress
+**Status:** Phase 8 PASS / PROOF COMPLETE. Phase 9 NOT STARTED.
 
 ## Current deployment and wallets
 
@@ -31,7 +31,65 @@
 - Mockups: Direction 1 — Trading Terminal is **APPROVED**. Directions 2, 3, and 4 (including the interactive prototype) are **REJECTED** and their directories were removed. Direction 1 artifacts remain in `design/mockups/`.
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
 - Operator approval of final visual design: **GIVEN — Direction 1, 4 November 2026**
-- Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 5 proof, disabled 2026-11-04T01:21:37Z).
+- Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 8 proof, disabled 2026-11-08 after the payouts).
+
+## Phase 8 — Final functionality proof and polish (8 November 2026)
+
+**Status:** PROOF COMPLETE / POLISH COMPLETE / DEPLOYMENT IN PROGRESS. Phase 9 NOT STARTED.
+
+### Primary 5-level testnet proof
+
+- **Session:** `120425d0-2c16-48a3-8014-cf75529e69e4`, public ref `b88d21098b76a471`.
+- **Funding:** `4c5fb1eb756b55c035477b22dbad187560f4ebcea5ece5faac45322cfaabcc59`, block `16247371`, demo-agent → treasury, exactly **2,500 Luna**, reference `LBA1:b88d21098b76a471`, network 5, confirmed. Independent RPC verification: PASS.
+- **Player:** `NQ34 5NGM LJFD RFMN 5H4R 7AMX SU7L KA68 BXPV` (generated testnet key).
+- **Run:** `dac514b1-aa10-4844-8b44-f5144e875468`.
+- **Pattern:** ANSWER, ANSWER, SKIP, ANSWER, ANSWER — four accepted responses, one skip, **2,000 Luna earned**.
+- **Payout:** `91e87e32-0202-4f65-affc-fa422f0dc883`, status `CONFIRMED`, exactly **2,000 Luna**.
+- **Payout tx:** `da6464fcd931429249bcafa89ebc0dbebcf098c29e43de40fb6b3b9f95d99575`, block `16247449`, sender treasury `NQ83 S85U 0B01 BVY2 RR74 C23E 845S NAKE 1YM3`, recipient player, value 2,000 Luna, fee 0, reference `LBA1:b88d21098b76a471`, network 5, included. Independent RPC verification: `proof=PASS`.
+- **UI proof:** Playwright logged in with a real Nimiq-prefixed signature, claimed the session, played all five levels, clicked Finish, waited for `CONFIRMED`, opened **Withdraw to Fiat**, saw the Nimiq Pay Off-Ramp modal and simulated success, and verified the payout on-chain. The process exited at the final `/history` navigation on a **Vercel Security Checkpoint** (bot mitigation), not an application error. The same authenticated history was verified directly via `/api/history`: 200, publicRef `b88d21098b76a471`, earned 2,000 Luna, payout `CONFIRMED`, tx `da6464fc…`. The 320px history UI is covered by `tests/e2e/phase8.polish.spec.ts`.
+
+### Disclosed extra proof attempt
+
+The first Playwright attempt completed all five levels with four answers and one skip, but the test failed on a stale “Session complete” heading selector before clicking Finish. To avoid an orphaned 2,000 Luna liability, run `23762083-9f8c-4bfd-8e7f-1c7ed6140790` (session `6bfacf72-1c68-4951-8fe7-389ba06f6e6e`, ref `4ebf2ee32261830f`) was settled through the domain `finishRun` service. Its payout `4ac89304-7a45-4c0c-bc08-c8454d5c9a5d` also confirmed at tx `15fea832ebb2b8f930187df2f262269170ddfdf7153c544fbe2fc5eea9314318`, block `16247222`, exactly 2,000 Luna to the generated test player `NQ56 H5Y3 3H81 HUFP 919A NMKY V0F3 MYJT 7X5F`. This is an extra testnet payout, disclosed here for accounting integrity; the primary proof is the clean session above.
+
+### Balance delta
+
+- Demo-agent before: `10,999,994,000` Luna; after both 2,500 fundings: `10,999,989,000` Luna; delta `-5,000` Luna.
+- Treasury before: `11,000,002,500` Luna; after both 2,000 payouts: `11,000,003,500` Luna; delta `+1,000` Luna.
+- Fees: 0 on all four transactions. The net +1,000 Luna is the two 500-Luna unused session credits (one skip per run).
+
+### LLM verification
+
+- Render `LLM_API_KEY` is present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
+- A direct Groq call returned 200 with a normal User-Agent; a no-User-Agent request was blocked by Cloudflare 1010. `apps/api/src/services/llm.ts` now sends `User-Agent: LevelBreakArena/1.0`.
+- Live consultation showed the **LLM DRAFT** badge and a dynamic message: “I am a Level 1 player with zero Luna earned so far. My simulated wallet holds 1,000 vUSDT…” — not the versioned scripted fallback.
+- The fiat off-ramp modal opened on the confirmed payout, showed `1 NIM = $0.85`, and reached the simulated success state with the explicit “No fiat currency was transferred” disclosure.
+
+### Final polish
+
+- 320px: all route smoke tests, game/consultation/payout tests, and the new history/docs/footer content test pass with no horizontal overflow.
+- `/docs`, `/privacy`, `/terms` are updated for five levels, 2,500 Luna, LLM-assisted agent with scripted fallback, and demo fiat off-ramp. `/docs` now links to the public GitHub repository.
+- Footer now has **Documentation** → `/docs` and **GitHub** → `https://github.com/onyebuchidaniel60/levelbreak-arena`. Repository is public and MIT-licensed (verified with `gh repo view`).
+- Added `tests/e2e/phase8.five-level.deployed.spec.ts`, `tests/e2e/playwright.phase8.config.ts`, and `tests/e2e/phase8.polish.spec.ts`.
+
+### Verification commands
+
+```text
+pnpm lint       -> passed
+pnpm typecheck  -> passed
+pnpm build      -> passed
+pnpm test       -> 44 unit passed; 28 Playwright passed; 6 skipped (deployed tests without env)
+pnpm test:integration (fresh PostgreSQL 16)
+                -> 21/21 passed
+```
+
+### Deployment / flags
+
+- Render `DEMO_FUNDING_ENABLED` and `PAYOUT_WORKER_ENABLED` were enabled only for the proof and set back to `false` immediately after. The final deploy applies the disabled flags.
+- Final Phase 8 deployment SHA/URL is recorded in the checkpoint below the commit that contains this section.
+- **Single next task:** Await operator acceptance of the Phase 8 five-level proof and final polish. Do not begin Phase 9.
+
+### STOPPED after recording the 5-level testnet proof: yes
 
 ## Phase 7.1 — Nimiq Pay signature verification hotfix (6 November 2026)
 

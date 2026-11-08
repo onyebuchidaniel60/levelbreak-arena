@@ -8,7 +8,7 @@ export function PrivacyPage() {
       <PageHeader
         eyebrow="Privacy"
         title="A short privacy notice."
-        description="What the testnet preview processes, why it processes it, and where it goes. This is not a final legal policy."
+        description="What the testnet preview processes, why it processes it, and where it goes. This is not a final legal policy. It covers the Phase 8 five-level/LLM preview."
       />
 
       <div className="grid gap-4 lg:grid-cols-2">

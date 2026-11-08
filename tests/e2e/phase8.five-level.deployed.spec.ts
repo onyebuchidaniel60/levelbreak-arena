@@ -4,12 +4,14 @@ import {
   Client,
   ClientConfiguration,
   KeyPair,
+  PrivateKey,
   type PlainTransactionDetails,
 } from "@nimiq/core";
 
 const baseURL = process.env.PHASE8_E2E_BASE_URL;
 const sessionRef = process.env.PHASE8_SESSION_REF;
 const expectedLuna = process.env.PHASE8_EXPECTED_LUNA ?? "2000";
+const playerPrivateKey = process.env.PHASE8_PLAYER_PRIVATE_KEY;
 const treasuryAddress =
   process.env.PHASE8_TREASURY_ADDRESS ??
   "NQ83 S85U 0B01 BVY2 RR74 C23E 845S NAKE 1YM3";
@@ -27,7 +29,9 @@ type Auth = { keyPair: KeyPair; address: string };
 type ApiResult<T> = { status: number; body: T };
 
 async function authenticate(page: Page): Promise<Auth> {
-  const keyPair = KeyPair.generate();
+  const keyPair = playerPrivateKey
+    ? KeyPair.derive(PrivateKey.fromHex(playerPrivateKey))
+    : KeyPair.generate();
   const address = keyPair.toAddress().toUserFriendlyAddress();
   const publicKey = keyPair.publicKey.toHex();
 
@@ -338,9 +342,9 @@ test("Phase 8 five-level play-through and confirmed 2,000 Luna payout", async ({
       );
     }
 
-    await expect(
-      page.getByRole("heading", { name: /Session complete/i }),
-    ).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText("Session complete")).toBeVisible({
+      timeout: 20_000,
+    });
 
     const finishPromise = page.waitForResponse(
       (response) =>

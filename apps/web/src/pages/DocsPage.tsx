@@ -4,7 +4,7 @@ import { Badge, Panel, SectionLabel } from "../components/ui";
 
 const documentNames = [
   "AGENTS.md — implementation rules and approval boundaries",
-  "PROJECT_SPEC.md — product specification and Phase 7 amendment",
+  "PROJECT_SPEC.md — product specification and Phase 7/8 amendments",
   "ARCHITECTURE.md — architecture, API contracts and environment variables",
   "IMPLEMENTATION_PLAN.md — phased plan and approval gates",
   "docs/DESIGN_DECISIONS.md — approved Direction 1 record and rejected directions",
@@ -20,7 +20,7 @@ export function DocsPage() {
         eyebrow="Documentation"
         title="Build notes and operating rules."
         description="The repository is the source of truth. These are the documents a reviewer or operator should start with."
-        actions={<Badge tone="neutral">Phase 7</Badge>}
+        actions={<Badge tone="neutral">Phase 8</Badge>}
       />
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -35,15 +35,23 @@ export function DocsPage() {
             ))}
           </ul>
           <p className="mt-4 text-xs leading-5 text-dim">
-            Public Documentation and GitHub links in the global footer are completed
-            in Phase 8. No local filesystem path is presented as a working web link.
+            The repository is public and MIT-licensed.{" "}
+            <a
+              className="text-info hover:text-blue-300"
+              href="https://github.com/onyebuchidaniel60/levelbreak-arena"
+              target="_blank"
+              rel="noreferrer"
+            >
+              View the GitHub repository
+            </a>
+            . The global footer links to this page and to the repository.
           </p>
         </Panel>
 
         <Panel className="p-5">
           <SectionLabel>Current implementation</SectionLabel>
           <h2 className="mt-2 text-lg font-semibold text-numeric">
-            Phase 7 — Direction 1 Trading Terminal.
+            Phase 8 — Final functionality proof.
           </h2>
           <p className="mt-2 text-sm leading-6 text-muted">
             The deployed preview uses the approved dark trading-terminal design
@@ -53,9 +61,11 @@ export function DocsPage() {
             off-ramp.
           </p>
           <p className="mt-3 text-sm leading-6 text-muted">
-            The underlying payment flow remains testnet-only: verified funding,
-            server-derived rewards, one payout per run, and on-chain confirmation
-            before a payout is shown as paid.
+            The five-level flow was proven end to end on Nimiq testnet with four
+            accepted responses and one skip: a 2,000 Luna payout was confirmed
+            on-chain. The underlying payment flow remains testnet-only: verified
+            funding, server-derived rewards, one payout per run, and on-chain
+            confirmation before a payout is shown as paid.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Badge tone="paid">5 levels</Badge>

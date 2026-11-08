@@ -214,8 +214,16 @@ export function Layout() {
               Terms
             </Link>
             <Link className="transition-colors hover:text-numeric" to="/docs">
-              Docs
+              Documentation
             </Link>
+            <a
+              className="transition-colors hover:text-numeric"
+              href="https://github.com/onyebuchidaniel60/levelbreak-arena"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub
+            </a>
           </nav>
         </div>
       </footer>

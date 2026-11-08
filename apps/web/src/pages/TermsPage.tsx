@@ -8,7 +8,7 @@ export function TermsPage() {
       <PageHeader
         eyebrow="Terms"
         title="Testnet demo terms."
-        description="Plain-language terms for the Phase 7 testnet preview. These are not final legal terms."
+        description="Plain-language terms for the Phase 8 testnet preview. These are not final legal terms."
         actions={<Badge tone="pending">Testnet only</Badge>}
       />
 
