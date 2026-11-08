@@ -7,13 +7,13 @@
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `6b669255b531c2407a411759b371ec9b281dabda` (Phase 7.1 auth hotfix). Production deployment `dpl_685WTrxph8xaVNPQtfe2mdMjcDig`, alias ready.
+- Vercel deployed app-code commit: `a9db80a` (Phase 8 proof/polish). Production deployment `https://levelbreak-arena-g81hyworg-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. Automated `curl` currently receives a Vercel Security Checkpoint (403), so operator browser verification is required.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `6b669255b531c2407a411759b371ec9b281dabda`, deploy `dep-dbmufvks728c739locj0`, live 2026-11-06T14:46:15Z. `/health/live` 200 and `/health/ready` 200 after deploy.
+- Render deployed code: `a9db80a8`, deploy `dep-dbocg3dg1s2s738ctsi0`, live 2026-11-08T19:06:35Z. `/health/live` 200 and `/health/ready` 200.
 - Phase 7 database migration: `003_phase7_five_levels.sql` applied to Supabase at 2026-11-04T14:02:25.437Z.
-- Phase 7 Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`. `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`.
-- Phase 7 LLM env: `LLM_API_KEY` is NOT provisioned. The deployed preview therefore uses the scripted agent-message fallback; the LLM path is implemented and unit-tested with a mocked OpenAI-compatible provider.
-- Existing sessions: all previously funded sessions remain 3-level / 1,500 Luna. No new 5-level / 2,500 Luna session has been funded yet.
+- Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
+- LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
+- Sessions: the Phase 8 proof created and settled two 5-level / 2,500 Luna sessions. Earlier sessions remain 3-level / 1,500 Luna and settled.
 - Repository URL: https://github.com/onyebuchidaniel60/levelbreak-arena
 - Render service: `levelbreak-arena`, `web_service`, branch `main`; `/health/live` and `/health/ready` verified 200 after the final worker-disable deploy.
 - Demo-agent wallet: `NQ23 RSJF DP1Q 894D Q346 V1HK C8F5 GM4F 0J9T`
@@ -85,8 +85,10 @@ pnpm test:integration (fresh PostgreSQL 16)
 
 ### Deployment / flags
 
-- Render `DEMO_FUNDING_ENABLED` and `PAYOUT_WORKER_ENABLED` were enabled only for the proof and set back to `false` immediately after. The final deploy applies the disabled flags.
-- Final Phase 8 deployment SHA/URL is recorded in the checkpoint below the commit that contains this section.
+- Final Phase 8 app-code commit: `a9db80a`.
+- Render: `dep-dbocg3dg1s2s738ctsi0`, live `2026-11-08T19:06:35Z`; `/health/live` and `/health/ready` 200.
+- Vercel: `https://levelbreak-arena-g81hyworg-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. The alias currently returns a Vercel Security Checkpoint (403) to automated `curl`; the operator must verify in a normal browser session. Local `pnpm test` covers the footer links, docs copy, history state, and 320px overflow.
+- `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` after the proof; confirmed in Render env.
 - **Single next task:** Await operator acceptance of the Phase 8 five-level proof and final polish. Do not begin Phase 9.
 
 ### STOPPED after recording the 5-level testnet proof: yes
@@ -169,8 +171,8 @@ prefixed verify against raw message: false
 
 - **Preview:** https://levelbreak-arena.vercel.app
 - **App-code commit:** `cb816dad405138b13dbb1a3035485b43fbab9d01`.
-- **Vercel deployment:** `dpl_685WTrxph8xaVNPQtfe2mdMjcDig` (Phase 7.1); production alias ready.
-- **Render deploy:** `dep-dbmufvks728c739locj0`, commit `6b669255`, live 2026-11-06T14:46:15Z; `/health/live` and `/health/ready` 200.
+- **Vercel deployment:** `https://levelbreak-arena-g81hyworg-uhhh2.vercel.app` (Phase 8); alias `https://levelbreak-arena.vercel.app`. Automated curl is challenged by Vercel Security Checkpoint.
+- **Render deploy:** `dep-dbocg3dg1s2s738ctsi0`, commit `a9db80a8`, live 2026-11-08T19:06:35Z; `/health/live` and `/health/ready` 200.
 - **DB migration:** `003_phase7_five_levels.sql` applied to Supabase at 2026-11-04T14:02:25.437Z.
 - **Render env:** `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; worker and demo funding remain disabled.
 - **Source-of-truth updates:** `PROJECT_SPEC.md`, `ARCHITECTURE.md`, `AGENTS.md`, and `IMPLEMENTATION_PLAN.md` now record the operator-approved five-level / 2,500 Luna / LLM-assisted / demo off-ramp scope. `docs/DESIGN_DECISIONS.md` records Direction 1 as approved and Directions 2, 3, and 4 as rejected and removed.

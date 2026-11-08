@@ -2,9 +2,9 @@
 
 LevelBreak Arena is a five-level simulated DeFi learning game for Nimiq Mini Apps. This repository is the implementation workspace for the approved blueprint.
 
-**Current phase:** Phase 7 — Direction 1 Trading Terminal UI, five-level ladder, LLM-assisted agent, and demo fiat off-ramp.
+**Current phase:** Phase 8 — five-level testnet proof, live LLM agent, demo off-ramp, and final polish complete.
 
-Phase 4 connected the frontend to the Phase 3 APIs: real wallet challenge/signature authentication, funded-session lobby, five-level game decisions, evidence-backed consultations, reward display, finish/payout status and player history. Phase 5 completed the serialized payout worker and proved the full funded-session → game → treasury payout → on-chain confirmation flow on testnet for two play-throughs plus the orphaned Phase 4 payout. The approved Direction 1 Trading Terminal design is implemented in Phase 7. `PAYOUT_WORKER_ENABLED` was enabled only for the proof and is disabled again; `DEMO_FUNDING_ENABLED` remains false on Render.
+Phase 4 connected the frontend to the Phase 3 APIs: real wallet challenge/signature authentication, funded-session lobby, five-level game decisions, evidence-backed consultations, reward display, finish/payout status and player history. Phase 5 completed the serialized payout worker and proved the full funded-session → game → treasury payout → on-chain confirmation flow on testnet for two play-throughs plus the orphaned Phase 4 payout. The approved Direction 1 Trading Terminal design is implemented. Phase 8 proved the five-level flow end to end on testnet with four accepted responses and one skip: a 2,000 Luna payout was confirmed on-chain at tx `da6464fcd931429249bcafa89ebc0dbebcf098c29e43de40fb6b3b9f95d99575`. Live Groq agent messages and the labelled demo fiat off-ramp were also verified. `PAYOUT_WORKER_ENABLED` and `DEMO_FUNDING_ENABLED` were disabled again after the proof.
 
 ## Stack
 
