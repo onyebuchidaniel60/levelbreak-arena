@@ -55,6 +55,14 @@ describe("LLM agent prompt generation", () => {
     });
 
     expect(fetchMock).toHaveBeenCalledOnce();
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/chat/completions"),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          "user-agent": "LevelBreakArena/1.0",
+        }),
+      }),
+    );
     expect(result.source).toBe("llm");
     expect(result.prompt).toBe(
       "You have earned 500 Luna. Here is the next question.",

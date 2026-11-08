@@ -104,6 +104,8 @@ async function requestLlmPrompt(context: string): Promise<string> {
       headers: {
         authorization: `Bearer ${config.llmApiKey}`,
         "content-type": "application/json",
+        accept: "application/json",
+        "user-agent": "LevelBreakArena/1.0",
       },
       body: JSON.stringify({
         model: config.llmModel,
