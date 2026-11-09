@@ -246,7 +246,10 @@ async function sendTestnetDeposit(input) {
     }
   } finally {
     try {
-      await client.disconnectNetwork();
+      await Promise.race([
+        client.disconnectNetwork(),
+        sleep(5_000),
+      ]);
     } catch {
       // Ignore disconnect errors.
     }
@@ -534,7 +537,29 @@ async function main() {
   );
 }
 
+function cleanup() {
+  try {
+    playerKeyPair?.free();
+  } catch {
+    // Ignore WASM cleanup errors.
+  }
+  try {
+    agentWallet?.keyPair?.free();
+  } catch {
+    // Ignore WASM cleanup errors.
+  }
+  try {
+    agentWallet?.privateKey?.free();
+  } catch {
+    // Ignore WASM cleanup errors.
+  }
+}
+
 main()
+  .then(() => {
+    cleanup();
+    setTimeout(() => process.exit(0), 250);
+  })
   .catch((error) => {
     console.error(
       JSON.stringify(
@@ -548,22 +573,6 @@ main()
         2,
       ),
     );
-    process.exitCode = 1;
-  })
-  .finally(() => {
-    try {
-      playerKeyPair?.free();
-    } catch {
-      // Ignore WASM cleanup errors.
-    }
-    try {
-      agentWallet?.keyPair?.free();
-    } catch {
-      // Ignore WASM cleanup errors.
-    }
-    try {
-      agentWallet?.privateKey?.free();
-    } catch {
-      // Ignore WASM cleanup errors.
-    }
+    cleanup();
+    setTimeout(() => process.exit(1), 250);
   });

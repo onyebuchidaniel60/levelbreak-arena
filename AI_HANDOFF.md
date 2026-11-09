@@ -1,22 +1,23 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 9 November 2026
-**Current phase:** Phase 10 — external Agent API and multi-agent marketplace implemented; deployment and live proof pending
-**Status:** Phase 8/8.2 complete. Phase 10 code and tests implemented locally. Deployment and live marketplace proof pending.
+**Current phase:** Phase 10 — external Agent API and multi-agent marketplace deployed and live-verified; awaiting operator acceptance
+**Status:** Phase 10 PASS / DEPLOYED / LIVE VERIFIED. Phase 8/8.2 complete. Phase 11 NOT STARTED.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `fc12c5f` (Phase 8.2 AI-generated levels). Production deployment auto-deployed from `main`; alias `https://levelbreak-arena.vercel.app`. Headful Chromium verified the generated Level 2 scenario (`The Alpha-Pool Divergence`), footer/docs, 320px routes, and authenticated history. Raw `curl` still receives the Vercel Security Checkpoint, but normal browser access works.
+- Vercel deployed app-code commit: `b3056bc` (Phase 10 external Agent API and marketplace). Production deployment auto-deployed from `main`; alias `https://levelbreak-arena.vercel.app`. The Phase 10 UI tests cover the agent lobby card, agent-specific game label, Agent submission source and landing-page Active Agents directory at 320px and 1280px. Raw `curl` still receives the Vercel Security Checkpoint, but normal browser access works.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `8d534945` (docs checkpoint; app code `fc12c5f`), deploy `dep-dbom8oivcj2c739ht0c0`, live 2026-11-09T06:13:36Z. `/health/live` 200 and `/health/ready` 200 after restart.
-- Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied locally, production application pending.
+- Render deployed code: `b3056bcc` (Phase 10 feature commit), with the worker enabled for the live proof and then disabled. Final pre-docs deploy `dep-dbon9a8u01pc73fqtfl0`; `/health/live` 200 and `/health/ready` 200. A docs-checkpoint deploy follows the handoff commit.
+- Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied to production at 2026-11-09T06:51:48.893Z.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
-- Sessions: the Phase 8 proof created and settled two 5-level / 2,500 Luna sessions. Phase 8.2 added a test session/run (`18f5054e…` / `fda15818…`) that is active at Level 2 for inspection; the operator’s manual session (`bcbc692c…`) is settled with a confirmed 2,500 Luna payout. Earlier sessions remain 3-level / 1,500 Luna and settled.
+- Sessions: the Phase 8 proof created and settled two 5-level / 2,500 Luna sessions. Phase 8.2 added a test session/run (`18f5054e…` / `fda15818…`) that is active at Level 2 for inspection; the operator’s manual session (`bcbc692c…`) is settled with a confirmed 2,500 Luna payout. Phase 10 added the external-agent session `44f7bae6…` / run `e1b0e820…`, settled with a confirmed 500 Luna payout. Earlier sessions remain 3-level / 1,500 Luna and settled.
 - Repository URL: https://github.com/onyebuchidaniel60/levelbreak-arena
 - Render service: `levelbreak-arena`, `web_service`, branch `main`; `/health/live` and `/health/ready` verified 200 after the final worker-disable deploy.
 - Demo-agent wallet: `NQ23 RSJF DP1Q 894D Q346 V1HK C8F5 GM4F 0J9T`
+- Phase 10 external agent wallet: `NQ63 8XN2 QLM9 4JAQ 4HLT HS1G 3H1H LHDF 6725` (agent `4a9f281b-fbcf-4ff7-aab0-290361f54b96`, name “Alpha Research Bot”)
 - Treasury wallet: `NQ83 S85U 0B01 BVY2 RR74 C23E 845S NAKE 1YM3`
 - `NIMIQ_NETWORK`: `"testnet"`
 - Phase 2 transfer proof: `899823e284e64c1f8dd0671c85598ca739948a653f400ae87bc7dc8433db793e`
@@ -35,7 +36,7 @@
 
 ## Phase 10 — External Agent API and marketplace (9 November 2026)
 
-**Status:** IMPLEMENTED / LOCAL TESTS PASSING / DEPLOYMENT PENDING.
+**Status:** IMPLEMENTED / DEPLOYED / LIVE VERIFIED.
 
 - Added `db/migrations/005_phase10_agents.sql`:
   - `agents`: id, name, unique wallet address, unique `api_key_hash`, `balance_luna`, `reserved_luna`, timestamps, and `reserved_luna <= balance_luna` check.
@@ -77,7 +78,17 @@
   - `pnpm test` passed: 34 Playwright tests, 6 deployed tests skipped.
   - `pnpm test:integration` passed: 25/25, including registration/API-key hashing, deposit verification/reuse, lobby listing, claim without funding, agent answer charge, skip release, insufficient balance, and 500-Luna payout creation.
   - New UI tests at 320px and 1280px cover the agent lobby card, agent-specific game label, "Agent submission" source and landing-page directory.
-- Deployment and live proof: **PENDING**. The production migration 005, Render deploy and `scripts/agent-client.js` proof are the single next task.
+- Deployment and live proof: **COMPLETE**.
+  - Production migration 005 applied 2026-11-09T06:51:48.893Z.
+  - App-code commit `b3056bc` pushed; Render deploy `dep-dbonr3navr4c73bk9hag` live; Vercel auto-deployed the same commit.
+  - `scripts/agent-client.js` created a distinct testnet agent wallet `NQ63 8XN2 QLM9 4JAQ 4HLT HS1G 3H1H LHDF 6725` (seeded with testnet NIM), registered “Alpha Research Bot” as agent `4a9f281b-fbcf-4ff7-aab0-290361f54b96`, sent a real 500-Luna deposit, posted a consultation, authenticated a fresh player wallet, claimed the question, submitted a decision, answered `CANT_TELL`, and finished the run.
+  - Agent deposit tx `e03c212f3ce8d5f84d96d0b5be49d371a76dc75d584d3e13fa730edf97b850ea`, block `16292265`; independently verified sender = agent wallet, recipient = treasury, value 500 Luna, TestAlbatross, reference `LBA-AGENT-DEPOSIT:4a9f281b-fbcf-4ff7-aab0-290361f54b96`, `proof=PASS`.
+  - Consultation `db3100e2-7f80-4db9-8396-53b55e1aa0b8`, session `44f7bae6-d623-4681-b413-5bd110f70227`, publicRef `fcbbd57066289daf`; lobby returned `agentName: "Alpha Research Bot"` and the question preview.
+  - Player `NQ04 2QMJ Y0S6 2DUN PE67 330A XH79 UUCA 31QS`, run `e1b0e820-8b5d-47a2-8f6f-2a09ef7552a3`; answer earned 500 Luna and the run reached `PAYOUT_QUEUED`.
+  - Payout `2a460285-30ec-4b6f-8508-16cee9869e0e` confirmed at tx `d5915f496389bf8e1073fee4a3a2b2fc5b5a58132b5fba36c44d52b60fdd5693`, block `16292272`, treasury → player, 500 Luna, fee 0. Session `44f7bae6…` is `SETTLED`; agent `balance_luna=0`, `reserved_luna=0`.
+  - The payout worker was enabled only for the proof, then disabled. `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`; `/health/live` and `/health/ready` 200.
+  - The agent remains registered with one answered question and zero balance, so the public Active Agents directory and landing-page section have real data. The agent wallet retains the unused seeded testnet NIM.
+- **Single next task:** Await operator acceptance of the Phase 10 external Agent API and marketplace. Do not begin Phase 11.
 
 ## Phase 8.2 — AI-generated levels (9 November 2026)
 
