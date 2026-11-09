@@ -35,7 +35,7 @@
 
 ## Phase 8.2 — AI-generated levels (9 November 2026)
 
-**Status:** IMPLEMENTED / TESTS PASSING / DEPLOYMENT IN PROGRESS.
+**Status:** IMPLEMENTED / DEPLOYED / LIVE VERIFIED.
 
 - Added migration `004_generated_content.sql`: `player_runs.generated_content jsonb NOT NULL DEFAULT '{}'::jsonb`. Production Supabase migration applied at `2026-11-09T05:57:19.353Z`.
 - Added `generateLevelScenario(levelIndex, playerContext)` in `apps/api/src/services/llm.ts`:
@@ -53,7 +53,18 @@
   - `pnpm test` passed: 46 unit, 28 Playwright, 6 deployed tests skipped.
   - `pnpm test:integration` passed: 22/22, including the new generated-content persistence/reuse test.
 - Live Groq generator verification: returned `source: "llm"`, title “The Stablecoin De-Peg Crisis”, SAFE 1,000 vUSDT / RISKY 950 vUSDT, and a text-snippet evidence payload.
-- **Single next task:** deploy, then verify a live run’s Level 1 generation/persistence through the API. Do not begin any unrelated phase.
+- Live API verification:
+  - Test session `18f5054e-a4d5-43c5-bb70-29d1d48b17ec`, ref `50c0f17d22ff156f`, funding tx `b2de51f5343e2d1bbe33eed0112ff803a78519dad3bb72c4f475a30c44a13984`, block `16287706`.
+  - Test run `fda15818-322f-4596-b8e3-caa66492261d`, player `NQ42 J2YJ 6Y5J EKE9 P8XY Y1GX L811 11F7 E0DB`.
+  - Level 1 generated with `source: "llm"`, title “Level 1: The Phantom Anchor”, SAFE/RISKY decisions, and an AI-generated text-snippet consultation.
+  - A second request returned the stored content: scenario and consultation were deep-equal, `updated_at` was unchanged, and both level 1 and level 2 content were persisted in `generated_content`.
+  - Submitting the generated SAFE decision produced a 1,000 vUSDT portfolio; answering `CANT_TELL` earned 500 Luna and advanced the run to Level 2 (`IN_PROGRESS`).
+  - Level 2 then generated as `source: "llm"` with title “The Alpha-Pool Divergence”.
+- The operator's earlier manual session `bcbc692c-b962-49b0-ac2c-e73a013d3664` was completed by the operator with five answers. Its queued 2,500 Luna payout `678d7e76-a6c6-4d2c-ac58-bd2c67d18e4b` was confirmed at tx `eeb577a47ddadf4139a68112c6da8642437fc1237893803a256f201529dd9d89`, block `16288006`, recipient `NQ47 YLYE 6VC9 NTJT 2XT3 RYD6 XKLS MEDA CCEC`, reference `LBA1:a76c84dd5a6d0d5c`, fee 0.
+- Final flags after the proof: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`; `/health/live` and `/health/ready` 200.
+- Deployment: app-code commit `fc12c5f`; Render live deploy `dep-dbom7lrm8hqs73ec3brg`; Vercel auto-deploy from the same commit.
+- The test run is intentionally left active at Level 2 as a test artifact; it has not been paid. It does not affect the operator's original lobby session (which is now completed).
+- **Single next task:** Await operator acceptance of AI-generated levels. Do not begin an unrelated phase.
 
 ## Phase 8.1 — Agent narrative copy refinement (9 November 2026)
 
