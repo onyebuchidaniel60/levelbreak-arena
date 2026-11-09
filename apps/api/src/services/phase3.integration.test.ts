@@ -1057,6 +1057,41 @@ integration("Phase 3 domain integration", () => {
     ).rejects.toMatchObject({ statusCode: 404 });
   });
 
+  it("generates and persists level content, then returns the saved content", async () => {
+    const nimiq = new FakeNimiq();
+    const session = await createAvailableSession(nimiq);
+    const player = await makePlayer();
+    const run = await claim(player, session.sessionId);
+    await decide(run.runId, player, 1, 0);
+
+    const first = await getRunDetail(run.runId, player);
+    expect(first.scenario).toBeTruthy();
+    expect(first.consultation).toBeTruthy();
+    const originalTitle = first.scenario?.title;
+    expect(originalTitle).toBeTruthy();
+
+    const stored = await query<{ generated_content: Record<string, unknown> }>(
+      `SELECT generated_content FROM player_runs WHERE id = $1`,
+      [run.runId],
+    );
+    expect(stored.rows[0].generated_content["1"]).toBeTruthy();
+
+    await query(
+      `UPDATE player_runs
+          SET generated_content = jsonb_set(
+            generated_content,
+            '{1,scenario,title}',
+            '"Persisted saved content"'
+          )
+        WHERE id = $1`,
+      [run.runId],
+    );
+
+    const second = await getRunDetail(run.runId, player);
+    expect(second.scenario?.title).toBe("Persisted saved content");
+    expect(second.scenario?.title).not.toBe(originalTitle);
+  });
+
   it("serializes run detail without BigInt and strips scenario outcomes", async () => {
     const nimiq = new FakeNimiq();
     const session = await createAvailableSession(nimiq);

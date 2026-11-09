@@ -2,6 +2,8 @@
 
 **Status:** Fixed implementation direction; Phase 2 must prove the Nimiq normal-transfer adapter on testnet before payment integration is treated as complete.  
 **Phase 7 amendment (4 November 2026):** operator-approved five-level ladder, 2,500 Luna liability, optional LLM-drafted agent message with scripted fallback, and a clearly labelled demo fiat off-ramp.
+
+**Phase 8.2 amendment (9 November 2026):** `GET /api/runs/:runId` generates the active level with the LLM, validates strict JSON, normalizes it to the existing `scenario`/`consultation` DTOs, and persists it in `player_runs.generated_content` under the level index. Repeated reads return the stored content. `submitDecision` and `submitConsultationResponse` use the stored level content when present and fall back to the static definitions for legacy runs. Payment, reward, auth, state-machine and payout semantics are unchanged. The LLM receives only the current simulated scenario/portfolio context; no wallet, auth or payment secrets are sent.
 **Related:** `PROJECT_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `AGENTS.md`.
 
 ## 1. System context

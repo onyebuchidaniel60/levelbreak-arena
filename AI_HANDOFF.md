@@ -33,6 +33,28 @@
 - Operator approval of final visual design: **GIVEN — Direction 1, 4 November 2026**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 8 proof, disabled 2026-11-08 after the payouts).
 
+## Phase 8.2 — AI-generated levels (9 November 2026)
+
+**Status:** IMPLEMENTED / TESTS PASSING / DEPLOYMENT IN PROGRESS.
+
+- Added migration `004_generated_content.sql`: `player_runs.generated_content jsonb NOT NULL DEFAULT '{}'::jsonb`. Production Supabase migration applied at `2026-11-09T05:57:19.353Z`.
+- Added `generateLevelScenario(levelIndex, playerContext)` in `apps/api/src/services/llm.ts`:
+  - strict JSON validation for title, situation, SAFE/RISKY decisions, and consultation question/evidence/options;
+  - Groq/OpenAI-compatible call with a progressive five-level curriculum (stablecoin → impermanent loss → yield → oracle manipulation → liquidation);
+  - normalized whole-vUSDT `resultingPortfolio` values into integer virtual portfolio units;
+  - deterministic static fallback if the key is missing, the provider fails, or the JSON is invalid.
+- `GET /api/runs/:runId` now generates the active level if missing, persists it under the level index in `generated_content`, and returns the saved content on subsequent requests. Existing runs use the static fallback. Generation is coalesced through a locked re-check to avoid duplicate persistence.
+- `submitDecision` and `submitConsultationResponse` use the saved generated scenario/consultation when present, then fall back to the static definitions. Reward, funding, auth, state-machine and payout logic are unchanged.
+- `generateAgentPrompt` now accepts generated question IDs and uses the saved generated scenario/evidence for its context. The frontend already renders scenario choices and consultation content from the API; no hardcoded STAY/MOVE decision keys were introduced.
+- Tests:
+  - `pnpm lint` passed.
+  - `pnpm typecheck` passed.
+  - `pnpm build` passed.
+  - `pnpm test` passed: 46 unit, 28 Playwright, 6 deployed tests skipped.
+  - `pnpm test:integration` passed: 22/22, including the new generated-content persistence/reuse test.
+- Live Groq generator verification: returned `source: "llm"`, title “The Stablecoin De-Peg Crisis”, SAFE 1,000 vUSDT / RISKY 950 vUSDT, and a text-snippet evidence payload.
+- **Single next task:** deploy, then verify a live run’s Level 1 generation/persistence through the API. Do not begin any unrelated phase.
+
 ## Phase 8.1 — Agent narrative copy refinement (9 November 2026)
 
 **Status:** IMPLEMENTED / TESTS PASSING / DEPLOYED FROM THIS COMMIT.

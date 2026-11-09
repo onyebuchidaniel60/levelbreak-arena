@@ -25,7 +25,7 @@ vi.mock("../db", () => ({
   }),
 }));
 
-import { generateAgentPrompt } from "./llm";
+import { generateAgentPrompt, generateLevelScenario } from "./llm";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -94,5 +94,83 @@ describe("LLM agent prompt generation", () => {
 
     expect(result.source).toBe("scripted");
     expect(result.prompt.length).toBeGreaterThan(20);
+  });
+});
+
+describe("AI level generation", () => {
+  const context = {
+    runId: "run-1",
+    levelIndex: 1,
+    portfolioUnits: "100000000",
+    portfolioUnit: "vUSDT",
+    earnedLuna: "0",
+    maxRewardLuna: "2500",
+    maxConsultations: 5,
+  };
+
+  it("validates and normalizes strict JSON level content", async () => {
+    const content = {
+      title: "The Peg That Slips",
+      situation:
+        "A new stablecoin advertises 12% APY while its reserve attestations are missing.",
+      decisions: [
+        {
+          decisionKey: "SAFE",
+          label: "Keep the established stablecoin",
+          resultingPortfolio: 1050,
+          explanation:
+            "The simulated established stablecoin holds its peg while the new token depegs.",
+        },
+        {
+          decisionKey: "RISKY",
+          label: "Move into the new stablecoin",
+          resultingPortfolio: 800,
+          explanation:
+            "The simulated new token depegs by 20%, reducing the virtual portfolio.",
+        },
+      ],
+      consultation: {
+        question: "How would you classify the new stablecoin?",
+        evidence: {
+          type: "text_snippet",
+          payload:
+            "New token: 12% APY. Reserve attestations: none shown. Established token: long operating history.",
+        },
+        options: ["SAFE", "RISKY", "CANT_TELL"],
+      },
+    };
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify(content) } }],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await generateLevelScenario(1, context);
+
+    expect(result.source).toBe("llm");
+    expect(result.scenario.title).toBe("The Peg That Slips");
+    expect(result.scenario.choices.map((choice) => choice.decisionKey)).toEqual([
+      "SAFE",
+      "RISKY",
+    ]);
+    expect(result.consultation.evidence.type).toBe("text_snippet");
+    expect(result.decisions[0].resultingPortfolioUnits).toBe("105000000");
+    expect(result.decisions[1].resultingPortfolioUnits).toBe("80000000");
+  });
+
+  it("falls back to the static level content on a provider error", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 503, json: async () => ({}) }),
+    );
+
+    const result = await generateLevelScenario(1, context);
+
+    expect(result.source).toBe("scripted");
+    expect(result.scenario.title).toMatch(/Stablecoin peg risk/i);
+    expect(result.decisions).toHaveLength(2);
+    expect(result.consultation.options).toHaveLength(3);
   });
 });

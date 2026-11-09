@@ -6,9 +6,14 @@ import {
   isAllowedAnswer,
 } from "../domain/consultation-definitions";
 import { lunaString, toLuna } from "../domain/money";
-import { evaluateScenario, getScenario } from "../domain/scenario-definitions";
+import { evaluateScenario } from "../domain/scenario-definitions";
 import { assertTransition } from "../domain/state-machines";
 import { recordAudit } from "./audit";
+import {
+  generateLevelScenario,
+  readGeneratedLevelContent,
+  type GeneratedLevelContent,
+} from "./llm";
 import { isPgUniqueViolation } from "./sessions";
 
 type RunRow = {
@@ -20,6 +25,7 @@ type RunRow = {
   portfolio_state: { unit?: string; value?: string; version?: string };
   state_version: number;
   reward_earned_luna: string;
+  generated_content: unknown;
   claim_idempotency_key: string | null;
   finish_idempotency_key: string | null;
   started_at: Date;
@@ -76,20 +82,100 @@ function portfolioValue(row: RunRow): bigint {
   return toLuna(row.portfolio_state?.value ?? "0");
 }
 
-function scenarioDTO(levelIndex: number) {
-  const scenario = getScenario(levelIndex);
+type GeneratedRunRow = RunRow & {
+  max_consultations: number;
+  max_reward_liability_luna: string;
+};
+
+async function ensureLevelContent(
+  run: GeneratedRunRow,
+): Promise<GeneratedLevelContent> {
+  const existing = readGeneratedLevelContent(
+    run.generated_content,
+    run.level_index,
+  );
+  if (existing) return existing;
+
+  const generated = await generateLevelScenario(run.level_index, {
+    runId: run.id,
+    levelIndex: run.level_index,
+    portfolioUnits: portfolioValue(run).toString(),
+    portfolioUnit: run.portfolio_state?.unit ?? "vUSDT",
+    earnedLuna: run.reward_earned_luna,
+    maxRewardLuna: run.max_reward_liability_luna,
+    maxConsultations: run.max_consultations,
+    previousLevels: [],
+  });
+
+  return withTransaction(async (client) => {
+    const locked = await client.query<{
+      generated_content: unknown;
+      level_index: number;
+    }>(
+      `SELECT generated_content, level_index
+         FROM player_runs
+        WHERE id = $1
+        FOR UPDATE`,
+      [run.id],
+    );
+    const row = locked.rows[0];
+    if (!row || row.level_index !== run.level_index) {
+      throw errors.conflict(
+        "STATE_CONFLICT",
+        "The run state changed. Refresh and try again.",
+      );
+    }
+    const raced = readGeneratedLevelContent(
+      row.generated_content,
+      run.level_index,
+    );
+    if (raced) return raced;
+
+    const base =
+      row.generated_content && typeof row.generated_content === "object"
+        ? (row.generated_content as Record<string, unknown>)
+        : {};
+    const merged = {
+      ...base,
+      [String(run.level_index)]: generated,
+    };
+    await client.query(
+      `UPDATE player_runs
+          SET generated_content = $2, updated_at = now()
+        WHERE id = $1`,
+      [run.id, JSON.stringify(merged)],
+    );
+    return generated;
+  });
+}
+
+function evaluateStoredDecision(
+  content: GeneratedLevelContent,
+  levelIndex: number,
+  decisionKey: string,
+  portfolioUnits: bigint,
+) {
+  const decision = content.decisions.find(
+    (item) => item.decisionKey === decisionKey,
+  );
+  if (!decision) {
+    throw new Error(`Decision ${decisionKey} is not allowed at level ${levelIndex}`);
+  }
+  const after = toLuna(decision.resultingPortfolioUnits);
+  if (after < 0n) {
+    throw new Error("Generated portfolio value must not be negative");
+  }
   return {
-    id: scenario.id,
-    version: scenario.version,
-    levelIndex: scenario.levelIndex,
-    title: scenario.title,
-    setting: scenario.setting,
-    situation: scenario.situation,
-    prompt: scenario.prompt,
-    choices: scenario.choices.map((choice) => ({
-      decisionKey: choice.key,
-      label: choice.label,
-    })),
+    scenarioId: content.scenario.id,
+    scenarioVersion: content.scenario.version,
+    levelIndex,
+    decisionKey,
+    decisionLabel: decision.label,
+    portfolioBefore: lunaString(portfolioUnits),
+    portfolioAfter: lunaString(after),
+    delta: lunaString(after - portfolioUnits),
+    explanation: decision.explanation,
+    lesson: decision.lesson,
   };
 }
 
@@ -122,8 +208,9 @@ async function loadRunForUpdate(
 ): Promise<RunRow | null> {
   const result = await client.query<RunRow>(
     `SELECT id, requester_session_id, player_id, state, level_index, portfolio_state,
-            state_version, reward_earned_luna, claim_idempotency_key,
-            finish_idempotency_key, started_at, completed_at, created_at, updated_at
+            state_version, reward_earned_luna, generated_content,
+            claim_idempotency_key, finish_idempotency_key, started_at,
+            completed_at, created_at, updated_at
        FROM player_runs
       WHERE id = $1
       FOR UPDATE`,
@@ -187,8 +274,9 @@ export async function getRunDetail(runId: string, playerId: string) {
   >(
     `SELECT r.id, r.requester_session_id, r.player_id, r.state, r.level_index,
             r.portfolio_state, r.state_version, r.reward_earned_luna,
-            r.claim_idempotency_key, r.finish_idempotency_key, r.started_at,
-            r.completed_at, r.created_at, r.updated_at,
+            r.generated_content, r.claim_idempotency_key,
+            r.finish_idempotency_key, r.started_at, r.completed_at,
+            r.created_at, r.updated_at,
             s.public_ref, s.max_consultations, s.reward_per_answer_luna,
             s.max_reward_liability_luna, s.state AS session_state
        FROM player_runs r
@@ -225,14 +313,12 @@ export async function getRunDetail(runId: string, playerId: string) {
     ),
   ]);
 
-  const scenario =
-    run.state === "IN_PROGRESS" || run.state === "CONSULTATION_PENDING"
-      ? scenarioDTO(run.level_index)
-      : null;
-  const question =
-    run.state === "CONSULTATION_PENDING"
-      ? getQuestionForLevel(run.level_index)
-      : null;
+  const activeLevel =
+    run.state === "IN_PROGRESS" || run.state === "CONSULTATION_PENDING";
+  const content = activeLevel ? await ensureLevelContent(run) : null;
+  const scenario = content?.scenario ?? null;
+  const consultation =
+    run.state === "CONSULTATION_PENDING" ? content?.consultation ?? null : null;
 
   return {
     runId: run.id,
@@ -249,20 +335,7 @@ export async function getRunDetail(runId: string, playerId: string) {
     maxRewardLuna: lunaString(run.max_reward_liability_luna),
     payoutStatus: payout.rows[0]?.status ?? "NONE",
     scenario,
-    consultation: question
-      ? {
-          id: question.id,
-          levelIndex: question.levelIndex,
-          evidenceVersion: question.evidenceVersion,
-          agentContext: question.agentContext,
-          agentConfidence: question.agentConfidence,
-          agentMessage: question.agentMessage,
-          evidence: question.evidence,
-          question: question.question,
-          options: question.options,
-          rewardLuna: lunaString(question.rewardLuna),
-        }
-      : null,
+    consultation,
     decisions: decisions.rows.map(decisionDTO),
     responses: responses.rows.map(responseDTO),
   };
@@ -324,11 +397,22 @@ export async function submitDecision(input: {
 
     let evaluation;
     try {
-      evaluation = evaluateScenario(
+      const stored = readGeneratedLevelContent(
+        run.generated_content,
         input.levelIndex,
-        input.decisionKey,
-        portfolioValue(run),
       );
+      evaluation = stored
+        ? evaluateStoredDecision(
+            stored,
+            input.levelIndex,
+            input.decisionKey,
+            portfolioValue(run),
+          )
+        : evaluateScenario(
+            input.levelIndex,
+            input.decisionKey,
+            portfolioValue(run),
+          );
     } catch {
       throw errors.unprocessable(
         "INVALID_DECISION",
@@ -482,8 +566,27 @@ export async function submitConsultationResponse(input: {
       );
     }
 
-    const question = getQuestionForLevel(run.level_index);
-    if (question.id !== input.questionId) {
+    const storedContent = readGeneratedLevelContent(
+      run.generated_content,
+      run.level_index,
+    );
+    const staticQuestion = storedContent
+      ? null
+      : getQuestionForLevel(run.level_index);
+    const questionId = storedContent
+      ? storedContent.consultation.id
+      : staticQuestion!.id;
+    const evidenceVersion = storedContent
+      ? storedContent.consultation.evidenceVersion
+      : staticQuestion!.evidenceVersion;
+    const answerAllowed = (answerKey: string): boolean =>
+      storedContent
+        ? storedContent.consultation.options.some(
+            (option) => option.key === answerKey,
+          )
+        : isAllowedAnswer(staticQuestion!, answerKey);
+
+    if (questionId !== input.questionId) {
       throw errors.conflict(
         "QUESTION_NOT_ACTIVE",
         "That question is not active for this level.",
@@ -493,7 +596,7 @@ export async function submitConsultationResponse(input: {
     let reward = 0n;
     let responseKey: string | null = null;
     if (input.action === "ANSWER") {
-      if (!input.answerKey || !isAllowedAnswer(question, input.answerKey)) {
+      if (!input.answerKey || !answerAllowed(input.answerKey)) {
         throw errors.unprocessable(
           "INVALID_ANSWER",
           "That answer is not allowed for this question.",
@@ -528,9 +631,9 @@ export async function submitConsultationResponse(input: {
          RETURNING id, question_id, level_index, response_key, result, reward_luna, created_at`,
         [
           run.id,
-          question.id,
+          questionId,
           run.level_index,
-          question.evidenceVersion,
+          evidenceVersion,
           responseKey,
           input.action === "ANSWER" ? "ANSWERED" : "SKIPPED",
           String(reward),
@@ -580,7 +683,7 @@ export async function submitConsultationResponse(input: {
           `reward:${response.id}`,
           response.id,
           JSON.stringify({
-            questionId: question.id,
+            questionId,
             levelIndex: run.level_index,
             answerKey: responseKey,
           }),
@@ -627,7 +730,7 @@ export async function submitConsultationResponse(input: {
       resourceType: "player_run",
       resourceId: run.id,
       details: {
-        questionId: question.id,
+        questionId,
         levelIndex: run.level_index,
         rewardLuna: String(reward),
       },

@@ -192,3 +192,15 @@ The five-level migration and integration tests were also run against a fresh Pos
 DATABASE_URL_UNPOOLED=postgres://... pnpm db:migrate
 LBA_INTEGRATION_DATABASE_URL=postgres://... pnpm test:integration
 ```
+
+
+## Phase 8.2 AI-generated levels
+
+`apps/api/src/services/phase3.integration.test.ts` now covers generated-content persistence:
+
+1. Create a funded test session, claim it, and advance to the consultation.
+2. `GET /api/runs/:runId` generates level content and stores it in `player_runs.generated_content`.
+3. Modify the stored scenario title directly and request the run again.
+4. The second response returns the modified saved title, proving the run reused stored content instead of regenerating it.
+
+`apps/api/src/services/llm-success.test.ts` covers strict JSON validation/normalization for `generateLevelScenario` and the static fallback on provider failure. The live Groq path was also exercised directly with the production model; level content returned `source: "llm"` with SAFE/RISKY decisions and a text-snippet evidence payload.
