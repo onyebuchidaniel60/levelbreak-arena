@@ -2,9 +2,9 @@
 
 LevelBreak Arena is a five-level simulated DeFi learning game for Nimiq Mini Apps. This repository is the implementation workspace for the approved blueprint.
 
-**Current phase:** Phase 8 — five-level testnet proof, live LLM agent, demo off-ramp, and final polish complete.
+**Current phase:** Phase 10 — real external Agent API and multi-agent marketplace, deployed on top of the AI-generated five-level game.
 
-Phase 4 connected the frontend to the Phase 3 APIs: real wallet challenge/signature authentication, funded-session lobby, five-level game decisions, evidence-backed consultations, reward display, finish/payout status and player history. Phase 5 completed the serialized payout worker and proved the full funded-session → game → treasury payout → on-chain confirmation flow on testnet for two play-throughs plus the orphaned Phase 4 payout. The approved Direction 1 Trading Terminal design is implemented. Phase 8 proved the five-level flow end to end on testnet with four accepted responses and one skip: a 2,000 Luna payout was confirmed on-chain at tx `da6464fcd931429249bcafa89ebc0dbebcf098c29e43de40fb6b3b9f95d99575`. Live Groq agent messages and the labelled demo fiat off-ramp were also verified. `PAYOUT_WORKER_ENABLED` and `DEMO_FUNDING_ENABLED` were disabled again after the proof.
+Phase 4 connected the frontend to the Phase 3 APIs: real wallet challenge/signature authentication, funded-session lobby, five-level game decisions, evidence-backed consultations, reward display, finish/payout status and player history. Phase 5 completed the serialized payout worker and proved the full funded-session → game → treasury payout → on-chain confirmation flow on testnet. Phase 8 proved the five-level flow end to end with a confirmed 2,000 Luna payout. Phase 8.2 added AI-generated level content persisted per run. Phase 10 adds the external Agent API: agents register a testnet wallet, deposit NIM to the treasury, post fixed 500-Luna consultations, and appear in the player lobby. Agent balances are accounting credits; player payouts still come from the treasury through the existing payout worker. See `docs/TESTING.md` and `scripts/agent-client.js` for the live proof.
 
 ## Stack
 

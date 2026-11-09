@@ -4,6 +4,8 @@
 **Phase 7 amendment (4 November 2026):** operator-approved five-level ladder, 2,500 Luna liability, optional LLM-drafted agent message with scripted fallback, and a clearly labelled demo fiat off-ramp.
 
 **Phase 8.2 amendment (9 November 2026):** `GET /api/runs/:runId` generates the active level with the LLM, validates strict JSON, normalizes it to the existing `scenario`/`consultation` DTOs, and persists it in `player_runs.generated_content` under the level index. Repeated reads return the stored content. `submitDecision` and `submitConsultationResponse` use the stored level content when present and fall back to the static definitions for legacy runs. Payment, reward, auth, state-machine and payout semantics are unchanged. The LLM receives only the current simulated scenario/portfolio context; no wallet, auth or payment secrets are sent.
+
+**Phase 10 amendment (9 November 2026):** operator-approved external Agent API and multi-agent marketplace. External agents register with a Nimiq wallet, receive a one-time API key whose SHA-256 hash is stored, deposit ordinary testnet NIM to the treasury, and post fixed 500-Luna consultations. Each agent consultation creates a one-level requester session whose reward is reserved from the agent's accounting balance. Player payouts still come from the operator treasury through the existing state machine; this is operator-custody settlement, not HTLC escrow. Agent deposits and consultations are testnet-only. The player lobby lists both verified demo sessions and agent-backed questions, and the game shows the external agent's name.
 **Related:** `PROJECT_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `AGENTS.md`.
 
 ## 1. System context
@@ -25,6 +27,8 @@ Vercel-hosted React/Vite frontend ── HTTPS /api ──► Render Fastify API
                                                      │ ordinary NIM transfer
                                              Demo-agent wallet
                                              (scripted, operator-owned)
+
+External agent (HTTP + API key) ── ordinary testnet NIM deposit ──► Treasury wallet
 ```
 
 Trust boundaries:
@@ -32,7 +36,8 @@ Trust boundaries:
 - Supabase is the source of truth; the browser never writes financial tables directly.
 - The Render backend owns the testnet demo-agent and treasury signing keys. They are separate keys and addresses.
 - Nimiq Pay owns player private keys. The app only requests account information/signatures via the provider.
-- The agent's ordinary transfer funds the treasury, not a contract. After receipt, the operator has custody of funds and players trust the operator's payout process.
+- The demo agent's and external agents' ordinary transfers fund the treasury, not a contract. After receipt, the operator has custody of funds and players trust the operator's payout process. An external agent's database balance is an accounting credit backed by verified deposits, not an on-chain escrow.
+- External agents authenticate with a bearer API key. Only the SHA-256 hash is stored; the plaintext key is returned once at registration.
 
 ## 2. Concrete stack
 
@@ -63,7 +68,7 @@ At repository setup, pin a supported Node.js 24 LTS version and exact dependency
 - No Redis or separate queue service: PostgreSQL outbox and a serialized worker are sufficient at current scale.
 - No direct frontend Supabase access to financial/session data: all mutations require centralized server-side validation.
 - No HTLC: explicitly removed from the MVP.
-- No live evidence fetching or LLM-based scoring: the LLM may draft only the agent message and must fall back to the scripted message.
+- No live evidence fetching or LLM-based scoring: the LLM generates simulated level content and may draft the demo agent message; it never fetches live evidence or scores answers. Static versioned scenarios remain the deterministic fallback. External agents submit their own consultation text through the Agent API.
 
 ## 3. Nimiq architecture details
 
@@ -123,7 +128,8 @@ Official docs show `@nimiq/core` can build/sign/broadcast ordinary NIM transfers
 - `payouts`: create, queue, broadcast, status/reconciliation.
 - `operator`: minimal protected operational endpoints; audits every mutation.
 - `nimiq`: provider-independent adapter for `@nimiq/core` chain actions.
-- `llm`: optional server-side agent-message generation with deterministic scripted fallback, bounded timeout, caching, and redacted logging.
+- `llm`: AI level generation plus optional server-side agent-message generation with deterministic scripted fallback, bounded timeout, caching, and redacted logging.
+- `agents`: external agent registration, API-key authentication, deposit verification, consultation creation, balance reservation/settlement, and public directory queries.
 - `observability`: request IDs, health/readiness checks, safe logs.
 
 Domain modules must not write database tables directly from route handlers. Routes parse/authorize, call domain services, and map typed errors to HTTP.
@@ -196,14 +202,14 @@ Domain modules must not write database tables directly from route handlers. Rout
 
 ### `GET /api/sessions/available`
 - **Auth:** player.
-- **Logic:** return only sessions that are verified funded, `AVAILABLE`, not expired/cancelled, and not already claimed.
-- **Response:** `{ "sessions":[{"id":"uuid","publicRef":"…","maxConsultations":5,"rewardPerAnswerLuna":"500","maxRewardLuna":"2500","funded":true,"state":"AVAILABLE"}] }`.
+- **Logic:** return only sessions that are `AVAILABLE`, not expired/cancelled, and not already claimed. A demo session requires a `VERIFIED` funding transaction. An external-agent session requires an `AVAILABLE` agent consultation and a reserved agent balance.
+- **Response:** `{ "sessions":[{"id":"uuid","publicRef":"…","maxConsultations":5,"rewardPerAnswerLuna":"500","maxRewardLuna":"2500","funded":true,"state":"AVAILABLE","agentName":"Alpha Research Bot|null","questionPreview":"…|null"}] }`. Agent sessions appear first; demo sessions return null agent fields.
 - **Do not display:** other player IDs or treasury signing data.
 
 ### `POST /api/sessions/:sessionId/claim`
 - **Auth:** player; idempotency required.
 - **Request:** `{ "idempotencyKey":"uuid" }`.
-- **Logic:** transaction locks session row, requires `AVAILABLE`, verified funding, reserves exactly one player run, creates `IN_PROGRESS` run with initial virtual portfolio, binds wallet address, changes session to `CLAIMED`.
+- **Logic:** transaction locks session row, requires `AVAILABLE`, verifies either the demo funding transaction or an `AVAILABLE` agent consultation, reserves exactly one player run, creates `IN_PROGRESS` run with initial virtual portfolio, binds wallet address, marks the agent consultation `IN_PROGRESS`, and changes session to `CLAIMED`/`IN_PROGRESS`.
 - **Response:** `{ "runId":"uuid","state":"IN_PROGRESS","levelIndex":1,"stateVersion":0 }`.
 - **Errors:** `409 SESSION_UNAVAILABLE`, `409 ACTIVE_RUN_EXISTS`, `422 SESSION_NOT_FUNDED`.
 
@@ -222,15 +228,15 @@ Domain modules must not write database tables directly from route handlers. Rout
 ### `POST /api/runs/:runId/consultations/:questionId/respond`
 - **Auth:** player owner; idempotency required.
 - **Request:** `{ "action":"ANSWER", "answerKey":"CANT_TELL", "expectedStateVersion":1, "idempotencyKey":"uuid" }` or `{ "action":"SKIP", "expectedStateVersion":1, "idempotencyKey":"uuid" }`.
-- **Validation:** expected active question matches level; option is allowed by bundled question; no existing terminal response.
-- **Logic:** answer -> insert response and 500 Luna reward ledger; skip -> insert skip with zero reward. Atomic and immutable.
+- **Validation:** expected active question matches level; option is allowed by the bundled question, generated level content, or agent consultation; no existing terminal response.
+- **Logic:** answer -> insert response and 500 Luna reward ledger; for an agent consultation, atomically decrement the agent's `balance_luna` and `reserved_luna` by 500 and mark the consultation `ANSWERED`. skip -> insert skip with zero reward; for an agent consultation, release the 500-Luna reservation without charging the agent and mark it `SKIPPED`. Atomic and immutable.
 - **Response:** `{ "responseId":"uuid","result":"ANSWERED","rewardLuna":"500","earnedLunaTotal":"500","nextState":"IN_PROGRESS","stateVersion":2 }`.
 - **Errors:** `409 QUESTION_ALREADY_RESOLVED`, `409 STATE_CONFLICT`, `422 INVALID_ANSWER`, `422 REWARD_CAP_EXCEEDED`.
 
 ### `GET /api/consultations/:questionId/generate-agent-prompt`
 - **Auth:** player session; `runId` query parameter required; ownership scope mandatory.
-- **Logic:** verify the run belongs to the player, is in `CONSULTATION_PENDING`, and `questionId` is the active question. If `LLM_API_KEY` is configured, call an OpenAI-compatible chat-completions provider with a short prompt containing only the current scenario/question context and the player's own earned amount. Cache the result per run/question. If the key is absent, the provider times out, or the output is invalid, return the versioned scripted `agentMessage`.
-- **Response:** `{ "prompt":"…", "source":"llm" | "scripted" }`.
+- **Logic:** verify the run belongs to the player, is in `CONSULTATION_PENDING`, and `questionId` is the active question. For an external-agent consultation, return the agent's submission context with `source: "external"` and do not call the LLM. Otherwise, if `LLM_API_KEY` is configured, call an OpenAI-compatible chat-completions provider with a short prompt containing only the current scenario/question context and the player's own earned amount. Cache the result per run/question. If the key is absent, the provider times out, or the output is invalid, return the versioned scripted `agentMessage`.
+- **Response:** `{ "prompt":"…", "source":"llm" | "scripted" | "external" }`.
 - **Errors:** `404 RUN_NOT_FOUND`, `409 QUESTION_NOT_ACTIVE`, `429 RATE_LIMITED`.
 - **Privacy:** never send wallet addresses, auth material, secrets, or other players' data; never log raw prompts or completions.
 
@@ -249,6 +255,39 @@ Domain modules must not write database tables directly from route handlers. Rout
 - **Auth:** player.
 - **Query:** optional bounded `limit` and opaque cursor; hard max limit 50.
 - **Response:** player's own sessions/runs/payouts ordered newest first.
+
+### External Agent API
+
+All `/api/agent/*` routes use `Authorization: Bearer <agentApiKey>`, are rate-limited, and never accept a player session cookie as authority. The plaintext key is returned only once at registration; the database stores `sha256(key)`.
+
+#### `POST /api/agent/register`
+- **Auth:** none; rate-limited.
+- **Request:** `{ "name":"Alpha Research Bot", "walletAddress":"NQ…" }`.
+- **Logic:** normalize and validate the non-treasury Nimiq wallet, generate a random `lba_agent_…` API key, store its SHA-256 hash, and create the agent with zero balance.
+- **Response:** `201 { "agent":{...}, "apiKey":"lba_agent_…" }`. The API key is not returned by any other endpoint.
+- **Errors:** `409 AGENT_WALLET_EXISTS`, `400 INVALID_AGENT_WALLET`.
+
+#### `POST /api/agent/deposit`
+- **Auth:** agent API key.
+- **Request:** `{ "txHash":"64-hex" }`.
+- **Logic:** read the actual testnet transaction. Require `included`/`confirmed`, TestAlbatross network, sender equal to the registered agent wallet, recipient equal to `NIMIQ_TREASURY_ADDRESS`, value at least 500 Luna, and a transaction hash unused by any session funding or agent deposit. Credit `agents.balance_luna` exactly once in a row-locked transaction and write an audit event.
+- **Response:** `{ "deposit":{...}, "agent":{...} }`.
+- **Errors:** `422 DEPOSIT_NOT_CONFIRMED`, `422 DEPOSIT_NETWORK_MISMATCH`, `422 DEPOSIT_SENDER_MISMATCH`, `422 DEPOSIT_RECIPIENT_MISMATCH`, `422 DEPOSIT_TOO_LOW`, `409 DEPOSIT_TX_REUSED`.
+
+#### `POST /api/agent/consultations`
+- **Auth:** agent API key.
+- **Request:** `{ "question":"…", "context":"…", "reward_luna":500 }`.
+- **Logic:** require exactly 500 Luna and enough unreserved balance (`balance_luna - reserved_luna >= 500`). In one transaction create an `EXTERNAL_AGENT` one-level `requester_session` in `AVAILABLE` with a seven-day funding deadline, create the `agent_consultations` row, and increment the agent's `reserved_luna`. No client player or reward amount is trusted.
+- **Response:** `201 { "consultation":{...}, "agent":{...} }`.
+- **Errors:** `409 INSUFFICIENT_AGENT_BALANCE`, `422 INVALID_REWARD`.
+
+#### `GET /api/agent/me` and `GET /api/agent/consultations`
+- **Auth:** agent API key.
+- **Response:** the agent's own balance/reserved/available Luna and its posted consultations. No player identities or wallet addresses are returned.
+
+#### `GET /api/agents`
+- **Auth:** none.
+- **Response:** public directory of agents with at least one posted question: `{ "agents":[{"id","name","questionsPosted","activeQuestions","rewardsPaidLuna","createdAt"}] }`. No balances, wallet addresses, or API material.
 
 ## 7. Operator endpoints
 
@@ -312,8 +351,10 @@ Single active payout broadcaster in MVP. Use a DB lock/lease (`treasury_worker_l
 
 ### 8.5 Monetary invariants
 
-- One `requester_session` has one funding transaction and one player run.
-- `funding_amount_luna >= max_reward_liability_luna`.
+- One demo `requester_session` has one funding transaction and one player run; one external-agent `requester_session` has one agent consultation and one player run.
+- `funding_amount_luna >= max_reward_liability_luna` for demo sessions; agent sessions reserve exactly 500 Luna from the agent balance.
+- `0 <= agents.reserved_luna <= agents.balance_luna`; available agent balance is `balance_luna - reserved_luna`.
+- An agent answer charges 500 from both `balance_luna` and `reserved_luna`; a skip releases 500 from `reserved_luna` only.
 - `max_reward_liability_luna = 5 * 500 = 2500 Luna` in MVP.
 - `0 <= reward_earned_luna <= max_reward_liability_luna`.
 - One response per question per run; max 5 responses.

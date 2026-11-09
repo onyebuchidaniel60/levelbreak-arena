@@ -8,6 +8,7 @@ import { config } from "./config";
 import { checkDatabase, closeDatabase } from "./db";
 import { AppError } from "./errors";
 import { NimiqWebClientService } from "./nimiq/web-client";
+import { registerAgentRoutes } from "./routes/agent";
 import { registerOperatorRoutes } from "./routes/operator";
 import { registerPlayerRoutes } from "./routes/player";
 import { startPayoutWorker } from "./services/payouts";
@@ -161,6 +162,7 @@ async function main(): Promise<void> {
 
   await registerAuthRoutes(app);
   await registerPlayerRoutes(app);
+  await registerAgentRoutes(app, { nimiq });
   await registerOperatorRoutes(app, { nimiq, logger: app.log });
 
   if (config.payoutWorkerEnabled && !config.nimiqTreasuryPrivateKey) {

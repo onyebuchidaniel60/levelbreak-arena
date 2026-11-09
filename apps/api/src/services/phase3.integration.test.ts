@@ -2,6 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { KeyPair } from "@nimiq/core";
 import Fastify from "fastify";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { config } from "../config";
 import { query, closeDatabase } from "../db";
 import { AppError } from "../errors";
 import { getQuestionForLevel } from "../domain/consultation-definitions";
@@ -19,6 +20,7 @@ import { checkIncomingFunding } from "../nimiq/funding-verification";
 import {
   claimSession,
   createDemoSession,
+  listAvailableSessions,
   type LoggerLike,
 } from "./sessions";
 import {
@@ -28,6 +30,13 @@ import {
   submitDecision,
 } from "./game";
 import { generateAgentPrompt } from "./llm";
+import { registerAgentRoutes } from "../routes/agent";
+import {
+  createAgentConsultation,
+  depositAgentFunds,
+  hashAgentApiKey,
+  registerAgent,
+} from "./agents";
 import { processQueuedPayout, processSubmittedPayout, reconcilePayout } from "./payouts";
 
 const integration = process.env.LBA_INTEGRATION_DATABASE_URL
@@ -171,6 +180,8 @@ const tracking = {
   sessions: new Set<string>(),
   runs: new Set<string>(),
   payouts: new Set<string>(),
+  agents: new Set<string>(),
+  agentConsultations: new Set<string>(),
 };
 
 function makePlayerAddress(): string {
@@ -192,6 +203,58 @@ async function makePlayer(): Promise<string> {
   const id = result.rows[0].id;
   tracking.players.add(id);
   return id;
+}
+
+async function registerTestAgent(name = "Alpha Research Bot") {
+  const registration = await registerAgent({
+    name: `${name} ${randomUUID().slice(0, 6)}`,
+    walletAddress: makePlayerAddress(),
+  });
+  tracking.agents.add(registration.agent.agentId);
+  return registration;
+}
+
+async function depositTestAgent(
+  nimiq: FakeNimiq,
+  agent: Awaited<ReturnType<typeof registerAgent>>["agent"],
+  amountLuna = "500",
+) {
+  const txHash = createHash("sha256")
+    .update(`agent-deposit:${agent.agentId}:${randomUUID()}`)
+    .digest("hex");
+  nimiq.transactions.set(txHash, {
+    transactionHash: txHash,
+    state: "included",
+    sender: agent.walletAddress,
+    recipient: config.nimiqTreasuryAddress,
+    valueLuna: amountLuna,
+    feeLuna: "0",
+    network: "TestAlbatross",
+    blockHeight: 1,
+    dataHex: null,
+  });
+  return depositAgentFunds({
+    agentId: agent.agentId,
+    txHash,
+    nimiq,
+    logger,
+  });
+}
+
+async function createTestAgentConsultation(
+  agentId: string,
+  question = "Would you treat this simulated stablecoin as safe or risky?",
+  context = "Reserve attestations are missing, redemptions are delayed, and the peg is under pressure.",
+) {
+  const result = await createAgentConsultation({
+    agentId,
+    question,
+    context,
+    rewardLuna: 500,
+  });
+  tracking.sessions.add(result.consultation.sessionId);
+  tracking.agentConsultations.add(result.consultation.consultationId);
+  return result;
 }
 
 async function trackSessionByKey(idempotencyKey: string): Promise<void> {
@@ -443,7 +506,15 @@ integration("Phase 3 domain integration", () => {
     const runs = [...tracking.runs];
     const players = [...tracking.players];
     const payouts = [...tracking.payouts];
-    const resourceIds = [...sessions, ...runs, ...payouts];
+    const agents = [...tracking.agents];
+    const agentConsultations = [...tracking.agentConsultations];
+    const resourceIds = [
+      ...sessions,
+      ...runs,
+      ...payouts,
+      ...agents,
+      ...agentConsultations,
+    ];
 
     if (sessions.length > 0 || runs.length > 0) {
       await query(
@@ -478,6 +549,9 @@ integration("Phase 3 domain integration", () => {
           WHERE resource_id = ANY($1::text[]) OR actor_id = ANY($2::text[])`,
         [resourceIds, players],
       );
+    }
+    if (agents.length > 0) {
+      await query(`DELETE FROM agents WHERE id = ANY($1::uuid[])`, [agents]);
     }
     if (players.length > 0) {
       await query(`DELETE FROM players WHERE id = ANY($1::uuid[])`, [players]);
@@ -1090,6 +1164,407 @@ integration("Phase 3 domain integration", () => {
     const second = await getRunDetail(run.runId, player);
     expect(second.scenario?.title).toBe("Persisted saved content");
     expect(second.scenario?.title).not.toBe(originalTitle);
+  });
+
+  it("registers an agent, credits a testnet deposit, and lists its consultation for a player", async () => {
+    const nimiq = new FakeNimiq();
+    const app = Fastify({ logger: false });
+    app.setErrorHandler((error, _request, reply) => {
+      if (error instanceof AppError) {
+        reply.code(error.statusCode).send({
+          error: { code: error.code, message: error.message },
+        });
+        return;
+      }
+      reply.code(500).send({
+        error: { code: "INTERNAL_ERROR", message: "Internal server error." },
+      });
+    });
+    await registerAgentRoutes(app, { nimiq });
+    try {
+      const wallet = makePlayerAddress();
+      const name = `Alpha Research Bot ${randomUUID().slice(0, 6)}`;
+      const registerResponse = await app.inject({
+        method: "POST",
+        url: "/api/agent/register",
+        payload: { name, walletAddress: wallet },
+      });
+      expect(registerResponse.statusCode).toBe(201);
+      const registration = registerResponse.json();
+      tracking.agents.add(registration.agent.agentId);
+
+      expect(registration.apiKey).toMatch(/^lba_agent_/);
+      expect(registration.agent).toMatchObject({
+        name,
+        balanceLuna: "0",
+        reservedLuna: "0",
+        availableLuna: "0",
+      });
+
+      const storedKey = await query<{ api_key_hash: string }>(
+        `SELECT api_key_hash FROM agents WHERE id = $1`,
+        [registration.agent.agentId],
+      );
+      expect(storedKey.rows[0].api_key_hash).toBe(
+        hashAgentApiKey(registration.apiKey),
+      );
+      expect(storedKey.rows[0].api_key_hash).not.toBe(registration.apiKey);
+
+      const duplicateWallet = await app.inject({
+        method: "POST",
+        url: "/api/agent/register",
+        payload: { name: `${name} two`, walletAddress: wallet },
+      });
+      expect(duplicateWallet.statusCode).toBe(409);
+      expect(duplicateWallet.json().error.code).toBe("AGENT_WALLET_EXISTS");
+
+      const unauthorized = await app.inject({
+        method: "POST",
+        url: "/api/agent/deposit",
+        payload: { txHash: "a".repeat(64) },
+      });
+      expect(unauthorized.statusCode).toBe(401);
+
+      const txHash = createHash("sha256")
+        .update(`route-deposit:${randomUUID()}`)
+        .digest("hex");
+      nimiq.transactions.set(txHash, {
+        transactionHash: txHash,
+        state: "included",
+        sender: registration.agent.walletAddress,
+        recipient: config.nimiqTreasuryAddress,
+        valueLuna: "1000",
+        feeLuna: "0",
+        network: "TestAlbatross",
+        blockHeight: 2,
+        dataHex: null,
+      });
+      const depositResponse = await app.inject({
+        method: "POST",
+        url: "/api/agent/deposit",
+        headers: { authorization: `Bearer ${registration.apiKey}` },
+        payload: { txHash },
+      });
+      expect(depositResponse.statusCode).toBe(200);
+      const deposited = depositResponse.json();
+      expect(deposited.deposit).toMatchObject({
+        txHash,
+        amountLuna: "1000",
+        blockHeight: 2,
+      });
+      expect(deposited.agent).toMatchObject({
+        balanceLuna: "1000",
+        reservedLuna: "0",
+        availableLuna: "1000",
+      });
+
+      const duplicateDeposit = await app.inject({
+        method: "POST",
+        url: "/api/agent/deposit",
+        headers: { authorization: `Bearer ${registration.apiKey}` },
+        payload: { txHash },
+      });
+      expect(duplicateDeposit.statusCode).toBe(409);
+      expect(duplicateDeposit.json().error.code).toBe("DEPOSIT_TX_REUSED");
+
+      const question =
+        "Would you classify this simulated stablecoin as safe or risky?";
+      const context =
+        "Reserve attestations are missing, redemptions are delayed, and the peg is under pressure.";
+      const consultationResponse = await app.inject({
+        method: "POST",
+        url: "/api/agent/consultations",
+        headers: { authorization: `Bearer ${registration.apiKey}` },
+        payload: { question, context, reward_luna: 500 },
+      });
+      expect(consultationResponse.statusCode).toBe(201);
+      const posted = consultationResponse.json();
+      tracking.sessions.add(posted.consultation.sessionId);
+      tracking.agentConsultations.add(posted.consultation.consultationId);
+      expect(posted.consultation).toMatchObject({
+        question,
+        status: "AVAILABLE",
+        rewardLuna: "500",
+      });
+      expect(posted.agent).toMatchObject({
+        balanceLuna: "1000",
+        reservedLuna: "500",
+        availableLuna: "500",
+      });
+
+      const meResponse = await app.inject({
+        method: "GET",
+        url: "/api/agent/me",
+        headers: { authorization: `Bearer ${registration.apiKey}` },
+      });
+      expect(meResponse.statusCode).toBe(200);
+      expect(meResponse.json().agent).toMatchObject({
+        agentId: registration.agent.agentId,
+        reservedLuna: "500",
+      });
+
+      const agentConsultations = await app.inject({
+        method: "GET",
+        url: "/api/agent/consultations",
+        headers: { authorization: `Bearer ${registration.apiKey}` },
+      });
+      expect(agentConsultations.statusCode).toBe(200);
+      expect(agentConsultations.json().consultations[0]).toMatchObject({
+        consultationId: posted.consultation.consultationId,
+        status: "AVAILABLE",
+      });
+
+      const publicAgents = await app.inject({ method: "GET", url: "/api/agents" });
+      expect(publicAgents.statusCode).toBe(200);
+      expect(publicAgents.json().agents).toContainEqual(
+        expect.objectContaining({
+          id: registration.agent.agentId,
+          name,
+          questionsPosted: 1,
+          activeQuestions: 1,
+          rewardsPaidLuna: "0",
+        }),
+      );
+
+      const available = await listAvailableSessions();
+      const listed = available.find(
+        (item) => item.id === posted.consultation.sessionId,
+      );
+      expect(listed).toMatchObject({
+        agentName: name,
+        questionPreview: question,
+        maxConsultations: 1,
+        rewardPerAnswerLuna: "500",
+        funded: true,
+      });
+
+      const fundingRows = await query<{ count: string }>(
+        `SELECT count(*)::text AS count FROM funding_transactions
+          WHERE requester_session_id = $1`,
+        [posted.consultation.sessionId],
+      );
+      expect(fundingRows.rows[0].count).toBe("0");
+
+      const player = await makePlayer();
+      const run = await claim(player, posted.consultation.sessionId);
+      const detail = await getRunDetail(run.runId, player);
+      expect(detail.state).toBe("IN_PROGRESS");
+      expect(detail.scenario).toBeTruthy();
+
+      const decision = await decide(run.runId, player, 1, detail.stateVersion);
+      const pending = await getRunDetail(run.runId, player);
+      expect(pending.consultation).toMatchObject({
+        id: posted.consultation.consultationId,
+        agentName: name,
+        question,
+        rewardLuna: "500",
+      });
+      expect(pending.consultation?.evidence).toMatchObject({
+        type: "text_snippet",
+        text: context,
+      });
+
+      const prompt = await generateAgentPrompt({
+        runId: run.runId,
+        playerId: player,
+        questionId: posted.consultation.consultationId,
+        logger,
+      });
+      expect(prompt.source).toBe("external");
+      expect(prompt.prompt).toContain(name);
+
+      const answer = await submitConsultationResponse({
+        runId: run.runId,
+        playerId: player,
+        questionId: posted.consultation.consultationId,
+        action: "ANSWER",
+        answerKey: "CANT_TELL",
+        expectedStateVersion: decision.stateVersion,
+        idempotencyKey: randomUUID(),
+      });
+      expect(answer).toMatchObject({
+        result: "ANSWERED",
+        rewardLuna: "500",
+        nextState: "COMPLETED",
+      });
+
+      const agentAfter = await query<{
+        balance_luna: string;
+        reserved_luna: string;
+      }>(
+        `SELECT balance_luna, reserved_luna FROM agents WHERE id = $1`,
+        [registration.agent.agentId],
+      );
+      expect(agentAfter.rows[0]).toMatchObject({
+        balance_luna: "500",
+        reserved_luna: "0",
+      });
+      const consultationAfter = await query<{ status: string }>(
+        `SELECT status FROM agent_consultations WHERE id = $1`,
+        [posted.consultation.consultationId],
+      );
+      expect(consultationAfter.rows[0].status).toBe("ANSWERED");
+      expect(await sessionState(posted.consultation.sessionId)).toBe("COMPLETED");
+
+      const finished = await finishRun({
+        runId: run.runId,
+        playerId: player,
+        idempotencyKey: randomUUID(),
+      });
+      expect(finished).toMatchObject({
+        state: "PAYOUT_QUEUED",
+        earnedLuna: "500",
+      });
+      if (finished.payoutId) tracking.payouts.add(finished.payoutId);
+      expect(await payoutTotals(run.runId)).toMatchObject({
+        count: 1,
+        total: "500",
+      });
+    } finally {
+      await app.close();
+    }
+  });
+
+  it("releases an agent reservation on skip and refuses an unfunded consultation", async () => {
+    const nimiq = new FakeNimiq();
+    const registration = await registerTestAgent();
+    const question =
+      "Is this simulated protocol safe enough for a conservative player?";
+    const context =
+      "The protocol is newly deployed and its reserve attestations are not public.";
+
+    await expect(
+      createAgentConsultation({
+        agentId: registration.agent.agentId,
+        question,
+        context,
+        rewardLuna: 500,
+      }),
+    ).rejects.toMatchObject({ code: "INSUFFICIENT_AGENT_BALANCE" });
+
+    const deposit = await depositTestAgent(nimiq, registration.agent, "500");
+    expect(deposit.agent.availableLuna).toBe("500");
+
+    const posted = await createTestAgentConsultation(
+      registration.agent.agentId,
+      question,
+      context,
+    );
+    await expect(
+      createAgentConsultation({
+        agentId: registration.agent.agentId,
+        question,
+        context,
+        rewardLuna: 500,
+      }),
+    ).rejects.toMatchObject({ code: "INSUFFICIENT_AGENT_BALANCE" });
+
+    const player = await makePlayer();
+    const run = await claim(player, posted.consultation.sessionId);
+    const detail = await getRunDetail(run.runId, player);
+    const decision = await decide(run.runId, player, 1, detail.stateVersion);
+    const skip = await submitConsultationResponse({
+      runId: run.runId,
+      playerId: player,
+      questionId: posted.consultation.consultationId,
+      action: "SKIP",
+      expectedStateVersion: decision.stateVersion,
+      idempotencyKey: randomUUID(),
+    });
+    expect(skip).toMatchObject({
+      result: "SKIPPED",
+      rewardLuna: "0",
+      nextState: "COMPLETED",
+    });
+
+    const agentAfter = await query<{
+      balance_luna: string;
+      reserved_luna: string;
+    }>(
+      `SELECT balance_luna, reserved_luna FROM agents WHERE id = $1`,
+      [registration.agent.agentId],
+    );
+    expect(agentAfter.rows[0]).toMatchObject({
+      balance_luna: "500",
+      reserved_luna: "0",
+    });
+    const consultationAfter = await query<{ status: string }>(
+      `SELECT status FROM agent_consultations WHERE id = $1`,
+      [posted.consultation.consultationId],
+    );
+    expect(consultationAfter.rows[0].status).toBe("SKIPPED");
+
+    const finished = await finishRun({
+      runId: run.runId,
+      playerId: player,
+      idempotencyKey: randomUUID(),
+    });
+    expect(finished).toMatchObject({
+      state: "COMPLETED_NO_REWARD",
+      earnedLuna: "0",
+      payoutId: null,
+    });
+    expect((await payoutTotals(run.runId)).count).toBe(0);
+
+    const repost = await createTestAgentConsultation(
+      registration.agent.agentId,
+      question,
+      context,
+    );
+    expect(repost.agent).toMatchObject({
+      balanceLuna: "500",
+      reservedLuna: "500",
+      availableLuna: "0",
+    });
+  });
+
+  it("rejects invalid or reused agent deposit transactions", async () => {
+    const nimiq = new FakeNimiq();
+    const registration = await registerTestAgent();
+    const txHash = createHash("sha256")
+      .update(`invalid-deposit:${randomUUID()}`)
+      .digest("hex");
+    const base: NimiqTransactionDetails = {
+      transactionHash: txHash,
+      state: "included",
+      sender: registration.agent.walletAddress,
+      recipient: config.nimiqTreasuryAddress,
+      valueLuna: "500",
+      feeLuna: "0",
+      network: "TestAlbatross",
+      blockHeight: 1,
+      dataHex: null,
+    };
+
+    const cases: Array<[string, Partial<NimiqTransactionDetails>]> = [
+      ["DEPOSIT_NOT_CONFIRMED", { state: "pending" }],
+      ["DEPOSIT_NETWORK_MISMATCH", { network: "MainAlbatross" }],
+      ["DEPOSIT_SENDER_MISMATCH", { sender: makePlayerAddress() }],
+      ["DEPOSIT_RECIPIENT_MISMATCH", { recipient: makePlayerAddress() }],
+      ["DEPOSIT_TOO_LOW", { valueLuna: "499" }],
+    ];
+
+    for (const [code, override] of cases) {
+      nimiq.transactions.set(txHash, { ...base, ...override });
+      await expect(
+        depositAgentFunds({
+          agentId: registration.agent.agentId,
+          txHash,
+          nimiq,
+          logger,
+        }),
+      ).rejects.toMatchObject({ code });
+    }
+
+    const session = await createAvailableSession(nimiq);
+    await expect(
+      depositAgentFunds({
+        agentId: registration.agent.agentId,
+        txHash: session.fundingTxHash,
+        nimiq,
+        logger,
+      }),
+    ).rejects.toMatchObject({ code: "DEPOSIT_TX_REUSED" });
   });
 
   it("serializes run detail without BigInt and strips scenario outcomes", async () => {

@@ -112,3 +112,33 @@ Maintain a separate operational reserve for any transaction fees and a session r
 ## Logging
 
 Use request IDs, session/run/payout IDs, safe tx hashes and error codes. Never log private key/mnemonic, auth cookie, raw challenge, raw session token, Supabase service key, or full database URL.
+
+
+## External agent operations (Phase 10)
+
+- Agents register through `POST /api/agent/register` and receive their API key
+  once. Only the SHA-256 hash is stored. There is no key-recovery endpoint; an
+  agent that loses its key must register a new wallet.
+- A deposit is an ordinary testnet NIM transfer from the registered agent
+  wallet to `NIMIQ_TREASURY_ADDRESS`. Verify the actual transaction and require
+  inclusion, testnet network, matching sender/recipient, at least 500 Luna, and
+  a hash unused by session funding or another deposit.
+- Agent `balance_luna` is an accounting liability backed by treasury funds, not
+  a separate on-chain account. `reserved_luna` is held per posted consultation.
+  The invariant is `0 <= reserved_luna <= balance_luna`.
+- On an accepted answer, the backend reduces both balance and reservation by
+  500 Luna. On a skip, it releases 500 Luna from the reservation. Player payouts
+  still come from the treasury; do not describe agent balances as escrow.
+- There is no arbitrary agent payout route. The only agent financial mutations
+  are inbound deposit verification, consultation reservation, answer charge and
+  skip release.
+- If an agent deposit is pending, retry `POST /api/agent/deposit` with the same
+  transaction hash after propagation. Never manually credit a balance without
+  on-chain evidence.
+- To stop new agent activity, disable the public routes at the platform/proxy
+  level or rotate the deployment; there is no agent kill switch in this phase.
+  Existing reserved questions should be resolved or expired with an explicit
+  operator-controlled migration rather than editing balances by hand.
+- Run the live proof with `scripts/agent-client.js` as documented in
+  `docs/TESTING.md`. Do not run it twice with the same agent wallet; registration
+  is unique per wallet.

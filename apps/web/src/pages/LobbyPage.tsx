@@ -75,7 +75,7 @@ export function LobbyPage() {
         <PageHeader
           eyebrow="Lobby"
           title="Sign in to see funded sessions"
-          description="Each session is funded by an operator-controlled demo wallet and verified on the Nimiq testnet before it becomes available."
+          description="Demo sessions are funded by an operator-controlled wallet; external agent questions are backed by a verified testnet deposit. Both are checked before listing."
         />
         <Panel className="p-5 sm:p-6">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
@@ -179,7 +179,7 @@ export function LobbyPage() {
       <PageHeader
         eyebrow="Lobby"
         title="Funded sessions"
-        description="Choose a verified testnet session. One funded session supports one player run and up to five consultations."
+        description="Choose a funded session. Demo sessions support the five-level run; external agent questions are single-question consultations."
         actions={
           <Link
             to="/history"
@@ -231,22 +231,52 @@ export function LobbyPage() {
                 />
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <SectionLabel>Session / {session.publicRef}</SectionLabel>
+                    <SectionLabel>
+                      {session.agentName
+                        ? `Agent marketplace / ${session.publicRef}`
+                        : `Session / ${session.publicRef}`}
+                    </SectionLabel>
                     <h2 className="mt-2 text-lg font-semibold text-numeric">
-                      Funded arena run
+                      {session.agentName
+                        ? `Request from ${session.agentName}`
+                        : "Funded arena run"}
                     </h2>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <StatusBadge label={session.funded ? "Funded" : "Not funded"} />
+                    {session.agentName ? (
+                      <Badge tone="gold">External agent</Badge>
+                    ) : null}
+                    <StatusBadge
+                      label={
+                        session.agentName
+                          ? "Agent funded"
+                          : session.funded
+                            ? "Funded"
+                            : "Not funded"
+                      }
+                    />
                     <StatusBadge label={session.state} />
                   </div>
                 </div>
+
+                {session.questionPreview ? (
+                  <div className="mt-3 rounded-lg border border-gold/20 bg-gold/[0.04] p-3">
+                    <SectionLabel>Question preview</SectionLabel>
+                    <p className="mt-1 text-sm leading-6 text-body">
+                      {session.questionPreview}
+                    </p>
+                  </div>
+                ) : null}
 
                 <div className="mt-4 grid gap-2 sm:grid-cols-3">
                   <StatTile
                     label="Consultations"
                     value={session.maxConsultations}
-                    sub="One per level"
+                    sub={
+                      session.agentName
+                        ? "External agent question"
+                        : "One per level"
+                    }
                     tone="gold"
                   />
                   <StatTile
@@ -265,8 +295,9 @@ export function LobbyPage() {
 
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
                   <p className="max-w-xs text-xs leading-5 text-dim">
-                    Funding is verified on-chain. Claiming reserves this session
-                    for one player and cannot be undone.
+                    {session.agentName
+                      ? "The agent's balance is reserved for this question. Claiming locks it for one player and cannot be undone."
+                      : "Funding is verified on-chain. Claiming reserves this session for one player and cannot be undone."}
                   </p>
                   <Button
                     variant="primary"
@@ -274,7 +305,11 @@ export function LobbyPage() {
                     onClick={() => void handleClaim(session.id)}
                     disabled={claimMutation.isPending}
                   >
-                    {claimMutation.isPending ? "Starting…" : "Start run"}
+                    {claimMutation.isPending
+                      ? "Starting…"
+                      : session.agentName
+                        ? "Answer question"
+                        : "Start run"}
                     <ArrowRightIcon className="h-4 w-4" />
                   </Button>
                 </div>
@@ -286,8 +321,9 @@ export function LobbyPage() {
         <EmptyState title="No funded session available.">
           <div className="space-y-3">
             <p>
-              The operator has not published a verified session yet. A session
-              only appears here after its funding transaction is confirmed.
+              No verified demo session is open and no external agent has posted
+              a question yet. A session only appears after its funding is
+              verified or its agent balance is reserved.
             </p>
             <div className="flex flex-wrap gap-2">
               <Button
@@ -319,9 +355,10 @@ export function LobbyPage() {
       <div className="grid gap-3 sm:grid-cols-3">
         <Panel className="p-4">
           <CheckIcon className="h-4 w-4 text-positive" />
-          <p className="mt-2 text-xs font-semibold text-body">On-chain funding gate</p>
+          <p className="mt-2 text-xs font-semibold text-body">Verified funding gate</p>
           <p className="mt-1 text-xs leading-5 text-dim">
-            A session is never listed until the incoming transfer is verified.
+            Demo sessions require verified on-chain funding; external agent
+            questions require a reserved agent balance.
           </p>
         </Panel>
         <Panel className="p-4">

@@ -1,6 +1,11 @@
 import type { PoolClient } from "pg";
 
-export type AuditActorType = "PLAYER" | "OPERATOR" | "SYSTEM" | "DEMO_AGENT";
+export type AuditActorType =
+  | "PLAYER"
+  | "OPERATOR"
+  | "SYSTEM"
+  | "DEMO_AGENT"
+  | "AGENT";
 
 export type AuditEventInput = {
   actorType: AuditActorType;

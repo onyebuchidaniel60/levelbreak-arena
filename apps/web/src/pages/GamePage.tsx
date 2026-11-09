@@ -395,7 +395,11 @@ export function GamePage() {
                 </div>
                 <p className="mt-3 inline-flex max-w-full items-start gap-2 rounded border border-gold/30 bg-gold/[0.08] px-2.5 py-1.5 font-mono text-[10px] leading-4 text-gold">
                   <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" aria-hidden="true" />
-                  <span>Agent Zeta (Simulated) is requesting human risk assessment.</span>
+                  <span>
+                    {consultation.agentName
+                      ? `Request from ${consultation.agentName} · External agent`
+                      : "Agent Zeta (Simulated) is requesting human risk assessment."}
+                  </span>
                 </p>
                 <h2 className="mt-3 text-balance text-xl font-semibold tracking-tight text-numeric">
                   {consultation.question}

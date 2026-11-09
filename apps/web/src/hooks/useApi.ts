@@ -6,6 +6,7 @@ import {
 import { api, isApiError } from "../lib/api";
 import type {
   AgentPromptResponse,
+  AgentsResponse,
   AvailableSession,
   ClaimResponse,
   FinishResponse,
@@ -19,6 +20,7 @@ import type {
 export const queryKeys = {
   me: ["me"] as const,
   config: ["config"] as const,
+  agents: ["agents"] as const,
   availableSessions: ["sessions", "available"] as const,
   run: (runId: string) => ["runs", runId] as const,
   payout: (runId: string) => ["runs", runId, "payout"] as const,
@@ -65,6 +67,16 @@ export function useMeQuery() {
     retry: retryQuery,
     retryDelay,
     staleTime: 10_000,
+  });
+}
+
+export function useAgentsQuery() {
+  return useQuery<AgentsResponse>({
+    queryKey: queryKeys.agents,
+    queryFn: api.agents,
+    retry: retryQuery,
+    retryDelay,
+    staleTime: 60_000,
   });
 }
 
@@ -154,6 +166,7 @@ export function useClaimSessionMutation() {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.availableSessions,
       });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.agents });
       void queryClient.invalidateQueries({ queryKey: queryKeys.me });
     },
   });
@@ -202,6 +215,7 @@ export function useRespondMutation(runId: string) {
           }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.run(runId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.agents });
     },
   });
 }
@@ -214,6 +228,7 @@ export function useFinishMutation(runId: string) {
       void queryClient.invalidateQueries({ queryKey: queryKeys.run(runId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.payout(runId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.history });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.agents });
     },
   });
 }

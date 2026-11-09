@@ -1,5 +1,6 @@
 import {
   agentPromptResponseSchema,
+  agentsResponseSchema,
   availableSessionsResponseSchema,
   claimResponseSchema,
   decisionResponseSchema,
@@ -14,6 +15,7 @@ import {
   runDetailSchema,
   verifyResponseSchema,
   type AgentPromptResponse,
+  type AgentsResponse,
   type AvailableSession,
   type ClaimResponse,
   type DecisionResponse,
@@ -278,6 +280,9 @@ export const api = {
     apiRequest("/api/sessions/available", {
       schema: availableSessionsResponseSchema,
     }),
+
+  agents: (): Promise<AgentsResponse> =>
+    apiRequest("/api/agents", { schema: agentsResponseSchema }),
 
   claim: (sessionId: string, idempotencyKey: string): Promise<ClaimResponse> =>
     apiRequest(`/api/sessions/${sessionId}/claim`, {

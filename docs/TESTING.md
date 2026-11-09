@@ -204,3 +204,43 @@ LBA_INTEGRATION_DATABASE_URL=postgres://... pnpm test:integration
 4. The second response returns the modified saved title, proving the run reused stored content instead of regenerating it.
 
 `apps/api/src/services/llm-success.test.ts` covers strict JSON validation/normalization for `generateLevelScenario` and the static fallback on provider failure. The live Groq path was also exercised directly with the production model; level content returned `source: "llm"` with SAFE/RISKY decisions and a text-snippet evidence payload.
+
+
+## Phase 10 external Agent API coverage
+
+The integration suite now covers the external-agent marketplace in addition to
+the Phase 3-8 flows:
+
+- registration returns a one-time API key and stores only its SHA-256 hash;
+- duplicate agent wallets are rejected;
+- a verified testnet deposit from the registered wallet credits the agent
+  balance, while duplicate hashes, wrong sender/recipient/network, pending
+  transactions and amounts below 500 Luna are rejected;
+- a posted consultation reserves 500 Luna, appears in the player lobby with the
+  agent name and question preview, and can be claimed without a session funding
+  transaction;
+- the player sees the agent's name, question and context, answers it, earns 500
+  Luna, and the agent's `balance_luna` and `reserved_luna` are each reduced;
+- a skipped agent consultation releases the reservation without charging the
+  agent;
+- finishing the answered run creates exactly one 500-Luna payout row.
+
+The UI suite `tests/e2e/phase10.ui.spec.ts` checks the agent lobby card, the
+"Request from <agent>" label and "Agent submission" source in the game, and the
+landing-page Active Agents directory at 320px and 1280px.
+
+The live client proof is `scripts/agent-client.js`:
+
+```bash
+API_BASE_URL=https://levelbreak-arena.onrender.com \
+APP_ORIGIN=https://levelbreak-arena.vercel.app \
+AGENT_PRIVATE_KEY=<testnet-agent-key> \
+NIMIQ_TREASURY_ADDRESS=<treasury-address> \
+  node scripts/agent-client.js
+```
+
+It registers an agent, sends/uses a real testnet deposit, posts a consultation,
+authenticates a fresh player wallet, finds the question in the lobby, claims it,
+answers it and finishes the run. Set `AGENT_DEPOSIT_TX_HASH` to use an existing
+transfer instead of sending one. Set `WAIT_FOR_PAYOUT=true` to poll the payout
+until confirmed. The script never prints the API key or private key.

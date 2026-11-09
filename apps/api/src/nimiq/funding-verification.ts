@@ -8,6 +8,15 @@ export type FundingVerificationInput = {
   expectedReference: string;
 };
 
+export function isTestnetNetwork(network: string): boolean {
+  const normalized = network.toLowerCase();
+  return (
+    normalized.includes("testalbatross") ||
+    normalized === "testnet" ||
+    normalized === "5"
+  );
+}
+
 export function checkIncomingFunding(
   transaction: NimiqTransactionDetails,
   input: FundingVerificationInput,
@@ -21,12 +30,7 @@ export function checkIncomingFunding(
     };
   }
 
-  const network = transaction.network.toLowerCase();
-  if (
-    !network.includes("testalbatross") &&
-    network !== "testnet" &&
-    network !== "5"
-  ) {
+  if (!isTestnetNetwork(transaction.network)) {
     return {
       verified: false,
       reason: "NETWORK_MISMATCH",

@@ -22,6 +22,7 @@ type SessionRow = {
   id: string;
   public_ref: string;
   requester_type: string;
+  agent_id: string | null;
   state: string;
   network_id: string;
   treasury_address: string;
@@ -108,7 +109,7 @@ function toSessionDTO(row: SessionRow, fundingTxHash: string | null): SessionDTO
 
 async function loadSession(sessionId: string): Promise<SessionRow | null> {
   const result = await query<SessionRow>(
-    `SELECT id, public_ref, requester_type, state, network_id, treasury_address,
+    `SELECT id, public_ref, requester_type, agent_id, state, network_id, treasury_address,
             expected_funding_luna, reward_per_answer_luna, max_consultations,
             max_reward_liability_luna, reserved_liability_luna, unused_credit_luna,
             funding_deadline, claimed_by_player_run_id, creation_idempotency_key,
@@ -218,7 +219,7 @@ async function activateFunding(
   try {
     await withTransaction(async (client) => {
       const lockedResult = await client.query<SessionRow>(
-        `SELECT id, public_ref, requester_type, state, network_id, treasury_address,
+        `SELECT id, public_ref, requester_type, agent_id, state, network_id, treasury_address,
                 expected_funding_luna, reward_per_answer_luna, max_consultations,
                 max_reward_liability_luna, reserved_liability_luna, unused_credit_luna,
                 funding_deadline, claimed_by_player_run_id, creation_idempotency_key,
@@ -252,6 +253,16 @@ async function activateFunding(
         throw errors.conflict(
           "FUNDING_TX_REUSED",
           "This funding transaction already belongs to another session.",
+        );
+      }
+      const agentDeposit = await client.query<{ id: string }>(
+        `SELECT id FROM agent_deposits WHERE tx_hash = $1 LIMIT 1`,
+        [transaction.transactionHash],
+      );
+      if (agentDeposit.rows[0]) {
+        throw errors.conflict(
+          "FUNDING_TX_REUSED",
+          "This transaction was already credited as an agent deposit.",
         );
       }
 
@@ -513,6 +524,16 @@ async function sendDemoFunding(
           "This funding transaction already exists.",
         );
       }
+      const agentDeposit = await client.query<{ id: string }>(
+        `SELECT id FROM agent_deposits WHERE tx_hash = $1 LIMIT 1`,
+        [sent!.txHash],
+      );
+      if (agentDeposit.rows[0]) {
+        throw errors.conflict(
+          "FUNDING_TX_REUSED",
+          "This transaction was already credited as an agent deposit.",
+        );
+      }
 
       await client.query(
         `INSERT INTO funding_transactions
@@ -572,7 +593,7 @@ export async function createDemoSession(input: {
   }
 
   const existing = await query<SessionRow>(
-    `SELECT id, public_ref, requester_type, state, network_id, treasury_address,
+    `SELECT id, public_ref, requester_type, agent_id, state, network_id, treasury_address,
             expected_funding_luna, reward_per_answer_luna, max_consultations,
             max_reward_liability_luna, reserved_liability_luna, unused_credit_luna,
             funding_deadline, claimed_by_player_run_id, creation_idempotency_key,
@@ -597,7 +618,7 @@ export async function createDemoSession(input: {
           funding_deadline, creation_idempotency_key)
        VALUES ($1, 'SCRIPTED_DEMO', 'AWAITING_FUNDING', 'testnet', $2,
                $3, $4, $5, $6, 0, 0, $7, $8)
-       RETURNING id, public_ref, requester_type, state, network_id, treasury_address,
+       RETURNING id, public_ref, requester_type, agent_id, state, network_id, treasury_address,
                  expected_funding_luna, reward_per_answer_luna, max_consultations,
                  max_reward_liability_luna, reserved_liability_luna, unused_credit_luna,
                  funding_deadline, claimed_by_player_run_id, creation_idempotency_key,
@@ -617,7 +638,7 @@ export async function createDemoSession(input: {
   } catch (error) {
     if (isPgUniqueViolation(error)) {
       const replay = await query<SessionRow>(
-        `SELECT id, public_ref, requester_type, state, network_id, treasury_address,
+        `SELECT id, public_ref, requester_type, agent_id, state, network_id, treasury_address,
                 expected_funding_luna, reward_per_answer_luna, max_consultations,
                 max_reward_liability_luna, reserved_liability_luna, unused_credit_luna,
                 funding_deadline, claimed_by_player_run_id, creation_idempotency_key,
@@ -674,6 +695,8 @@ export async function listAvailableSessions(): Promise<
     maxRewardLuna: string;
     funded: true;
     state: string;
+    agentName: string | null;
+    questionPreview: string | null;
   }>
 > {
   const result = await query<{
@@ -683,18 +706,36 @@ export async function listAvailableSessions(): Promise<
     reward_per_answer_luna: string;
     max_reward_liability_luna: string;
     state: string;
+    agent_name: string | null;
+    question_preview: string | null;
   }>(
     `SELECT s.id, s.public_ref, s.max_consultations, s.reward_per_answer_luna,
-            s.max_reward_liability_luna, s.state
+            s.max_reward_liability_luna, s.state,
+            a.name AS agent_name,
+            CASE
+              WHEN c.id IS NOT NULL THEN left(c.question, 160)
+              ELSE NULL
+            END AS question_preview
        FROM requester_sessions s
+       LEFT JOIN agents a ON a.id = s.agent_id
+       LEFT JOIN agent_consultations c ON c.requester_session_id = s.id
       WHERE s.state = 'AVAILABLE'
         AND s.claimed_by_player_run_id IS NULL
         AND s.funding_deadline > now()
-        AND EXISTS (
-          SELECT 1 FROM funding_transactions f
-           WHERE f.requester_session_id = s.id AND f.status = 'VERIFIED'
+        AND (
+          (
+            s.agent_id IS NULL
+            AND EXISTS (
+              SELECT 1 FROM funding_transactions f
+               WHERE f.requester_session_id = s.id AND f.status = 'VERIFIED'
+            )
+          )
+          OR (
+            s.agent_id IS NOT NULL
+            AND c.status = 'AVAILABLE'
+          )
         )
-      ORDER BY s.created_at ASC
+      ORDER BY (s.agent_id IS NOT NULL) DESC, s.created_at ASC
       LIMIT 50`,
   );
 
@@ -706,6 +747,8 @@ export async function listAvailableSessions(): Promise<
     maxRewardLuna: lunaString(row.max_reward_liability_luna),
     funded: true as const,
     state: row.state,
+    agentName: row.agent_name,
+    questionPreview: row.question_preview,
   }));
 }
 
@@ -749,7 +792,7 @@ export async function claimSession(input: {
     }
 
     const sessionResult = await client.query<SessionRow>(
-      `SELECT id, public_ref, requester_type, state, network_id, treasury_address,
+      `SELECT id, public_ref, requester_type, agent_id, state, network_id, treasury_address,
               expected_funding_luna, reward_per_answer_luna, max_consultations,
               max_reward_liability_luna, reserved_liability_luna, unused_credit_luna,
               funding_deadline, claimed_by_player_run_id, creation_idempotency_key,
@@ -781,17 +824,44 @@ export async function claimSession(input: {
       throw errors.conflict("SESSION_EXPIRED", "This session has expired.");
     }
 
-    const funding = await client.query<{ status: string }>(
-      `SELECT status FROM funding_transactions
-        WHERE requester_session_id = $1
-        FOR SHARE`,
-      [session.id],
-    );
-    if (funding.rows[0]?.status !== "VERIFIED") {
-      throw errors.unprocessable(
-        "SESSION_NOT_FUNDED",
-        "This session is not available yet.",
+    if (session.agent_id) {
+      const consultation = await client.query<{ status: string }>(
+        `SELECT status FROM agent_consultations
+          WHERE requester_session_id = $1
+          FOR UPDATE`,
+        [session.id],
       );
+      if (consultation.rows[0]?.status !== "AVAILABLE") {
+        throw errors.conflict(
+          "SESSION_UNAVAILABLE",
+          "This agent consultation is no longer available.",
+        );
+      }
+      const updated = await client.query(
+        `UPDATE agent_consultations
+            SET status = 'IN_PROGRESS', updated_at = now()
+          WHERE requester_session_id = $1 AND status = 'AVAILABLE'`,
+        [session.id],
+      );
+      if (updated.rowCount !== 1) {
+        throw errors.conflict(
+          "SESSION_UNAVAILABLE",
+          "This agent consultation is no longer available.",
+        );
+      }
+    } else {
+      const funding = await client.query<{ status: string }>(
+        `SELECT status FROM funding_transactions
+          WHERE requester_session_id = $1
+          FOR SHARE`,
+        [session.id],
+      );
+      if (funding.rows[0]?.status !== "VERIFIED") {
+        throw errors.unprocessable(
+          "SESSION_NOT_FUNDED",
+          "This session is not available yet.",
+        );
+      }
     }
 
     const player = await client.query<{ status: string }>(
@@ -879,7 +949,7 @@ export async function claimSession(input: {
       action: "session_claimed",
       resourceType: "player_run",
       resourceId: run.id,
-      details: { sessionId: session.id },
+      details: { sessionId: session.id, agentId: session.agent_id },
     });
 
     return {

@@ -48,13 +48,18 @@ export function AgentMessage({
   confidence: "low" | "medium" | "high";
   fallback: string;
   prompt?: string;
-  source?: "llm" | "scripted";
+  source?: "llm" | "scripted" | "external";
   loading?: boolean;
   className?: string;
 }) {
   const text = prompt?.trim() || fallback;
   const displayed = useTypewriter(text, !loading);
-  const sourceLabel = source === "llm" ? "LLM draft" : "Scripted fallback";
+  const sourceLabel =
+    source === "llm"
+      ? "LLM draft"
+      : source === "external"
+        ? "Agent submission"
+        : "Scripted fallback";
   const confidenceLabel = useMemo(
     () => `${confidence} confidence`,
     [confidence],
@@ -82,7 +87,9 @@ export function AgentMessage({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone={source === "llm" ? "gold" : "neutral"}>{sourceLabel}</Badge>
+          <Badge tone={source === "llm" || source === "external" ? "gold" : "neutral"}>
+            {sourceLabel}
+          </Badge>
           <Badge tone="neutral">{confidenceLabel}</Badge>
         </div>
       </div>

@@ -47,6 +47,8 @@ export const availableSessionSchema = z.object({
   maxRewardLuna: lunaSchema,
   funded: z.literal(true),
   state: z.string(),
+  agentName: z.string().nullable().optional(),
+  questionPreview: z.string().nullable().optional(),
 });
 
 export const availableSessionsResponseSchema = z.object({
@@ -128,6 +130,7 @@ export const consultationSchema = z.object({
   agentContext: z.string(),
   agentConfidence: z.enum(["low", "medium", "high"]),
   agentMessage: z.string(),
+  agentName: z.string().nullable().optional(),
   evidence: evidenceSchema,
   question: z.string(),
   options: z.array(consultationOptionSchema),
@@ -243,7 +246,20 @@ export const payoutResponseSchema = z.object({
 
 export const agentPromptResponseSchema = z.object({
   prompt: z.string().min(1).max(700),
-  source: z.enum(["llm", "scripted"]),
+  source: z.enum(["llm", "scripted", "external"]),
+});
+
+export const publicAgentSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  questionsPosted: z.number().int().min(0),
+  activeQuestions: z.number().int().min(0),
+  rewardsPaidLuna: lunaSchema,
+  createdAt: isoDateSchema,
+});
+
+export const agentsResponseSchema = z.object({
+  agents: z.array(publicAgentSchema),
 });
 
 export const historyItemSchema = z.object({
@@ -270,6 +286,8 @@ export type NonceResponse = z.infer<typeof nonceResponseSchema>;
 export type VerifyResponse = z.infer<typeof verifyResponseSchema>;
 export type MeResponse = z.infer<typeof meResponseSchema>;
 export type AvailableSession = z.infer<typeof availableSessionSchema>;
+export type PublicAgent = z.infer<typeof publicAgentSchema>;
+export type AgentsResponse = z.infer<typeof agentsResponseSchema>;
 export type ClaimResponse = z.infer<typeof claimResponseSchema>;
 export type Scenario = z.infer<typeof scenarioSchema>;
 export type Evidence = z.infer<typeof evidenceSchema>;

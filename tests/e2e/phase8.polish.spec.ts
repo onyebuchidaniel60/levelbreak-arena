@@ -105,14 +105,21 @@ test("footer has the real documentation and public GitHub links", async ({
   await expect(github).toHaveAttribute("rel", "noreferrer");
 });
 
-test("docs, privacy and terms state the five-level / LLM / demo off-ramp model", async ({
+test("docs, privacy and terms state the five-level / LLM / agent / demo off-ramp model", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 800 });
 
   await page.goto("/docs", { waitUntil: "networkidle" });
-  await expect(page.getByText("Phase 8 — Final functionality proof.")).toBeVisible();
-  await expect(page.getByText(/five-level flow was proven end to end/i)).toBeVisible();
+  await expect(
+    page.getByText("Phase 10 — External Agent marketplace."),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/External agents can now register/i),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/verified funding or a reserved agent balance/i),
+  ).toBeVisible();
   await expect(
     page.getByRole("link", { name: /GitHub repository/i }),
   ).toHaveAttribute("href", REPO);

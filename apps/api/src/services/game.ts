@@ -8,6 +8,13 @@ import {
 import { lunaString, toLuna } from "../domain/money";
 import { evaluateScenario } from "../domain/scenario-definitions";
 import { assertTransition } from "../domain/state-machines";
+import {
+  AGENT_CONSULTATION_OPTIONS,
+  agentConsultationContext,
+  agentConsultationEvidence,
+  agentConsultationMessage,
+  agentEvidenceVersion,
+} from "./agents";
 import { recordAudit } from "./audit";
 import {
   generateLevelScenario,
@@ -37,6 +44,7 @@ type RunRow = {
 type SessionRow = {
   id: string;
   public_ref: string;
+  agent_id: string | null;
   state: string;
   reward_per_answer_luna: string;
   max_consultations: number;
@@ -224,8 +232,8 @@ async function loadSessionForUpdate(
   sessionId: string,
 ): Promise<SessionRow | null> {
   const result = await client.query<SessionRow>(
-    `SELECT id, public_ref, state, reward_per_answer_luna, max_consultations,
-            max_reward_liability_luna, reserved_liability_luna
+    `SELECT id, public_ref, agent_id, state, reward_per_answer_luna,
+            max_consultations, max_reward_liability_luna, reserved_liability_luna
        FROM requester_sessions
       WHERE id = $1
       FOR UPDATE`,
@@ -270,6 +278,12 @@ export async function getRunDetail(runId: string, playerId: string) {
       reward_per_answer_luna: string;
       max_reward_liability_luna: string;
       session_state: string;
+      agent_name: string | null;
+      agent_consultation_id: string | null;
+      agent_question: string | null;
+      agent_context: string | null;
+      agent_reward_luna: string | null;
+      agent_consultation_status: string | null;
     }
   >(
     `SELECT r.id, r.requester_session_id, r.player_id, r.state, r.level_index,
@@ -278,9 +292,17 @@ export async function getRunDetail(runId: string, playerId: string) {
             r.finish_idempotency_key, r.started_at, r.completed_at,
             r.created_at, r.updated_at,
             s.public_ref, s.max_consultations, s.reward_per_answer_luna,
-            s.max_reward_liability_luna, s.state AS session_state
+            s.max_reward_liability_luna, s.state AS session_state,
+            a.name AS agent_name,
+            c.id AS agent_consultation_id,
+            c.question AS agent_question,
+            c.context AS agent_context,
+            c.reward_luna AS agent_reward_luna,
+            c.status AS agent_consultation_status
        FROM player_runs r
        JOIN requester_sessions s ON s.id = r.requester_session_id
+       LEFT JOIN agents a ON a.id = s.agent_id
+       LEFT JOIN agent_consultations c ON c.requester_session_id = s.id
       WHERE r.id = $1`,
     [runId],
   );
@@ -317,8 +339,33 @@ export async function getRunDetail(runId: string, playerId: string) {
     run.state === "IN_PROGRESS" || run.state === "CONSULTATION_PENDING";
   const content = activeLevel ? await ensureLevelContent(run) : null;
   const scenario = content?.scenario ?? null;
+  const agentConsultation =
+    run.agent_consultation_id &&
+    run.agent_name &&
+    run.agent_question &&
+    run.agent_context &&
+    run.agent_reward_luna
+      ? {
+          id: run.agent_consultation_id,
+          levelIndex: run.level_index,
+          evidenceVersion: agentEvidenceVersion(run.agent_consultation_id),
+          agentContext: agentConsultationContext(run.agent_name),
+          agentConfidence: "medium" as const,
+          agentMessage: agentConsultationMessage(run.agent_name),
+          agentName: run.agent_name,
+          evidence: agentConsultationEvidence(
+            run.agent_name,
+            run.agent_context,
+          ),
+          question: run.agent_question,
+          options: AGENT_CONSULTATION_OPTIONS,
+          rewardLuna: lunaString(run.agent_reward_luna),
+        }
+      : null;
   const consultation =
-    run.state === "CONSULTATION_PENDING" ? content?.consultation ?? null : null;
+    run.state === "CONSULTATION_PENDING"
+      ? agentConsultation ?? content?.consultation ?? null
+      : null;
 
   return {
     runId: run.id,
@@ -566,25 +613,55 @@ export async function submitConsultationResponse(input: {
       );
     }
 
-    const storedContent = readGeneratedLevelContent(
-      run.generated_content,
-      run.level_index,
-    );
-    const staticQuestion = storedContent
+    const agentConsultation = session.agent_id
+      ? ((
+          await client.query<{
+            id: string;
+            status: string;
+            reward_luna: string;
+          }>(
+            `SELECT id, status, reward_luna
+               FROM agent_consultations
+              WHERE requester_session_id = $1
+              FOR UPDATE`,
+            [session.id],
+          )
+        ).rows[0] ?? null)
+      : null;
+    if (agentConsultation && agentConsultation.status !== "IN_PROGRESS") {
+      throw errors.conflict(
+        "QUESTION_NOT_ACTIVE",
+        "This agent consultation is not active.",
+      );
+    }
+
+    const storedContent = agentConsultation
       ? null
-      : getQuestionForLevel(run.level_index);
-    const questionId = storedContent
-      ? storedContent.consultation.id
-      : staticQuestion!.id;
-    const evidenceVersion = storedContent
-      ? storedContent.consultation.evidenceVersion
-      : staticQuestion!.evidenceVersion;
+      : readGeneratedLevelContent(run.generated_content, run.level_index);
+    const staticQuestion =
+      agentConsultation || storedContent
+        ? null
+        : getQuestionForLevel(run.level_index);
+    const questionId = agentConsultation
+      ? agentConsultation.id
+      : storedContent
+        ? storedContent.consultation.id
+        : staticQuestion!.id;
+    const evidenceVersion = agentConsultation
+      ? agentEvidenceVersion(agentConsultation.id)
+      : storedContent
+        ? storedContent.consultation.evidenceVersion
+        : staticQuestion!.evidenceVersion;
     const answerAllowed = (answerKey: string): boolean =>
-      storedContent
-        ? storedContent.consultation.options.some(
+      agentConsultation
+        ? AGENT_CONSULTATION_OPTIONS.some(
             (option) => option.key === answerKey,
           )
-        : isAllowedAnswer(staticQuestion!, answerKey);
+        : storedContent
+          ? storedContent.consultation.options.some(
+              (option) => option.key === answerKey,
+            )
+          : isAllowedAnswer(staticQuestion!, answerKey);
 
     if (questionId !== input.questionId) {
       throw errors.conflict(
@@ -689,6 +766,68 @@ export async function submitConsultationResponse(input: {
           }),
         ],
       );
+    }
+
+    if (agentConsultation) {
+      const agentId = session.agent_id;
+      if (!agentId) {
+        throw errors.conflict(
+          "AGENT_CONSULTATION_INVALID",
+          "The agent consultation is not linked correctly.",
+        );
+      }
+      if (input.action === "ANSWER") {
+        const charged = await client.query(
+          `UPDATE agents
+              SET balance_luna = balance_luna - $2,
+                  reserved_luna = reserved_luna - $2,
+                  updated_at = now()
+            WHERE id = $1
+              AND balance_luna >= $2
+              AND reserved_luna >= $2`,
+          [agentId, String(reward)],
+        );
+        if (charged.rowCount !== 1) {
+          throw errors.conflict(
+            "AGENT_BALANCE_CONFLICT",
+            "The agent balance could not be settled.",
+          );
+        }
+      } else {
+        const released = await client.query(
+          `UPDATE agents
+              SET reserved_luna = reserved_luna - $2,
+                  updated_at = now()
+            WHERE id = $1 AND reserved_luna >= $2`,
+          [agentId, lunaString(agentConsultation.reward_luna)],
+        );
+        if (released.rowCount !== 1) {
+          throw errors.conflict(
+            "AGENT_BALANCE_CONFLICT",
+            "The agent reservation could not be released.",
+          );
+        }
+      }
+
+      await client.query(
+        `UPDATE agent_consultations
+            SET status = $2, updated_at = now()
+          WHERE id = $1`,
+        [
+          agentConsultation.id,
+          input.action === "ANSWER" ? "ANSWERED" : "SKIPPED",
+        ],
+      );
+      await recordAudit(client, {
+        actorType: "SYSTEM",
+        action:
+          input.action === "ANSWER"
+            ? "agent_consultation_answered"
+            : "agent_consultation_skipped",
+        resourceType: "agent_consultation",
+        resourceId: agentConsultation.id,
+        details: { agentId, rewardLuna: String(reward) },
+      });
     }
 
     const isLastLevel = run.level_index >= session.max_consultations;

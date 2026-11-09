@@ -8,6 +8,7 @@ import {
 import { applyBasisPoints, lunaString, toLuna } from "../domain/money";
 import { getScenario } from "../domain/scenario-definitions";
 import { errors } from "../errors";
+import { agentConsultationMessage } from "./agents";
 import type { LoggerLike } from "./sessions";
 
 const CACHE_TTL_MS = 10 * 60_000;
@@ -22,7 +23,7 @@ const LEVEL_THEMES = [
   "Leverage and liquidation cascades",
 ] as const;
 
-type PromptSource = "llm" | "scripted";
+type PromptSource = "llm" | "scripted" | "external";
 
 type PromptResult = {
   prompt: string;
@@ -578,6 +579,7 @@ export async function generateAgentPrompt(input: {
 }): Promise<PromptResult> {
   const runResult = await query<{
     id: string;
+    requester_session_id: string;
     player_id: string;
     state: string;
     level_index: number;
@@ -586,7 +588,8 @@ export async function generateAgentPrompt(input: {
     max_reward_liability_luna: string;
     generated_content: unknown;
   }>(
-    `SELECT r.id, r.player_id, r.state, r.level_index, r.reward_earned_luna,
+    `SELECT r.id, r.requester_session_id, r.player_id, r.state, r.level_index,
+            r.reward_earned_luna,
             s.max_consultations, s.max_reward_liability_luna, r.generated_content
        FROM player_runs r
        JOIN requester_sessions s ON s.id = r.requester_session_id
@@ -603,6 +606,27 @@ export async function generateAgentPrompt(input: {
       "QUESTION_NOT_ACTIVE",
       "There is no active consultation for this run.",
     );
+  }
+
+  const externalAgent = await query<{
+    id: string;
+    question: string;
+    context: string;
+    agent_name: string;
+  }>(
+    `SELECT c.id, c.question, c.context, a.name AS agent_name
+       FROM agent_consultations c
+       JOIN agents a ON a.id = c.agent_id
+      WHERE c.id::text = $1 AND c.requester_session_id = $2
+      LIMIT 1`,
+    [input.questionId, run.requester_session_id],
+  );
+  const externalAgentRow = externalAgent.rows[0];
+  if (externalAgentRow?.agent_name && externalAgentRow.question) {
+    return {
+      prompt: agentConsultationMessage(externalAgentRow.agent_name),
+      source: "external",
+    };
   }
 
   const staticQuestion = getQuestionById(input.questionId);

@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 9 November 2026
-**Current phase:** Phase 8.2 — AI-generated levels deployed and live-verified; awaiting operator acceptance
-**Status:** Phase 8 proof complete. Phase 8.2 AI-generated levels deployed and verified. Phase 9 NOT STARTED.
+**Current phase:** Phase 10 — external Agent API and multi-agent marketplace implemented; deployment and live proof pending
+**Status:** Phase 8/8.2 complete. Phase 10 code and tests implemented locally. Deployment and live marketplace proof pending.
 
 ## Current deployment and wallets
 
@@ -10,7 +10,7 @@
 - Vercel deployed app-code commit: `fc12c5f` (Phase 8.2 AI-generated levels). Production deployment auto-deployed from `main`; alias `https://levelbreak-arena.vercel.app`. Headful Chromium verified the generated Level 2 scenario (`The Alpha-Pool Divergence`), footer/docs, 320px routes, and authenticated history. Raw `curl` still receives the Vercel Security Checkpoint, but normal browser access works.
 - Render API URL: https://levelbreak-arena.onrender.com
 - Render deployed code: `8d534945` (docs checkpoint; app code `fc12c5f`), deploy `dep-dbom8oivcj2c739ht0c0`, live 2026-11-09T06:13:36Z. `/health/live` 200 and `/health/ready` 200 after restart.
-- Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z.
+- Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied locally, production application pending.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
 - Sessions: the Phase 8 proof created and settled two 5-level / 2,500 Luna sessions. Phase 8.2 added a test session/run (`18f5054e…` / `fda15818…`) that is active at Level 2 for inspection; the operator’s manual session (`bcbc692c…`) is settled with a confirmed 2,500 Luna payout. Earlier sessions remain 3-level / 1,500 Luna and settled.
@@ -32,6 +32,52 @@
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
 - Operator approval of final visual design: **GIVEN — Direction 1, 4 November 2026**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 8 proof, disabled 2026-11-08 after the payouts).
+
+## Phase 10 — External Agent API and marketplace (9 November 2026)
+
+**Status:** IMPLEMENTED / LOCAL TESTS PASSING / DEPLOYMENT PENDING.
+
+- Added `db/migrations/005_phase10_agents.sql`:
+  - `agents`: id, name, unique wallet address, unique `api_key_hash`, `balance_luna`, `reserved_luna`, timestamps, and `reserved_luna <= balance_luna` check.
+  - `agent_deposits`: unique `tx_hash`, agent, amount, block height, testnet-only network.
+  - `agent_consultations`: agent, unique requester session, question (10-500 chars), context (10-2,000 chars), fixed 500-Luna reward, status (`AVAILABLE`, `IN_PROGRESS`, `ANSWERED`, `SKIPPED`, `EXPIRED`).
+  - `requester_sessions.agent_id` nullable FK, widened requester type check for `EXTERNAL_AGENT`, widened audit actor check for `AGENT`, indexes and RLS.
+- Added `apps/api/src/services/agents.ts`:
+  - registration with non-treasury Nimiq wallet validation and one-time `lba_agent_…` API keys; only `sha256(key)` is stored;
+  - bearer API-key authentication;
+  - deposit verification for inclusion/confirmation, TestAlbatross network, registered sender, treasury recipient, at least 500 Luna, and a hash unused by session funding or another agent deposit;
+  - consultation creation reserves 500 Luna from `balance_luna - reserved_luna` and creates a one-level `EXTERNAL_AGENT` session in `AVAILABLE` with a seven-day deadline;
+  - public Active Agents directory with question counts and rewards funded, but no balances or wallet addresses;
+  - agent self-service balance/consultation views.
+- Added `apps/api/src/routes/agent.ts` and registered it in `server.ts`:
+  - `POST /api/agent/register` (public, rate-limited, returns the key once);
+  - `POST /api/agent/deposit` (bearer key);
+  - `POST /api/agent/consultations` (`reward_luna` must be exactly 500);
+  - `GET /api/agent/me`, `GET /api/agent/consultations` (bearer key);
+  - `GET /api/agents` (public directory).
+- Player integration:
+  - `GET /api/sessions/available` lists verified demo sessions and `AVAILABLE` agent consultations, agent-first, with optional `agentName` and `questionPreview`.
+  - `claimSession` accepts an agent consultation without a `funding_transactions` row and atomically marks the consultation `IN_PROGRESS`.
+  - `GET /api/runs/:runId` overrides the generated/static consultation with the active agent question, context evidence and agent name.
+  - `submitConsultationResponse` uses the agent consultation ID, accepts SAFE/RISKY/CANT_TELL, charges 500 from both `balance_luna` and `reserved_luna` on answer, releases 500 from `reserved_luna` on skip, and marks the consultation `ANSWERED`/`SKIPPED` in the same transaction.
+  - `generateAgentPrompt` returns `source: "external"` for agent questions and does not call the LLM with agent content.
+  - `finishRun` remains unchanged: the player payout is still derived from stored responses and queued from the treasury.
+- Frontend:
+  - `LobbyPage` shows an "External agent" badge, "Request from <agent>", question preview, agent-funded copy and "Answer question".
+  - `GamePage` shows "Request from <agent> · External agent" instead of the demo-agent line when `consultation.agentName` is present.
+  - `AgentMessage` shows the "Agent submission" source badge for external consultations.
+  - `HomePage` has an "Active external agents" section with name, questions posted, open questions and rewards funded.
+  - `DocsPage` documents the Agent API and operator-custody disclosure.
+- Added `scripts/agent-client.js`: register → real testnet deposit (or `AGENT_DEPOSIT_TX_HASH`) → post consultation → player wallet auth → lobby match → claim → decision → answer → finish/payout status. It never prints the API key or private key.
+- Tests:
+  - `pnpm lint` passed.
+  - `pnpm typecheck` passed.
+  - `pnpm build` passed.
+  - `pnpm test:unit` passed: 46 unit tests.
+  - `pnpm test` passed: 34 Playwright tests, 6 deployed tests skipped.
+  - `pnpm test:integration` passed: 25/25, including registration/API-key hashing, deposit verification/reuse, lobby listing, claim without funding, agent answer charge, skip release, insufficient balance, and 500-Luna payout creation.
+  - New UI tests at 320px and 1280px cover the agent lobby card, agent-specific game label, "Agent submission" source and landing-page directory.
+- Deployment and live proof: **PENDING**. The production migration 005, Render deploy and `scripts/agent-client.js` proof are the single next task.
 
 ## Phase 8.2 — AI-generated levels (9 November 2026)
 

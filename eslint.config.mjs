@@ -25,9 +25,18 @@ export default tseslint.config(
     },
   },
   {
-    files: ["apps/api/**/*.ts", "tests/**/*.ts", "db/**/*.mjs", "*.config.ts", "eslint.config.mjs"],
+    files: ["apps/api/**/*.ts", "tests/**/*.ts", "db/**/*.mjs", "scripts/**/*.js", "*.config.ts", "eslint.config.mjs"],
     languageOptions: {
       globals: globals.node,
+    },
+  },
+  {
+    files: ["scripts/**/*.js"],
+    languageOptions: {
+      sourceType: "commonjs",
+    },
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
     },
   },
   {

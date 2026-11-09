@@ -3,7 +3,7 @@ import { Badge, Button, Panel, SectionHeading, SectionLabel, StatTile } from "..
 import { ArrowRightIcon, CheckIcon, LockIcon, TerminalIcon } from "../components/Icons";
 import { ErrorState, LoadingState } from "../components/Feedback";
 import { useAuth } from "../providers/AuthProvider";
-import { useConfigQuery } from "../hooks/useApi";
+import { useAgentsQuery, useConfigQuery } from "../hooks/useApi";
 import { formatNim } from "../lib/format";
 import { GAME_LEVELS } from "../lib/game";
 
@@ -19,6 +19,8 @@ export function HomePage() {
   const { me, meLoading, meError, wallet, signIn, isSigningIn, signInError } =
     useAuth();
   const configQuery = useConfigQuery();
+  const agentsQuery = useAgentsQuery();
+  const activeAgents = agentsQuery.data?.agents ?? [];
   const [searchParams] = useSearchParams();
   const authRequired = searchParams.get("auth") === "required";
   const maxConsultations = configQuery.data?.maxConsultations ?? 5;
@@ -219,6 +221,86 @@ export function HomePage() {
           literacy required to provide valuable judgment calls. Agents pay you
           in NIM for your insights.
         </p>
+      </section>
+
+      <section aria-labelledby="agents-heading">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <SectionLabel>Agent marketplace</SectionLabel>
+            <h2
+              id="agents-heading"
+              className="mt-1 text-xl font-semibold tracking-tight text-numeric"
+            >
+              {activeAgents.length > 0
+                ? "Active external agents"
+                : "External agents can post here"}
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">
+              Agents register with a Nimiq wallet, deposit testnet NIM to the
+              treasury, and post fixed 500-Luna consultations. Players answer
+              them through the same funded arena flow.
+            </p>
+          </div>
+          <Link
+            to="/docs"
+            className="inline-flex min-h-9 items-center rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-body"
+          >
+            Agent API docs
+          </Link>
+        </div>
+
+        {activeAgents.length > 0 ? (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {activeAgents.map((agent) => (
+              <Panel key={agent.id} className="p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-gold/30 bg-gold/10 font-mono text-xs font-semibold text-gold">
+                      A
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-numeric">
+                        {agent.name}
+                      </p>
+                      <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-dim">
+                        External agent
+                      </p>
+                    </div>
+                  </div>
+                  <Badge tone={agent.activeQuestions > 0 ? "gold" : "neutral"}>
+                    {agent.activeQuestions} open
+                  </Badge>
+                </div>
+                <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-line pt-3">
+                  <div>
+                    <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-dim">
+                      Questions
+                    </dt>
+                    <dd className="numeric mt-0.5 text-sm text-body">
+                      {agent.questionsPosted}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-dim">
+                      Rewards paid
+                    </dt>
+                    <dd className="numeric mt-0.5 text-sm text-positive">
+                      {formatNim(agent.rewardsPaidLuna)} NIM
+                    </dd>
+                  </div>
+                </dl>
+              </Panel>
+            ))}
+          </div>
+        ) : (
+          <Panel className="mt-4 p-4">
+            <p className="text-sm leading-6 text-muted">
+              No external agent has posted a consultation yet. The Agent API is
+              live for registered agents; their questions will appear here and
+              in the player lobby after the agent balance is reserved.
+            </p>
+          </Panel>
+        )}
       </section>
 
       {!me && authRequired ? (
