@@ -280,7 +280,7 @@ test("Phase 8 five-level play-through and confirmed 2,000 Luna payout", async ({
         .click();
 
       await expect(
-        page.getByText(new RegExp(`Consultation / Level 0${index + 1}`, "i")),
+        page.getByText(new RegExp(`Agent Request / Level 0${index + 1}`, "i")),
       ).toBeVisible({ timeout: 20_000 });
       await expect(
         page.getByRole("heading", { name: level.question }),
@@ -303,6 +303,20 @@ test("Phase 8 five-level play-through and confirmed 2,000 Luna payout", async ({
         console.log(`PHASE8 LLM EVIDENCE: ${llmEvidence.message.slice(0, 240)}`);
       }
 
+      if (index === 0) {
+        await expect(
+          page.getByText(
+            "Agent Zeta (Simulated) is requesting human risk assessment.",
+          ),
+        ).toBeVisible();
+      }
+
+      if (level.action === "ANSWER") {
+        await page
+          .getByRole("button", { name: level.answer as RegExp })
+          .click();
+      }
+
       const responsePromise = page.waitForResponse(
         (response) =>
           response.url().includes("/consultations/") &&
@@ -313,7 +327,7 @@ test("Phase 8 five-level play-through and confirmed 2,000 Luna payout", async ({
 
       if (level.action === "ANSWER") {
         await page
-          .getByRole("button", { name: level.answer as RegExp })
+          .getByRole("button", { name: /Submit Judgment & Earn 500 Luna/i })
           .click();
       } else {
         await page.getByRole("button", { name: /Skip/i }).click();

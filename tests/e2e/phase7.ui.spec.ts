@@ -150,7 +150,20 @@ test.describe("Phase 7 game surfaces", () => {
     await expect(page.getByText("LLM draft")).toBeVisible();
     await expect(page.getByText("Simulated farm disclosure")).toBeVisible();
     await expect(page.getByText("Bundled evidence")).toBeVisible();
-    await expect(page.getByRole("button", { name: /Risky/i })).toBeVisible();
+    await expect(page.getByText("Agent Request / Level 03")).toBeVisible();
+    await expect(
+      page.getByText(
+        "Agent Zeta (Simulated) is requesting human risk assessment.",
+      ),
+    ).toBeVisible();
+    const submitJudgment = page.getByRole("button", {
+      name: /Submit Judgment & Earn 500 Luna/i,
+    });
+    await expect(submitJudgment).toBeDisabled();
+    const risky = page.getByRole("button", { name: /Risky/i });
+    await expect(risky).toBeVisible();
+    await risky.click();
+    await expect(submitJudgment).toBeEnabled();
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth > window.innerWidth,

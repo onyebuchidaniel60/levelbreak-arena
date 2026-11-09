@@ -33,6 +33,19 @@
 - Operator approval of final visual design: **GIVEN — Direction 1, 4 November 2026**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 8 proof, disabled 2026-11-08 after the payouts).
 
+## Phase 8.1 — Agent narrative copy refinement (9 November 2026)
+
+**Status:** IMPLEMENTED / TESTS PASSING / DEPLOYED FROM THIS COMMIT.
+
+- Consultation panel header changed from **Consultation** to **Agent Request**.
+- Added the badge **“Agent Zeta (Simulated) is requesting human risk assessment.”** above the question.
+- Added a two-step judgment flow: select a classification, then press **Submit Judgment & Earn 500 Luna**. Skip remains immediate and zero-reward.
+- Added the landing-page **Proof-of-Learning** paragraph explaining that AI Agents need human intuition and pay NIM for valuable judgment calls.
+- Updated the LLM system prompt to frame Agent Zeta as an AI Agent evaluating a new DeFi protocol and asking a human for subjective risk assessment, judgment and reasoning; explicitly no trivia questions. Safety constraints remain (no financial advice, no hidden correct answer, no wallet/key requests, simulated evidence only).
+- No payment, auth, state-machine, database or API logic changed.
+- `pnpm lint`, `pnpm typecheck`, `pnpm build` and `pnpm test` pass: 44 unit, 28 Playwright, 6 deployed tests skipped.
+- **Single next task:** Operator reviews the Agent-hiring narrative and copy. Phase 9 not started.
+
 ## Phase 8 — Final functionality proof and polish (8 November 2026)
 
 **Status:** PROOF COMPLETE / POLISH COMPLETE / DEPLOYMENT IN PROGRESS. Phase 9 NOT STARTED.

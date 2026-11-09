@@ -72,6 +72,9 @@ export function GamePage() {
   const [rewardMessage, setRewardMessage] = useTimedMessage();
   const [consequenceMessage, setConsequenceMessage] = useTimedMessage();
   const [offRampOpen, setOffRampOpen] = useState(false);
+  const [selectedAnswerKey, setSelectedAnswerKey] = useState<string | null>(
+    null,
+  );
 
   const run = runQuery.data;
   const consultation = run?.consultation;
@@ -80,6 +83,10 @@ export function GamePage() {
     consultation?.id,
     Boolean(run && run.state === "CONSULTATION_PENDING" && consultation),
   );
+
+  useEffect(() => {
+    setSelectedAnswerKey(null);
+  }, [consultation?.id]);
 
   const hasPayout = Boolean(
     finishResult?.payoutId ??
@@ -380,56 +387,84 @@ export function GamePage() {
 
               <Panel className="p-4 sm:p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <SectionLabel>Consultation / Level {String(run.levelIndex).padStart(2, "0")}</SectionLabel>
+                  <SectionLabel>Agent Request / Level {String(run.levelIndex).padStart(2, "0")}</SectionLabel>
                   <div className="flex flex-wrap gap-2">
                     <Badge tone="gold">+{formatNim(consultation.rewardLuna)} NIM</Badge>
                     <Badge tone="neutral">No hidden answer key</Badge>
                   </div>
                 </div>
+                <p className="mt-3 inline-flex max-w-full items-start gap-2 rounded border border-gold/30 bg-gold/[0.08] px-2.5 py-1.5 font-mono text-[10px] leading-4 text-gold">
+                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" aria-hidden="true" />
+                  <span>Agent Zeta (Simulated) is requesting human risk assessment.</span>
+                </p>
                 <h2 className="mt-3 text-balance text-xl font-semibold tracking-tight text-numeric">
                   {consultation.question}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-muted">
-                  Pick the classification that best matches your read of the
-                  evidence. A valid submitted response earns the fixed reward;
-                  skip earns zero.
+                  Select the classification that best matches your read of the
+                  evidence, then submit your judgment. The fixed reward is paid
+                  for a valid submitted response; skip earns zero.
                 </p>
                 <div className="mt-4 grid gap-2">
-                  {consultation.options.map((option) => (
-                    <button
-                      key={option.key}
-                      type="button"
-                      onClick={() => void handleRespond("ANSWER", option.key)}
-                      disabled={respondMutation.isPending}
-                      className="flex flex-col gap-1 rounded-lg border border-line bg-white/[0.02] px-4 py-3 text-left transition-colors hover:border-gold/50 hover:bg-gold/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <span className="flex flex-wrap items-center gap-2">
-                        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-dim">
-                          {option.key}
+                  {consultation.options.map((option) => {
+                    const selected = selectedAnswerKey === option.key;
+                    return (
+                      <button
+                        key={option.key}
+                        type="button"
+                        onClick={() => setSelectedAnswerKey(option.key)}
+                        disabled={respondMutation.isPending}
+                        aria-pressed={selected}
+                        className={cn(
+                          "flex flex-col gap-1 rounded-lg border px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 disabled:cursor-not-allowed disabled:opacity-50",
+                          selected
+                            ? "border-gold/60 bg-gold/[0.06]"
+                            : "border-line bg-white/[0.02] hover:border-gold/50 hover:bg-gold/[0.04]",
+                        )}
+                      >
+                        <span className="flex flex-wrap items-center gap-2">
+                          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-dim">
+                            {option.key}
+                          </span>
+                          <span className="text-sm font-semibold text-numeric">
+                            {option.label}
+                          </span>
                         </span>
-                        <span className="text-sm font-semibold text-numeric">
-                          {option.label}
+                        <span className="text-xs leading-5 text-muted">
+                          {option.description}
                         </span>
-                      </span>
-                      <span className="text-xs leading-5 text-muted">
-                        {option.description}
-                      </span>
-                    </button>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
-                  <p className="max-w-sm text-xs leading-5 text-dim">
-                    This is a judgment task, not a quiz. The backend records one
-                    terminal action per consultation.
-                  </p>
+                <div className="mt-4 flex flex-col gap-3">
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => void handleRespond("SKIP")}
-                    disabled={respondMutation.isPending}
+                    variant="primary"
+                    size="lg"
+                    className="w-full sm:w-auto sm:self-end"
+                    onClick={() => {
+                      if (selectedAnswerKey) {
+                        void handleRespond("ANSWER", selectedAnswerKey);
+                      }
+                    }}
+                    disabled={!selectedAnswerKey || respondMutation.isPending}
                   >
-                    Skip — no reward
+                    Submit Judgment & Earn {formatLuna(consultation.rewardLuna)} Luna
                   </Button>
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
+                    <p className="max-w-sm text-xs leading-5 text-dim">
+                      This is a judgment task, not a quiz. The backend records
+                      one terminal action per consultation.
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => void handleRespond("SKIP")}
+                      disabled={respondMutation.isPending}
+                    >
+                      Skip — no reward
+                    </Button>
+                  </div>
                 </div>
               </Panel>
             </div>

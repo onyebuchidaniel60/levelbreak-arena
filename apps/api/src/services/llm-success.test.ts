@@ -63,6 +63,17 @@ describe("LLM agent prompt generation", () => {
         }),
       }),
     );
+    const requestInit = fetchMock.mock.calls[0][1] as RequestInit;
+    const requestBody = JSON.parse(String(requestInit.body));
+    expect(requestBody.messages[0].content).toContain(
+      "You are an AI Agent evaluating a new DeFi protocol.",
+    );
+    expect(requestBody.messages[0].content).toContain(
+      "Do not ask trivia questions.",
+    );
+    expect(requestBody.messages[0].content).toContain(
+      "Ask for their judgment and reasoning.",
+    );
     expect(result.source).toBe("llm");
     expect(result.prompt).toBe(
       "You have earned 500 Luna. Here is the next question.",

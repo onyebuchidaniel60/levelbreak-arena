@@ -208,6 +208,19 @@ export function HomePage() {
         </div>
       </section>
 
+      <section
+        aria-label="Proof-of-Learning"
+        className="rounded-lg border border-gold/20 bg-gold/[0.04] p-4 sm:p-5"
+      >
+        <SectionLabel>Proof-of-Learning</SectionLabel>
+        <p className="mt-2 max-w-4xl text-sm leading-6 text-muted">
+          AI Agents need human intuition to calibrate their risk models. By
+          conquering these sectors, you prove you have the baseline DeFi
+          literacy required to provide valuable judgment calls. Agents pay you
+          in NIM for your insights.
+        </p>
+      </section>
+
       {!me && authRequired ? (
         <div role="alert" className="rounded-lg border border-pending/30 bg-pending/[0.06] p-4 text-sm text-pending">
           Your session is missing or expired. Sign in again to continue.

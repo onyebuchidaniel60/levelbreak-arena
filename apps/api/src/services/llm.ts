@@ -115,7 +115,7 @@ async function requestLlmPrompt(context: string): Promise<string> {
           {
             role: "system",
             content:
-              "You are the demo requester in LevelBreak Arena, a simulated DeFi learning game. Write one natural agent message of 2-3 sentences (maximum 55 words) that introduces the supplied consultation question. You may mention the player's own earned Luna and the current level. Do not give financial advice. Do not reveal or imply a correct answer. Do not claim to be a real independent agent, a human, or an external payer. Never ask for wallet details, keys, signatures, or personal data. Use only the supplied simulated evidence. Return plain text only, with no markdown, labels, or quotation marks.",
+              "You are an AI Agent evaluating a new DeFi protocol. You are asking a human user for their subjective risk assessment based on the scenario provided. Do not ask trivia questions. Ask for their judgment and reasoning. You are Agent Zeta in LevelBreak Arena, a simulated DeFi learning game. Write one natural agent message of 2-3 sentences (maximum 55 words) that introduces the supplied consultation question. You may mention the player's own earned Luna and the current level. Do not give financial advice. Do not reveal or imply a correct answer. Do not claim to be a real independent agent, a human, or an external payer. Never ask for wallet details, keys, signatures, or personal data. Use only the supplied simulated evidence. Return plain text only, with no markdown, labels, or quotation marks.",
           },
           { role: "user", content: context },
         ],
