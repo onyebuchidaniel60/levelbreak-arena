@@ -1,19 +1,19 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
-**Last updated:** 8 November 2026
-**Current phase:** Phase 8 — five-level testnet proof and final polish complete and deployed; awaiting operator acceptance
-**Status:** Phase 8 PASS / PROOF COMPLETE / DEPLOYED. Phase 9 NOT STARTED.
+**Last updated:** 9 November 2026
+**Current phase:** Phase 8.2 — AI-generated levels deployed and live-verified; awaiting operator acceptance
+**Status:** Phase 8 proof complete. Phase 8.2 AI-generated levels deployed and verified. Phase 9 NOT STARTED.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `a9db80a` (Phase 8 proof/polish). Production deployment `https://levelbreak-arena-g81hyworg-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. Verified in a headful Chromium browser: footer Documentation/GitHub links, Phase 8 docs, 320px routes, and authenticated history all pass. Raw `curl` still receives the Vercel Security Checkpoint, but normal browser access works.
+- Vercel deployed app-code commit: `fc12c5f` (Phase 8.2 AI-generated levels). Production deployment auto-deployed from `main`; alias `https://levelbreak-arena.vercel.app`. Headful Chromium verified the generated Level 2 scenario (`The Alpha-Pool Divergence`), footer/docs, 320px routes, and authenticated history. Raw `curl` still receives the Vercel Security Checkpoint, but normal browser access works.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `c193db6e` (docs checkpoint; app code `a9db80a8`), deploy `dep-dboch8i9lscs73csg48g`, live 2026-11-08T19:09:06Z. `/health/live` 200 and `/health/ready` 200 after restart.
-- Phase 7 database migration: `003_phase7_five_levels.sql` applied to Supabase at 2026-11-04T14:02:25.437Z.
+- Render deployed code: `8d534945` (docs checkpoint; app code `fc12c5f`), deploy `dep-dbom8oivcj2c739ht0c0`, live 2026-11-09T06:13:36Z. `/health/live` 200 and `/health/ready` 200 after restart.
+- Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
-- Sessions: the Phase 8 proof created and settled two 5-level / 2,500 Luna sessions. Earlier sessions remain 3-level / 1,500 Luna and settled.
+- Sessions: the Phase 8 proof created and settled two 5-level / 2,500 Luna sessions. Phase 8.2 added a test session/run (`18f5054e…` / `fda15818…`) that is active at Level 2 for inspection; the operator’s manual session (`bcbc692c…`) is settled with a confirmed 2,500 Luna payout. Earlier sessions remain 3-level / 1,500 Luna and settled.
 - Repository URL: https://github.com/onyebuchidaniel60/levelbreak-arena
 - Render service: `levelbreak-arena`, `web_service`, branch `main`; `/health/live` and `/health/ready` verified 200 after the final worker-disable deploy.
 - Demo-agent wallet: `NQ23 RSJF DP1Q 894D Q346 V1HK C8F5 GM4F 0J9T`
@@ -62,7 +62,7 @@
   - Level 2 then generated as `source: "llm"` with title “The Alpha-Pool Divergence”.
 - The operator's earlier manual session `bcbc692c-b962-49b0-ac2c-e73a013d3664` was completed by the operator with five answers. Its queued 2,500 Luna payout `678d7e76-a6c6-4d2c-ac58-bd2c67d18e4b` was confirmed at tx `eeb577a47ddadf4139a68112c6da8642437fc1237893803a256f201529dd9d89`, block `16288006`, recipient `NQ47 YLYE 6VC9 NTJT 2XT3 RYD6 XKLS MEDA CCEC`, reference `LBA1:a76c84dd5a6d0d5c`, fee 0.
 - Final flags after the proof: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`; `/health/live` and `/health/ready` 200.
-- Deployment: app-code commit `fc12c5f`; Render live deploy `dep-dbom7lrm8hqs73ec3brg`; Vercel auto-deploy from the same commit.
+- Deployment: app-code commit `fc12c5f`; final Render docs deploy `dep-dbom8oivcj2c739ht0c0` (`8d534945`); Vercel auto-deploy from the same app-code commit. `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`, health 200.
 - The test run is intentionally left active at Level 2 as a test artifact; it has not been paid. It does not affect the operator's original lobby session (which is now completed).
 - **Single next task:** Await operator acceptance of AI-generated levels. Do not begin an unrelated phase.
 
