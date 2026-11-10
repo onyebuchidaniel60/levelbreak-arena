@@ -176,7 +176,7 @@ export function Layout() {
 
               <nav
                 aria-label="Primary"
-                className="order-3 flex w-full items-center gap-1 overflow-x-auto pb-1 sm:order-none sm:w-auto sm:pb-0"
+                className="scrollbar-none order-3 flex w-full items-center gap-1 overflow-x-auto pb-1 sm:order-none sm:w-auto sm:pb-0"
               >
                 {primaryNav.map((item) => (
                   <NavLink key={item.to} to={item.to} className={navLinkClass}>

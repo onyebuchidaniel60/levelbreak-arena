@@ -222,6 +222,14 @@
     scrollbar-width: thin;
     scrollbar-color: #c5bfb3 transparent;
   }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @keyframes lba-fade-up {
