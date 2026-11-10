@@ -45,10 +45,14 @@ private keys or signing material:
 - Auto-replenished sessions receive a 24-hour lobby funding deadline so they
   remain claimable while judges evaluate. Operator-created demo sessions keep
   the existing 30-minute deadline.
+- Before counting, the worker moves demo sessions whose lobby deadline has
+  passed from `AVAILABLE` to `EXPIRED`. External-agent sessions are untouched
+  because their consultation reservation has a separate lifecycle. This keeps
+  operator state counts aligned with what the lobby can actually show.
 - Idempotency keys include the five-minute bucket, observed available count
-  and slot. Restarting within the same bucket resumes the same session; a
-  short database unique constraint on `creation_idempotency_key` protects
-  against duplicates.
+  and slot. Restarting within the same bucket resumes the same session; the
+  database unique constraint on `creation_idempotency_key` protects against
+  duplicates.
 - `AUTO_REPLENISH_SESSIONS=true` is the only path that may create demo
   sessions in production while `DEMO_FUNDING_ENABLED=false`. The protected
   operator `POST /api/operator/demo-sessions` route still requires

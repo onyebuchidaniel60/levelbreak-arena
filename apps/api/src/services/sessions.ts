@@ -710,6 +710,25 @@ async function resumeDemoSession(
   });
 }
 
+/**
+ * Demo sessions whose lobby deadline has passed can no longer be claimed.
+ * Move them to EXPIRED before the replenisher counts so operator state counts
+ * match what the lobby can actually show. Agent sessions own a separate
+ * consultation reservation lifecycle and are intentionally untouched.
+ */
+export async function expireStaleDemoSessions(): Promise<number> {
+  const result = await query<{ id: string }>(
+    `UPDATE requester_sessions
+        SET state = 'EXPIRED', updated_at = now()
+      WHERE state = 'AVAILABLE'
+        AND agent_id IS NULL
+        AND claimed_by_player_run_id IS NULL
+        AND funding_deadline <= now()
+      RETURNING id`,
+  );
+  return result.rowCount ?? 0;
+}
+
 export async function listAvailableSessions(): Promise<
   Array<{
     id: string;

@@ -3,6 +3,7 @@ import type { NimiqService } from "../nimiq/types";
 import {
   AUTO_REPLENISH_SESSION_TTL_MS,
   createDemoSession,
+  expireStaleDemoSessions,
   listAvailableSessions,
   type LoggerLike,
   type SessionDTO,
@@ -47,6 +48,7 @@ export async function replenishSessionsOnce(input: {
   intervalMs?: number;
   listAvailable?: () => Promise<Array<unknown>>;
   createSession?: CreateSession;
+  expireStale?: () => Promise<number>;
 }): Promise<ReplenishOutcome> {
   const target = input.target ?? REPLENISH_TARGET;
   const enabled = input.enabled ?? config.autoReplenishSessions;
@@ -62,6 +64,17 @@ export async function replenishSessionsOnce(input: {
   }
 
   const listAvailable = input.listAvailable ?? (() => listAvailableSessions());
+  const expireStale =
+    input.expireStale ??
+    (input.listAvailable ? async () => 0 : expireStaleDemoSessions);
+  const expired = await expireStale();
+  if (expired > 0) {
+    input.logger.info(
+      { event: "session_replenisher_expired", count: expired },
+      "Session replenisher expired stale demo sessions",
+    );
+  }
+
   const createSession: CreateSession =
     input.createSession ??
     ((sessionInput) =>
@@ -162,6 +175,7 @@ export function startSessionReplenisher(input: {
   now?: () => number;
   listAvailable?: () => Promise<Array<unknown>>;
   createSession?: CreateSession;
+  expireStale?: () => Promise<number>;
 }): () => void {
   const enabled = input.enabled ?? config.autoReplenishSessions;
   if (!enabled) {
@@ -189,6 +203,7 @@ export function startSessionReplenisher(input: {
         intervalMs,
         listAvailable: input.listAvailable,
         createSession: input.createSession,
+        expireStale: input.expireStale,
       });
       input.logger.info(
         {

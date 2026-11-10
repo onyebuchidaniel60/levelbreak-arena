@@ -110,6 +110,35 @@ describe("session replenisher", () => {
     );
   });
 
+  it("expires stale demo sessions before counting", async () => {
+    const logger = makeLogger();
+    const expireStale = vi.fn(async () => 3);
+    const createSession = vi.fn(async () => ({
+      sessionId: "session-new",
+      state: "AVAILABLE",
+    }));
+
+    const outcome = await replenishSessionsOnce({
+      nimiq,
+      logger,
+      enabled: true,
+      now: 1_500_000,
+      listAvailable: async () => [],
+      createSession,
+      expireStale,
+    });
+
+    expect(expireStale).toHaveBeenCalledTimes(1);
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: "session_replenisher_expired",
+        count: 3,
+      }),
+      expect.any(String),
+    );
+    expect(outcome.created).toBe(3);
+  });
+
   it("only fills the missing slots", async () => {
     const createSession = vi.fn(
       async (_input: { idempotencyKey: string }) => {
