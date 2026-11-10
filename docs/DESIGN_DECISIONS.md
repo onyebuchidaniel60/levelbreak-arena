@@ -171,3 +171,7 @@ changing any product behavior.
   the landing, game decision, agent request, payout plus fiat modal, agents
   directory and lobby, and covers support/404/error/loading states, 320/375/390
   overflow, 44px tap targets, the typewriter reveal and live fiat rates.
+- **Deployment:** feature commit `93500a5` is live on
+  `https://levelbreak-arena.vercel.app`; live Chromium evidence is stored as
+  `test-results/phase14/live-*.png`. No backend, API, schema, auth or payment
+  behavior changed.

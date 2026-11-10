@@ -1,15 +1,15 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 10 November 2026
-**Current phase:** Phase 14 — complete visual overhaul from the three new operator references; local verification passed, deployment pending
-**Status:** Phase 14 IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING. Phase 13.7 complete.
+**Current phase:** Phase 14 — complete visual overhaul from the three new operator references deployed and live-verified; awaiting operator acceptance
+**Status:** Phase 14 PASS / DEPLOYED / LIVE VERIFIED. Phase 13.7 complete.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `f59057e` (Phase 13.7 corrected fallback exchange rates). Production deployment `https://levelbreak-arena-m1thw1o80-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. A live check confirmed the deployed fallback modal now shows `1 NIM = ₦37.97` and `You receive ₦0.95`, matching the corrected fallback values.
+- Vercel deployed app-code commit: `93500a5` (Phase 14 complete UI overhaul). Production deployment `https://levelbreak-arena-7qt6j0t3f-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. Live Chromium checks at 1440px and 390px confirmed the new light editorial theme on the landing, agents directory, game decision, Agent Request, payout and fiat modal. Live screenshots are in `test-results/phase14/live-*.png`.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `f59057e` (Phase 13.7 feature commit), deploy `dep-dbp7rn2vcj2c73crosdg`, live 2026-11-10T02:13Z. `/health/live` 200 and `/health/ready` 200. `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- Render deployed code: `93500a5` (Phase 14 feature commit), deploy `dep-dbp8n2lg1s2s73c4llu0`, live 2026-11-10T03:12Z. `/health/live` 200 and `/health/ready` 200. `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
 - Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied to production at 2026-11-09T06:51:48.893Z. Phase 11 adds no migration.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
@@ -38,7 +38,7 @@
 
 ## Phase 14 — Complete visual overhaul from operator references (10 November 2026)
 
-**Status:** IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING.
+**Status:** IMPLEMENTED / DEPLOYED / LIVE VERIFIED.
 
 ### Design extraction
 
@@ -120,13 +120,30 @@
   `Verified MCP` badges render; live NGN rate `1 NIM = ₦37.97` and `₦0.95`
   display; Earned/Pending/Paid use mint/yellow/forest surfaces.
 - Design files: `design/MOCKUP_NOTES_NEW_UI.md`.
-- Deployment: **PENDING** for this commit. After deploy, capture live
-  screenshots of the landing and game/modal at 1440px and 390px, verify the
-  footer docs/GitHub links and the main journey, and record the deployed SHA.
-- **Single next task:** deploy Phase 14, verify the live landing, lobby, game,
-  Agent Request, payout/fiat modal and agents directory at 1440px and 390px,
-  confirm health and production flags, record the deployment evidence in this
-  handoff, then stop and await operator acceptance. Do not begin another phase.
+- Deployment: **COMPLETE**.
+  - Feature commit `93500a5` — `feat: complete UI overhaul from new operator
+    references`.
+  - Vercel production deployment
+    `https://levelbreak-arena-7qt6j0t3f-uhhh2.vercel.app`, alias
+    `https://levelbreak-arena.vercel.app`.
+  - Render deploy `dep-dbp8n2lg1s2s73c4llu0`, live 2026-11-10T03:12Z;
+    `/health/live` 200 and `/health/ready` 200.
+  - Live Chromium screenshots at 1440px and 390px:
+    `test-results/phase14/live-landing-1440.png`,
+    `live-landing-390.png`, `live-agents-1440.png`, `live-agents-390.png`,
+    `live-game-1440.png`, `live-game-390.png`,
+    `live-agent-request-1440.png`, `live-agent-request-390.png`,
+    `live-payout-1440.png`, `live-payout-390.png`,
+    `live-fiat-modal-1440.png`, `live-fiat-modal-390.png`.
+  - The deployed landing, agents directory, game decision, Agent Request,
+    payout and fiat modal all render the new theme. `1 NIM = ₦37.97` and
+    `You receive ₦0.95` are visible in the live modal; the demo disclosure and
+    `No exchange API is called for settlement` copy are present.
+  - Production flags remain `DEMO_FUNDING_ENABLED=false` and
+    `PAYOUT_WORKER_ENABLED=false`; no backend, API, schema, auth, treasury,
+    MCP/agent API or LLM behavior changed.
+- **Single next task:** Await operator acceptance of Phase 14. Do not begin
+  another phase.
 
 ## Phase 13.7 — Correct stale fallback exchange rates (10 November 2026)
 

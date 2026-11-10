@@ -462,3 +462,7 @@ pnpm typecheck     passed
 pnpm build         passed
 pnpm test          50 unit passed; 58 Playwright passed; 6 deployed tests skipped
 ```
+
+The deployed preview was also checked in Chromium at 1440px and 390px for the
+landing, agents directory, game decision, Agent Request, payout and fiat modal.
+Those screenshots are stored as `test-results/phase14/live-*.png`.
