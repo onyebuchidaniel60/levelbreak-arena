@@ -1,6 +1,7 @@
 import { config } from "../config";
 import type { NimiqService } from "../nimiq/types";
 import {
+  AUTO_REPLENISH_SESSION_TTL_MS,
   createDemoSession,
   listAvailableSessions,
   type LoggerLike,
@@ -67,6 +68,7 @@ export async function replenishSessionsOnce(input: {
       createDemoSession({
         ...sessionInput,
         source: "auto-replenisher",
+        fundingDeadlineMs: AUTO_REPLENISH_SESSION_TTL_MS,
       }));
 
   const availableBefore = (await listAvailable()).length;

@@ -85,6 +85,13 @@ export type ClaimResult = {
 const FUNDING_REFERENCE_PREFIX = "LBA1:";
 const FUNDING_DEADLINE_MS = 30 * 60 * 1000;
 
+/**
+ * Auto-replenished sessions are intended to wait for judges. Give them a
+ * longer lobby lifetime than operator-created sessions so the visible lobby
+ * does not drain every 30 minutes while still requiring verified funding.
+ */
+export const AUTO_REPLENISH_SESSION_TTL_MS = 24 * 60 * 60 * 1000;
+
 export function isPgUniqueViolation(error: unknown): boolean {
   return (
     typeof error === "object" &&
@@ -594,6 +601,7 @@ export async function createDemoSession(input: {
   nimiq: NimiqService;
   logger: LoggerLike;
   source?: "operator" | "auto-replenisher";
+  fundingDeadlineMs?: number;
 }): Promise<SessionDTO> {
   const autoReplenisher = isAutoReplenisherOverride(input.source);
   if (!config.demoFundingEnabled && !autoReplenisher) {
@@ -621,7 +629,9 @@ export async function createDemoSession(input: {
   }
 
   const publicRef = randomBytes(8).toString("hex");
-  const fundingDeadline = new Date(Date.now() + FUNDING_DEADLINE_MS);
+  const fundingDeadline = new Date(
+    Date.now() + (input.fundingDeadlineMs ?? FUNDING_DEADLINE_MS),
+  );
   let session: SessionRow;
   try {
     const result = await query<SessionRow>(

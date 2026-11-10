@@ -42,6 +42,9 @@ private keys or signing material:
 - Transfers are sequential. The worker stops after a pending or failed
   transfer and retries on the next interval; it does not stack three
   transfers after a chain timeout.
+- Auto-replenished sessions receive a 24-hour lobby funding deadline so they
+  remain claimable while judges evaluate. Operator-created demo sessions keep
+  the existing 30-minute deadline.
 - Idempotency keys include the five-minute bucket, observed available count
   and slot. Restarting within the same bucket resumes the same session; a
   short database unique constraint on `creation_idempotency_key` protects
