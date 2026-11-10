@@ -7,9 +7,9 @@
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `d559e55` (Phase 16 auto-replenishing lobby, SVG branding and mobile nav polish; main feature commit `40f8d0d`). Production deployment `https://levelbreak-arena-iqj7p0eoe-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. Live Chromium checks at 1440px and 390px confirmed the SVG header, favicon, branded landing and the mobile header without a visible nav scrollbar. Live evidence is in `test-results/phase16/header-live-*.png` and `browser-tab-live.png`.
+- Vercel deployed app-code commit: `143b3e4` (Phase 16 auto-replenishing lobby, SVG branding, mobile nav polish, 24-hour replenished-session TTL and expired-session cleanup; main feature commit `40f8d0d`). Production deployment `https://levelbreak-arena-j59n33oh6-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. Live Chromium checks at 1440px and 390px confirmed the SVG header, favicon, branded landing and the mobile header without a visible nav scrollbar. Live evidence is in `test-results/phase16/header-live-*.png` and `browser-tab-live.png`.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `d559e55` (Phase 16), deploy `dep-dbp9eap5efls73avj6hg`, live 2026-11-10T04:02Z. `/health/live` 200 and `/health/ready` 200. `AUTO_REPLENISH_SESSIONS=true`, `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- Render deployed code: `143b3e4` (Phase 16 + 24-hour TTL + expired-session cleanup), deploy `dep-dbp9uap5efls73b03vg0`, live 2026-11-10T04:36Z; `/health/live` 200 and `/health/ready` 200 after a restart. `AUTO_REPLENISH_SESSIONS=true`, `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
 - Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied to production at 2026-11-09T06:51:48.893Z. Phase 11 adds no migration.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`, `AUTO_REPLENISH_SESSIONS=true`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
@@ -58,6 +58,11 @@
     count and slot, so a restart within the same bucket resumes the same
     session; the database unique constraint on `creation_idempotency_key`
     remains the final duplicate guard;
+  - auto-replenished sessions receive a 24-hour lobby funding deadline;
+    operator-created demo sessions keep the existing 30-minute deadline;
+  - before counting, stale demo sessions whose lobby deadline passed are
+    moved from `AVAILABLE` to `EXPIRED` (agent sessions are untouched), so
+    operator state counts match the lobby;
   - catches database/chain failures, logs structured
     `session_replenisher_*` events and schedules the next attempt instead of
     crashing the API;
@@ -102,7 +107,7 @@
 - `pnpm lint` passed.
 - `pnpm typecheck` passed.
 - `pnpm build` passed.
-- `pnpm test` passed: 60 unit tests, 60 Playwright tests, 6 deployed tests
+- `pnpm test` passed: 61 unit tests, 60 Playwright tests, 6 deployed tests
   skipped.
 - Phase 16 screenshots:
   - `test-results/phase16/header-1440.png`
@@ -120,10 +125,15 @@
   - `session_replenisher_run` with `availableBefore: 0`, `created: 3`,
     `pending: 0`, `failed: 0`;
   - a later run with `availableBefore: 3`, `created: 0` (idempotent no-op).
-- Operator session listing confirmed exactly three `AVAILABLE` sessions with
-  verified funding (`daf8826e892a6bad`, `c49c98f9e7c8ea5d`,
-  `571e95eda6306a5f`), each 2,500 Luna and funded from the demo-agent wallet
-  to the treasury.
+- The first batch (`daf8826e892a6bad`, `c49c98f9e7c8ea5d`,
+  `571e95eda6306a5f`) used the original 30-minute deadline and expired at
+  04:27Z.
+- The 24-hour TTL deployment created a fresh batch at 04:32Z
+  (`110655de2ad9f23d`, `637519ad08a15100`, `acd5d817fbbab542`), each 2,500
+  Luna with verified funding and a deadline of 2026-11-11T04:32Z. At 04:36Z
+  the cleanup run logged `session_replenisher_expired count: 3`, leaving
+  exactly 3 `AVAILABLE` and 3 `EXPIRED` demo sessions. The visible lobby
+  count is 3.
 - Live header evidence:
   - `test-results/phase16/header-live-1440.png`
   - `test-results/phase16/header-live-390.png`

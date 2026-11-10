@@ -215,8 +215,8 @@ Domain modules must not write database tables directly from route handlers. Rout
 
 ### `GET /api/sessions/available`
 - **Auth:** player.
-- **Logic:** return only sessions that are `AVAILABLE`, not expired/cancelled, and not already claimed. A demo session requires a `VERIFIED` funding transaction. An external-agent session requires an `AVAILABLE` agent consultation and a reserved agent balance.
-- **Response:** `{ "sessions":[{"id":"uuid","publicRef":"…","maxConsultations":5,"rewardPerAnswerLuna":"500","maxRewardLuna":"2500","funded":true,"state":"AVAILABLE","agentName":"Alpha Research Bot|null","questionPreview":"…|null"}] }`. Agent sessions appear first; demo sessions return null agent fields.
+- **Logic:** return only sessions that are `AVAILABLE`, within their funding deadline, and not already claimed. A demo session requires a `VERIFIED` funding transaction. An external-agent session requires an `AVAILABLE` agent consultation and a reserved agent balance.
+- **Response:** `{ "sessions":[{"id":"uuid","publicRef":"…","maxConsultations":5,"rewardPerAnswerLuna":"500","maxRewardLuna":"2500","funded":true,"state":"AVAILABLE","agentName":"Alpha Research Bot|null","questionPreview":"…|null"}], "message":"optional" }`. Agent sessions appear first; demo sessions return null agent fields. `message` is present only when the lobby is empty and `AUTO_REPLENISH_SESSIONS=true`, and contains the preparation notice shown by the lobby.
 - **Do not display:** other player IDs or treasury signing data.
 
 ### `POST /api/sessions/:sessionId/claim`

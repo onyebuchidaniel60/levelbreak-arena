@@ -460,7 +460,7 @@ Local verification:
 pnpm lint          passed
 pnpm typecheck     passed
 pnpm build         passed
-pnpm test          60 unit passed; 60 Playwright passed; 6 deployed tests skipped
+pnpm test          61 unit passed; 60 Playwright passed; 6 deployed tests skipped
 ```
 
 The deployed preview was also checked in Chromium at 1440px and 390px for the
@@ -477,6 +477,7 @@ Those screenshots are stored as `test-results/phase14/live-*.png`.
 - filling three missing slots with deterministic bucket keys;
 - filling only the missing slots;
 - stopping after a session is still pending funding;
+- expiring stale demo sessions before counting;
 - stopping and logging after a chain/database failure;
 - scheduler start, interval and clean stop;
 - the auto-replenisher-only funding-gate override.
@@ -508,7 +509,7 @@ Final local verification:
 pnpm lint          passed
 pnpm typecheck     passed
 pnpm build         passed
-pnpm test          60 unit passed; 60 Playwright passed; 6 deployed tests skipped
+pnpm test          61 unit passed; 60 Playwright passed; 6 deployed tests skipped
 ```
 
 Live verification after deployment also records the replenisher logs, at least

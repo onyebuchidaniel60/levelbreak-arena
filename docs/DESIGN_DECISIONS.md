@@ -183,6 +183,9 @@ changing any product behavior.
   `AUTO_REPLENISH_SESSIONS`. It keeps three verified funded demo sessions in
   the lobby, uses the existing 2,500-Luna demo-agent → treasury path, and
   stops on pending/failed transfers instead of stacking broadcasts.
+- Auto-replenished sessions use a 24-hour lobby funding deadline so they
+  remain claimable throughout judging; operator-created demo sessions keep the
+  existing 30-minute deadline.
 - The empty lobby returns and displays the friendly preparation message:
   “We are preparing a new funded session for you. Please refresh in 30
   seconds.” The query refreshes every 30 seconds while empty.
