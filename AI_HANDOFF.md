@@ -1,15 +1,15 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 10 November 2026
-**Current phase:** Phase 17 — adversarial security regression and v1.0.0 final release; implementation and local verification complete, deployment and tag pending
-**Status:** Phase 17 LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING / TAG PENDING. Phase 16 complete.
+**Current phase:** Phase 17 — adversarial security regression and v1.0.0 final release deployed; release tag recorded
+**Status:** Phase 17 PASS / DEPLOYED / LIVE VERIFIED / RELEASE TAGGED. Phase 16 complete.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `143b3e4` (Phase 16 auto-replenishing lobby, SVG branding, mobile nav polish, 24-hour replenished-session TTL and expired-session cleanup; main feature commit `40f8d0d`). Production deployment `https://levelbreak-arena-j59n33oh6-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. Live Chromium checks at 1440px and 390px confirmed the SVG header, favicon, branded landing and the mobile header without a visible nav scrollbar. Live evidence is in `test-results/phase16/header-live-*.png` and `browser-tab-live.png`.
+- Vercel deployed app-code commit: `ead3ce6` (Phase 17 adversarial security hardening; Phase 16 feature commit `40f8d0d`). Production deployment `https://levelbreak-arena-585ppxhpr-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. The Phase 16 header/favicon evidence remains in `test-results/phase16/header-live-*.png` and `browser-tab-live.png`.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `143b3e4` (Phase 16 + 24-hour TTL + expired-session cleanup), deploy `dep-dbp9uap5efls73b03vg0`, live 2026-11-10T04:36Z; `/health/live` 200 and `/health/ready` 200 after a restart. `AUTO_REPLENISH_SESSIONS=true`, `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- Render deployed code: `ead3ce6` (Phase 17 security fixes), deploy `dep-dbpamj142hec73da20s0`, live 2026-11-10T05:28Z; `/health/live` 200 and `/health/ready` 200. `AUTO_REPLENISH_SESSIONS=true`, `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
 - Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied to production at 2026-11-09T06:51:48.893Z. Phase 11 adds no migration.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`, `AUTO_REPLENISH_SESSIONS=true`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
@@ -38,7 +38,7 @@
 
 ## Phase 17 — Adversarial security regression and v1.0.0 release (10 November 2026)
 
-**Status:** LOCAL VERIFICATION PASSED / DEPLOYMENT AND TAG PENDING.
+**Status:** DEPLOYED / LIVE VERIFIED / RELEASE TAGGED.
 
 ### Findings fixed
 
@@ -118,13 +118,22 @@ npm --prefix mcp-server run check          passed
 - Render env verified:
   `AUTO_REPLENISH_SESSIONS=true`, `DEMO_FUNDING_ENABLED=false`,
   `PAYOUT_WORKER_ENABLED=false`.
-- Security-fix commit will use the exact message
-  `fix: address adversarial security findings`.
-- Deployment and annotated tag `v1.0.0` are pending this commit.
-- **Single next task:** deploy the security commit, verify Render health/logs
-  and the three-session lobby under the new cap, update this handoff with the
-  deployed SHA and tag, commit the release record, create and push
-  `v1.0.0`, then stop.
+- Security-fix commit: `ead3ce6` — `fix: address adversarial security findings`.
+- Render deploy `dep-dbpamj142hec73da20s0`, live 2026-11-10T05:28Z;
+  `/health/live` 200 and `/health/ready` 200.
+- Vercel production deployment
+  `https://levelbreak-arena-585ppxhpr-uhhh2.vercel.app`; alias
+  `https://levelbreak-arena.vercel.app`.
+- Live replenisher logs after the security deploy:
+  - `session_replenisher_budget` with `dailyMinted: 0`, `dailyCap: 5`,
+    `dailyRemaining: 5`;
+  - `session_replenisher_run` with `availableBefore: 3`, `created: 0`;
+  - lobby state counts: `AVAILABLE: 3`, `EXPIRED: 3`, `IN_PROGRESS: 2`,
+    `SETTLED: 8`.
+- Annotated release tag `v1.0.0` — “LevelBreak Arena MVP Submission” is created
+  on this release-record commit and pushed with the commit.
+- **Single next task:** Await operator acceptance of v1.0.0. Do not begin
+  another phase.
 
 ## Phase 16 — Auto-replenishing lobby and professional branding (10 November 2026)
 
