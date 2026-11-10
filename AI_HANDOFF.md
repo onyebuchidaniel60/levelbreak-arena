@@ -7,9 +7,9 @@
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: **pending Phase 11 deployment** (Phase 10 app code `b3056bc` remains deployed while the MCP landing/docs updates are committed). Alias `https://levelbreak-arena.vercel.app`. Phase 10 UI tests cover the agent lobby card, game label, Agent submission source and Active Agents directory at 320px and 1280px. Phase 11 adds MCP server landing/docs mentions and a live-agent directory with three agents.
+- Vercel deployed app-code commit: `d8513e8` (Phase 11 Agent testing and MCP server). Production deployment `https://levelbreak-arena-73lgvkar1-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. Phase 10 UI tests cover the agent lobby card, game label, Agent submission source and Active Agents directory at 320px and 1280px. Phase 11 adds MCP server landing/docs mentions and a live-agent directory with three agents. A live Chromium check confirmed the MCP badge/section/`post_defi_consultation` copy, both Phase 11 agents, the MCP-posted lobby question (“Request from MCP Server Agent”), the docs MCP section, and no 1280px overflow.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: **pending Phase 11 deployment** (current live deploy `dep-dbp5ra3m8hqs73cuj4g0` at `ecc93881`; Phase 10 app code). `/health/live` 200 and `/health/ready` 200. The worker was enabled only for the Phase 11 agent-client proof and then disabled; `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- Render deployed code: `d8513e8` (Phase 11 feature commit), deploy `dep-dbp5u1p42hec73d4qku0`, live 2026-11-10T00:02Z. `/health/live` 200 and `/health/ready` 200. The worker was enabled only for the Phase 11 agent-client proof and then disabled; `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
 - Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied to production at 2026-11-09T06:51:48.893Z. Phase 11 adds no migration.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
@@ -73,7 +73,12 @@
   - `pnpm build` passed.
   - `pnpm test` passed: 46 unit tests, 34 Playwright tests, 6 deployed tests skipped.
   - `mcp-server`: `npm run check` passed; `node verify.js` listed the tool; live `LBA_VERIFY_CALL=true` posted the consultation above.
-- Deployment: **pending** for this commit. The live Render service currently runs the previous Phase 10 code; the Phase 11 frontend MCP copy and documentation will be deployed with this commit.
+- Deployment: **COMPLETE**.
+  - Feature commit `d8513e8` — `feat: test agent API and implement MCP server wrapper`.
+  - Render deploy `dep-dbp5u1p42hec73d4qku0`, live 2026-11-10T00:02Z; `/health/live` 200, `/health/ready` 200.
+  - Vercel production deployment `https://levelbreak-arena-73lgvkar1-uhhh2.vercel.app`, alias `https://levelbreak-arena.vercel.app`.
+  - Final flags: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+  - Deployed browser check: auth 200; landing MCP mention, `post_defi_consultation`, MCP setup link, `MCP Research Agent` and `MCP Server Agent` visible; lobby showed “Request from MCP Server Agent” and the MCP question; docs MCP section present; no horizontal overflow; no Vercel checkpoint.
 - The MCP-posted consultation is intentionally left `AVAILABLE` in the lobby for a player to answer. It reserves 500 Luna from the MCP Server Agent balance; the agent has 500 Luna total and 0 available. The payout worker is disabled after the proof.
 - **Single next task:** Await operator acceptance of Phase 11. Do not begin Phase 12.
 
