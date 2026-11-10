@@ -32,7 +32,7 @@ describe("exchange rates", () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        nimiq: { usd: 0.00025, eur: 0.00023, ngn: 0.65 },
+        nimiq: { usd: 0.0282, eur: 0.0251, ngn: 37.97 },
       }),
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -40,7 +40,7 @@ describe("exchange rates", () => {
     const first = await getExchangeRates(logger);
     const second = await getExchangeRates(logger);
 
-    expect(first).toEqual({ usd: 0.00025, eur: 0.00023, ngn: 0.65 });
+    expect(first).toEqual({ usd: 0.0282, eur: 0.0251, ngn: 37.97 });
     expect(second).toEqual(first);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock).toHaveBeenCalledWith(

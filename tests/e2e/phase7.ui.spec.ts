@@ -66,9 +66,9 @@ async function mockBase(page: Page, run: Record<string, unknown>, payout?: Recor
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          usd: 0.00025,
-          eur: 0.00023,
-          ngn: 0.65,
+          usd: 0.0282,
+          eur: 0.0251,
+          ngn: 37.97,
         }),
       });
       return;
@@ -227,8 +227,8 @@ test.describe("Phase 7 game surfaces", () => {
 
     const dialog = page.getByRole("dialog", { name: /Fiat Off-Ramp/i });
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByText("1 NIM = ₦0.65")).toBeVisible();
-    await expect(dialog.getByText("₦0.02", { exact: true })).toBeVisible();
+    await expect(dialog.getByText("1 NIM = ₦37.97")).toBeVisible();
+    await expect(dialog.getByText("₦0.95", { exact: true })).toBeVisible();
     await expect(
       dialog.getByText("Live rate from CoinGecko. Demo only."),
     ).toBeVisible();

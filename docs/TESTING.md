@@ -374,7 +374,7 @@ pnpm test          46 unit passed; 50 Playwright passed; 6 deployed skipped
 `apps/api/src/services/exchange-rates.test.ts` covers:
 
 - successful CoinGecko parsing and five-minute coalesced caching;
-- fallback to `{ usd: 0.00025, eur: 0.00023, ngn: 0.65 }` with a warning on
+- fallback to `{ usd: 0.0282, eur: 0.0251, ngn: 37.97 }` with a warning on
   provider failure;
 - fallback on an invalid provider shape;
 - refresh after the five-minute cache window.

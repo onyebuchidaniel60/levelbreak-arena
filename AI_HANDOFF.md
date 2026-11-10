@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 9 November 2026
-**Current phase:** Phase 13.6 — live CoinGecko exchange rates deployed and live-verified; awaiting operator acceptance
-**Status:** Phase 13.6 PASS / DEPLOYED / LIVE VERIFIED. Phase 13.5 complete. Phase 14 NOT STARTED.
+**Current phase:** Phase 13.7 — corrected fallback exchange rates implemented; deployment pending
+**Status:** Phase 13.7 local verification passed; deployment pending. Phase 13.6 complete. Phase 14 NOT STARTED.
 
 ## Current deployment and wallets
 
@@ -36,6 +36,28 @@
 - Operator approval of final visual design: **GIVEN — Direction 1, 4 November 2026**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 8 proof, disabled 2026-11-08 after the payouts).
 
+## Phase 13.7 — Correct stale fallback exchange rates (10 November 2026)
+
+**Status:** IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING.
+
+- Updated `FALLBACK_EXCHANGE_RATES` in `apps/api/src/services/exchange-rates.ts` from the stale values to:
+  - `usd: 0.0282`
+  - `eur: 0.0251`
+  - `ngn: 37.97`
+- Updated the frontend `DEFAULT_EXCHANGE_RATES` in `apps/web/src/components/FiatOffRampModal.tsx` to the same values, so an API failure no longer falls back to 100x-lower rates.
+- Updated the backend exchange-rate success fixture and the Phase 7 fallback assertions.
+- Updated the architecture, project spec, testing and handoff records to the corrected fallback values.
+- Verification:
+  - `pnpm lint` passed.
+  - `pnpm typecheck` passed.
+  - `pnpm build` passed.
+  - `pnpm test` passed: 50 unit tests, 50 Playwright tests, 6 deployed tests skipped.
+- The Phase 7 fallback modal now asserts:
+  - `1 NIM = ₦37.97`
+  - `You receive ₦0.95`
+- Deployment: **pending** for this commit. After deploy, verify the endpoint fallback response and retake the deployed fallback screenshot with the corrected amount.
+- **Single next task:** deploy Phase 13.7, verify `/api/config/exchange-rates` returns the corrected fallback when CoinGecko is unavailable, update the deployed fallback screenshot/handoff, and await operator acceptance. Do not begin Phase 14.
+
 ## Phase 13.6 — Live exchange rates for fiat off-ramp (10 November 2026)
 
 **Status:** IMPLEMENTED / DEPLOYED / LIVE VERIFIED.
@@ -44,18 +66,18 @@
   - fetches `https://api.coingecko.com/api/v3/simple/price?ids=nimiq&vs_currencies=usd,eur,ngn`;
   - validates `{ nimiq: { usd, eur, ngn } }` with Zod;
   - caches the result in memory for five minutes and coalesces concurrent requests;
-  - falls back to `{ usd: 0.00025, eur: 0.00023, ngn: 0.65 }` on provider/schema failure and logs a structured warning;
+  - falls back to `{ usd: 0.0282, eur: 0.0251, ngn: 37.97 }` on provider/schema failure and logs a structured warning;
   - is public and rate-limited; no auth or player data is involved.
 - Added `apps/api/src/services/exchange-rates.test.ts`: success + cache, fallback + warning, invalid shape fallback, and five-minute refresh.
 - Frontend:
   - `api.exchangeRates()` and `useExchangeRatesQuery(enabled)` use TanStack Query with a five-minute stale time;
   - the off-ramp modal fetches rates when it opens and renders the selector, payout context and disclosure immediately;
   - while loading, it shows a `Loading rate` badge, “Fetching live rate…”, a gold pulse and amount skeletons;
-  - the live rate line shows `1 NIM = <symbol><rate>` (e.g. `1 NIM = ₦0.65`) and the small disclosure “Live rate from CoinGecko. Demo only.”;
+  - the live rate line shows `1 NIM = <symbol><rate>` (e.g. `1 NIM = ₦37.97`) and the small disclosure “Live rate from CoinGecko. Demo only.”;
   - the `You receive` amount is `amountLuna / 100,000 * rate`, formatted as NGN/EUR/USD; sub-cent amounts show “Less than 0.01”;
   - if the frontend request fails, the modal uses the same fallback rates and says “Live rate unavailable — using demo fallback. Demo only.”;
   - no backend, auth, payment, reward, state-machine or payout-worker behavior changed.
-- The endpoint first returned live CoinGecko values (`usd 0.02818854`, `eur 0.02511467`, `ngn 37.97`). The deterministic Playwright fixture uses those same values, so the NGN screenshot shows `1 NIM = ₦37.97` and `₦0.95`. The Render IP later hit CoinGecko rate limits, so the endpoint served the specified fallback `{ usd: 0.00025, eur: 0.00023, ngn: 0.65 }`; that path is unit-tested and the deployed fallback screenshot is `live-fiat-ngn-fallback-390.png`.
+- The endpoint first returned live CoinGecko values (`usd 0.02818854`, `eur 0.02511467`, `ngn 37.97`). The deterministic Playwright fixture uses those same values, so the NGN screenshot shows `1 NIM = ₦37.97` and `₦0.95`. The Render IP later hit CoinGecko rate limits, so the endpoint served the updated fallback `{ usd: 0.0282, eur: 0.0251, ngn: 37.97 }`; that path is unit-tested and the deployed fallback screenshot is `live-fiat-ngn-fallback-390.png`.
 - Tests:
   - `pnpm lint` passed.
   - `pnpm typecheck` passed.
@@ -69,7 +91,7 @@
   - Feature commit `56ade38` — `feat: live exchange rates for fiat off-ramp`.
   - Render deploy `dep-dbp7bou417fc739bo1s0`, live 2026-11-10T01:39Z; `/health/live` 200, `/health/ready` 200 after restart.
   - Vercel production deployment `https://levelbreak-arena-rh2biwi0u-uhhh2.vercel.app`, alias `https://levelbreak-arena.vercel.app`.
-  - Endpoint live check: first call returned `{"usd":0.02818854,"eur":0.02511467,"ngn":37.97}` in 1.87s; a second call returned the same cached values in 0.12s. Later CoinGecko rate-limited the Render IP, and the endpoint correctly served the specified fallback `{"usd":0.00025,"eur":0.00023,"ngn":0.65}`, demonstrating the fallback path.
+  - Endpoint live check: first call returned `{"usd":0.02818854,"eur":0.02511467,"ngn":37.97}` in 1.87s; a second call returned the same cached values in 0.12s. Later CoinGecko rate-limited the Render IP, and the endpoint correctly served the corrected fallback `{"usd":0.0282,"eur":0.0251,"ngn":37.97}`, demonstrating the fallback path.
   - The deployed modal was opened with the real endpoint and showed the loading state and fallback NGN rate; the Playwright live-value screenshot uses the actual CoinGecko values observed and shows `1 NIM = ₦37.97` plus `You receive ₦0.95`.
   - Final flags: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
 - The current live endpoint is serving the five-minute fallback cache because CoinGecko is rate-limiting the Render IP; the fallback is the required behavior and the warning is logged server-side.

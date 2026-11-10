@@ -30,9 +30,9 @@ const RATE_KEYS: Record<FiatCurrency, keyof ExchangeRates> = {
 
 const CURRENCY_CODES = Object.keys(CURRENCY_META) as FiatCurrency[];
 const DEFAULT_EXCHANGE_RATES: ExchangeRates = {
-  usd: 0.00025,
-  eur: 0.00023,
-  ngn: 0.65,
+  usd: 0.0282,
+  eur: 0.0251,
+  ngn: 37.97,
 };
 const FIAT_AMOUNT_FORMAT = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 2,
