@@ -1,15 +1,15 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 9 November 2026
-**Current phase:** Phase 13.7 — corrected fallback exchange rates implemented; deployment pending
-**Status:** Phase 13.7 local verification passed; deployment pending. Phase 13.6 complete. Phase 14 NOT STARTED.
+**Current phase:** Phase 13.7 — corrected fallback exchange rates deployed and live-verified; awaiting operator acceptance
+**Status:** Phase 13.7 PASS / DEPLOYED / LIVE VERIFIED. Phase 13.6 complete. Phase 14 NOT STARTED.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `56ade38` (Phase 13.6 live exchange rates). Production deployment `https://levelbreak-arena-rh2biwi0u-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. The deployed modal opens with a loading state, shows the CoinGecko disclaimer, and renders the selected currency/rate; the live endpoint fell back to the specified defaults after CoinGecko rate-limited the Render IP. The Playwright live-value fixture uses the actual CoinGecko values observed (`₦37.97`, `₦0.95` for 0.025 NIM).
+- Vercel deployed app-code commit: `f59057e` (Phase 13.7 corrected fallback exchange rates). Production deployment `https://levelbreak-arena-m1thw1o80-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. A live check confirmed the deployed fallback modal now shows `1 NIM = ₦37.97` and `You receive ₦0.95`, matching the corrected fallback values.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `56ade38` (Phase 13.6 feature commit), deploy `dep-dbp7bou417fc739bo1s0`, live 2026-11-10T01:39Z. `/health/live` 200 and `/health/ready` 200 after restart. `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- Render deployed code: `f59057e` (Phase 13.7 feature commit), deploy `dep-dbp7rn2vcj2c73crosdg`, live 2026-11-10T02:13Z. `/health/live` 200 and `/health/ready` 200. `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
 - Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied to production at 2026-11-09T06:51:48.893Z. Phase 11 adds no migration.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
@@ -38,7 +38,7 @@
 
 ## Phase 13.7 — Correct stale fallback exchange rates (10 November 2026)
 
-**Status:** IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING.
+**Status:** IMPLEMENTED / DEPLOYED / LIVE VERIFIED.
 
 - Updated `FALLBACK_EXCHANGE_RATES` in `apps/api/src/services/exchange-rates.ts` from the stale values to:
   - `usd: 0.0282`
@@ -55,8 +55,14 @@
 - The Phase 7 fallback modal now asserts:
   - `1 NIM = ₦37.97`
   - `You receive ₦0.95`
-- Deployment: **pending** for this commit. After deploy, verify the endpoint fallback response and retake the deployed fallback screenshot with the corrected amount.
-- **Single next task:** deploy Phase 13.7, verify `/api/config/exchange-rates` returns the corrected fallback when CoinGecko is unavailable, update the deployed fallback screenshot/handoff, and await operator acceptance. Do not begin Phase 14.
+- Deployment: **COMPLETE**.
+  - Feature commit `f59057e` — `fix: correct stale fallback exchange rates`.
+  - Render deploy `dep-dbp7rn2vcj2c73crosdg`, live 2026-11-10T02:13Z; `/health/live` 200, `/health/ready` 200.
+  - Vercel production deployment `https://levelbreak-arena-m1thw1o80-uhhh2.vercel.app`, alias `https://levelbreak-arena.vercel.app`.
+  - The live endpoint returned the corrected fallback `{"usd":0.0282,"eur":0.0251,"ngn":37.97}` while CoinGecko was rate-limiting the Render IP.
+  - The deployed fallback modal showed `1 NIM = ₦37.97` and `You receive ₦0.95`; the screenshot `test-results/phase12/live-fiat-ngn-fallback-390.png` was refreshed with these values.
+  - Final flags: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- **Single next task:** Await operator acceptance of Phase 13.7. Do not begin Phase 14.
 
 ## Phase 13.6 — Live exchange rates for fiat off-ramp (10 November 2026)
 
