@@ -1,17 +1,17 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 10 November 2026
-**Current phase:** Phase 16 — auto-replenishing funded lobby and professional SVG branding; implementation complete, deployment pending
-**Status:** Phase 16 IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING. Phase 14 complete.
+**Current phase:** Phase 16 — auto-replenishing funded lobby and professional SVG branding deployed and live-verified; awaiting operator acceptance
+**Status:** Phase 16 PASS / DEPLOYED / LIVE VERIFIED. Phase 14 complete.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `93500a5` (Phase 14 complete UI overhaul). Production deployment `https://levelbreak-arena-7qt6j0t3f-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. Live Chromium checks at 1440px and 390px confirmed the new light editorial theme on the landing, agents directory, game decision, Agent Request, payout and fiat modal. Live screenshots are in `test-results/phase14/live-*.png`.
+- Vercel deployed app-code commit: `d559e55` (Phase 16 auto-replenishing lobby, SVG branding and mobile nav polish; main feature commit `40f8d0d`). Production deployment `https://levelbreak-arena-iqj7p0eoe-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. Live Chromium checks at 1440px and 390px confirmed the SVG header, favicon, branded landing and the mobile header without a visible nav scrollbar. Live evidence is in `test-results/phase16/header-live-*.png` and `browser-tab-live.png`.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `93500a5` (Phase 14 feature commit), deploy `dep-dbp8n2lg1s2s73c4llu0`, live 2026-11-10T03:12Z. `/health/live` 200 and `/health/ready` 200. `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- Render deployed code: `d559e55` (Phase 16), deploy `dep-dbp9eap5efls73avj6hg`, live 2026-11-10T04:02Z. `/health/live` 200 and `/health/ready` 200. `AUTO_REPLENISH_SESSIONS=true`, `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
 - Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied to production at 2026-11-09T06:51:48.893Z. Phase 11 adds no migration.
-- Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
+- Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`, `AUTO_REPLENISH_SESSIONS=true`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
 - Sessions: the Phase 8 proof created and settled two 5-level / 2,500 Luna sessions. Phase 8.2 added a test session/run (`18f5054e…` / `fda15818…`) that is active at Level 2 for inspection; the operator’s manual session (`bcbc692c…`) is settled with a confirmed 2,500 Luna payout. Phase 10 added the external-agent session `44f7bae6…` / run `e1b0e820…`, settled with a confirmed 500 Luna payout. Phase 11 added the answered session `02ed506d…` / run `df69f847…` (confirmed 500 Luna payout) and the MCP-posted session `01b378f2…`, which remains `AVAILABLE` with 500 Luna reserved for the MCP Server Agent. Earlier sessions remain 3-level / 1,500 Luna and settled.
 - Repository URL: https://github.com/onyebuchidaniel60/levelbreak-arena
@@ -34,11 +34,11 @@
 - Mockups: Phase 14 — Light Editorial Arena is the **ACTIVE** visual direction, implemented directly from the new operator references. Direction 1 — Trading Terminal was the Phase 7–13.7 visual direction and remains in `design/mockups/` as historical design history; Directions 2, 3 and 4 were rejected.
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
 - Operator approval of final visual design: **GIVEN — Phase 14 operator references, 10 November 2026**. Direction 1 was approved on 4 November 2026 for Phases 7–13.7 and is now visually superseded.
-- Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 8 proof, disabled 2026-11-08 after the payouts).
+- Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`, `AUTO_REPLENISH_SESSIONS=true` (the explicitly approved testnet-only replenisher).
 
 ## Phase 16 — Auto-replenishing lobby and professional branding (10 November 2026)
 
-**Status:** IMPLEMENTED / DEPLOYMENT PENDING.
+**Status:** IMPLEMENTED / DEPLOYED / LIVE VERIFIED.
 
 ### Auto-replenishing demo lobby
 
@@ -112,14 +112,25 @@
   - `test-results/phase16/browser-tab-local.png` (real Chromium tab strip
     with the favicon; the deployed version will replace it as
     `browser-tab-live.png`).
-- Render env has been updated with `AUTO_REPLENISH_SESSIONS=true`; the
-  production `DEMO_FUNDING_ENABLED` value remains false. The next deploy
-  starts the replenisher.
-- **Single next task:** set the Render env var, deploy Phase 16, confirm the
-  replenisher startup/run logs and at least three `AVAILABLE` sessions in the
-  live lobby, capture the header and browser-tab/favicon evidence, record the
-  deployment in this handoff, commit and push, then stop and await operator
-  acceptance.
+- `AUTO_REPLENISH_SESSIONS=true` is set on Render; `DEMO_FUNDING_ENABLED`
+  remains false.
+- Live Render logs confirmed:
+  - `session_replenisher_started` with `target: 3`;
+  - three `session_replenisher_created` events with `state: "AVAILABLE"`;
+  - `session_replenisher_run` with `availableBefore: 0`, `created: 3`,
+    `pending: 0`, `failed: 0`;
+  - a later run with `availableBefore: 3`, `created: 0` (idempotent no-op).
+- Operator session listing confirmed exactly three `AVAILABLE` sessions with
+  verified funding (`daf8826e892a6bad`, `c49c98f9e7c8ea5d`,
+  `571e95eda6306a5f`), each 2,500 Luna and funded from the demo-agent wallet
+  to the treasury.
+- Live header evidence:
+  - `test-results/phase16/header-live-1440.png`
+  - `test-results/phase16/header-live-390.png`
+  - `test-results/phase16/browser-tab-live.png` (real Chromium tab strip with
+    the favicon and title).
+- **Single next task:** Await operator acceptance of Phase 16. Do not begin
+  another phase.
 
 ## Phase 14 — Complete visual overhaul from operator references (10 November 2026)
 
