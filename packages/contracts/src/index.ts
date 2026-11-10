@@ -59,6 +59,7 @@ export const availableSessionSchema = z.object({
 
 export const availableSessionsResponseSchema = z.object({
   sessions: z.array(availableSessionSchema),
+  message: z.string().optional(),
 });
 
 export const claimResponseSchema = z.object({

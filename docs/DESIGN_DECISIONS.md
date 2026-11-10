@@ -175,3 +175,22 @@ changing any product behavior.
   `https://levelbreak-arena.vercel.app`; live Chromium evidence is stored as
   `test-results/phase14/live-*.png`. No backend, API, schema, auth or payment
   behavior changed.
+
+
+## Phase 16 — replenishing lobby and professional branding
+
+- Added a testnet-only session replenisher controlled by
+  `AUTO_REPLENISH_SESSIONS`. It keeps three verified funded demo sessions in
+  the lobby, uses the existing 2,500-Luna demo-agent → treasury path, and
+  stops on pending/failed transfers instead of stacking broadcasts.
+- The empty lobby returns and displays the friendly preparation message:
+  “We are preparing a new funded session for you. Please refresh in 30
+  seconds.” The query refreshes every 30 seconds while empty.
+- Replaced the placeholder bar mark with a geometric SVG logo: a yellow
+  rounded square, an ink “L”, a coral coin/play mark, and a lilac arena
+  corner. The same mark is the favicon. The palette stays exactly within ink
+  `#151313`, coral `#ff5734`, lilac `#be94f5`, yellow `#fccc42` and cream.
+- The logo is sized with CSS (40px mobile, 44px desktop) and the source SVG
+  has a 64×64 intrinsic size, so it remains crisp at every viewport.
+- No visual direction change beyond the mark; the Phase 14 layout and all
+  functional behavior remain.

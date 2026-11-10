@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 10 November 2026
-**Current phase:** Phase 14 — complete visual overhaul from the three new operator references deployed and live-verified; awaiting operator acceptance
-**Status:** Phase 14 PASS / DEPLOYED / LIVE VERIFIED. Phase 13.7 complete.
+**Current phase:** Phase 16 — auto-replenishing funded lobby and professional SVG branding; implementation complete, deployment pending
+**Status:** Phase 16 IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING. Phase 14 complete.
 
 ## Current deployment and wallets
 
@@ -35,6 +35,91 @@
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
 - Operator approval of final visual design: **GIVEN — Phase 14 operator references, 10 November 2026**. Direction 1 was approved on 4 November 2026 for Phases 7–13.7 and is now visually superseded.
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 8 proof, disabled 2026-11-08 after the payouts).
+
+## Phase 16 — Auto-replenishing lobby and professional branding (10 November 2026)
+
+**Status:** IMPLEMENTED / DEPLOYMENT PENDING.
+
+### Auto-replenishing demo lobby
+
+- Added `AUTO_REPLENISH_SESSIONS` to `apps/api/src/config.ts` (default
+  `false`).
+- Added `apps/api/src/services/session-replenisher.ts`:
+  - target **3** visible `AVAILABLE` sessions;
+  - runs once after a short startup delay and then every five minutes after
+    the previous run completes;
+  - uses the existing `createDemoSession` flow, which sends exactly 2,500
+    testnet Luna from the demo-agent wallet to the treasury and waits for
+    independent on-chain verification before the session can become
+    `AVAILABLE`;
+  - creates sessions sequentially and stops on the first pending or failed
+    transfer so it cannot stack treasury broadcasts;
+  - deterministic idempotency keys use the five-minute bucket, observed
+    count and slot, so a restart within the same bucket resumes the same
+    session; the database unique constraint on `creation_idempotency_key`
+    remains the final duplicate guard;
+  - catches database/chain failures, logs structured
+    `session_replenisher_*` events and schedules the next attempt instead of
+    crashing the API;
+  - testnet-only; it never changes the reward amount, liability cap, state
+    machine or payout rules.
+- Safety gate: `isAutoReplenisherOverride` allows the internal worker to
+  bypass the normal demo-funding/production blocks only when the source is
+  `auto-replenisher` and `AUTO_REPLENISH_SESSIONS` is explicitly true. The
+  operator `POST /api/operator/demo-sessions` route remains blocked in
+  production and still requires `DEMO_FUNDING_ENABLED=true`.
+- Wired the worker into `apps/api/src/server.ts` after listen, with graceful
+  shutdown. If `AUTO_REPLENISH_SESSIONS=true` but
+  `NIMIQ_DEMO_AGENT_PRIVATE_KEY` is absent, the API logs a warning and does
+  not start the worker.
+- `GET /api/sessions/available` returns
+  `message: "We are preparing a new funded session for you. Please refresh in 30 seconds."`
+  when the visible lobby is empty and the replenisher is enabled. The
+  contract allows an optional `message`, the lobby displays it as
+  “Preparing a new funded session.” and the query refreshes every 30 seconds
+  while empty.
+- Added `apps/api/src/services/session-replenisher.test.ts` covering disabled
+  no-op, target reached, filling 3 slots, filling only missing slots,
+  deterministic keys, pending-stop, failure-stop, scheduler start/stop,
+  disabled scheduler and the auto-replenisher-only override.
+
+### Professional branding
+
+- Added `apps/web/public/logo.svg` and `apps/web/public/favicon.svg`: a
+  geometric yellow rounded square, ink “L”, coral coin/play mark and lilac
+  arena corner using only the approved palette.
+- `apps/web/index.html` now declares the SVG favicon.
+- `apps/web/src/components/Layout.tsx` uses the SVG mark in the header at
+  40px mobile / 44px desktop; it scales crisply and keeps the existing
+  “LevelBreak / Arena” wordmark.
+- Added `tests/e2e/phase16.branding.spec.ts` to verify the logo asset, its
+  intrinsic 64×64 size, the favicon link/content type, 320/375/390 overflow,
+  header screenshots at 1440px and 390px, and the empty-lobby message at
+  390px.
+
+### Verification and screenshots
+
+- `pnpm lint` passed.
+- `pnpm typecheck` passed.
+- `pnpm build` passed.
+- `pnpm test` passed: 60 unit tests, 60 Playwright tests, 6 deployed tests
+  skipped.
+- Phase 16 screenshots:
+  - `test-results/phase16/header-1440.png`
+  - `test-results/phase16/header-390.png`
+  - `test-results/phase16/landing-branded-390.png`
+  - `test-results/phase16/empty-lobby-390.png`
+  - `test-results/phase16/browser-tab-local.png` (real Chromium tab strip
+    with the favicon; the deployed version will replace it as
+    `browser-tab-live.png`).
+- Render env has been updated with `AUTO_REPLENISH_SESSIONS=true`; the
+  production `DEMO_FUNDING_ENABLED` value remains false. The next deploy
+  starts the replenisher.
+- **Single next task:** set the Render env var, deploy Phase 16, confirm the
+  replenisher startup/run logs and at least three `AVAILABLE` sessions in the
+  live lobby, capture the header and browser-tab/favicon evidence, record the
+  deployment in this handoff, commit and push, then stop and await operator
+  acceptance.
 
 ## Phase 14 — Complete visual overhaul from operator references (10 November 2026)
 

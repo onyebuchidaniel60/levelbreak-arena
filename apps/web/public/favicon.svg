@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="lba-favicon-title">
+  <title id="lba-favicon-title">LevelBreak Arena</title>
+  <rect width="64" height="64" rx="14" fill="#fccc42"/>
+  <path d="M14 12h11v26h18v11H14V12Z" fill="#151313"/>
+  <path d="M43 38h9v11a9 9 0 0 1-9-9v-2Z" fill="#be94f5"/>
+  <circle cx="45" cy="20" r="8.5" fill="#ff5734"/>
+  <path d="M42.5 15.8 50.5 20l-8 4.2v-8.4Z" fill="#f7f7f5"/>
+</svg>

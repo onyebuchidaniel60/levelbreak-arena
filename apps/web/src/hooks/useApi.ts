@@ -94,13 +94,15 @@ export function useAgentsQuery() {
 }
 
 export function useAvailableSessionsQuery(enabled = true) {
-  return useQuery<{ sessions: AvailableSession[] }>({
+  return useQuery<{ sessions: AvailableSession[]; message?: string }>({
     queryKey: queryKeys.availableSessions,
     queryFn: api.availableSessions,
     enabled,
     retry: retryQuery,
     retryDelay,
     staleTime: 5_000,
+    refetchInterval: (query) =>
+      query.state.data && query.state.data.sessions.length === 0 ? 30_000 : false,
   });
 }
 

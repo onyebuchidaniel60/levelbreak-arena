@@ -19,18 +19,15 @@ function shortAddress(address: string): string {
   return `${compact.slice(0, 6)}…${compact.slice(-5)}`;
 }
 
-function BrandMark() {
+function BrandLogo() {
   return (
-    <span
-      className="flex h-10 w-10 items-end justify-center gap-[3px] rounded-[14px] bg-gold p-2.5"
+    <img
+      src="/logo.svg"
+      alt=""
       aria-hidden="true"
-    >
-      <span className="h-2 w-[3px] rounded-sm bg-ink/50" />
-      <span className="h-3.5 w-[3px] rounded-sm bg-ink/70" />
-      <span className="h-5 w-[3px] rounded-sm bg-ink" />
-      <span className="h-3 w-[3px] rounded-sm bg-coral" />
-      <span className="h-1.5 w-[3px] rounded-sm bg-coral/60" />
-    </span>
+      data-testid="brand-logo"
+      className="h-10 w-10 shrink-0 rounded-[14px] sm:h-11 sm:w-11"
+    />
   );
 }
 
@@ -166,7 +163,7 @@ export function Layout() {
                 to="/"
                 className="group flex min-h-11 items-center gap-2.5 rounded-full"
               >
-                <BrandMark />
+                <BrandLogo />
                 <span className="leading-tight">
                   <span className="block text-[15px] font-bold tracking-[-0.02em] text-cream">
                     LevelBreak

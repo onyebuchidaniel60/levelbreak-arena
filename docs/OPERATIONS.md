@@ -29,6 +29,39 @@ private keys or signing material:
   no transaction hash; requires `{"confirmation":"REQUEUE"}`.
 - `GET /api/operator/audit-events` — paginated redacted audit events.
 
+## Auto-replenishing demo lobby (Phase 16)
+
+- `AUTO_REPLENISH_SESSIONS=true` starts a background worker inside the API
+  process. It runs once after startup and then five minutes after each run
+  completes. When false or absent, no replenisher is started.
+- The target is **3 visible `AVAILABLE` sessions**. It uses the existing
+  `createDemoSession` flow, so every new session sends exactly 2,500 testnet
+  Luna from the demo-agent wallet to the treasury and is only exposed after
+  the chain verifies network, sender, recipient, amount, reference and
+  inclusion. It never marks a session available from a returned hash alone.
+- Transfers are sequential. The worker stops after a pending or failed
+  transfer and retries on the next interval; it does not stack three
+  transfers after a chain timeout.
+- Idempotency keys include the five-minute bucket, observed available count
+  and slot. Restarting within the same bucket resumes the same session; a
+  short database unique constraint on `creation_idempotency_key` protects
+  against duplicates.
+- `AUTO_REPLENISH_SESSIONS=true` is the only path that may create demo
+  sessions in production while `DEMO_FUNDING_ENABLED=false`. The protected
+  operator `POST /api/operator/demo-sessions` route still requires
+  `DEMO_FUNDING_ENABLED=true` and a non-production `APP_ENV`.
+- Structured logs: `session_replenisher_started`, `session_replenisher_run`,
+  `session_replenisher_created`, `session_replenisher_pending`,
+  `session_replenisher_create_failed`, `session_replenisher_error`.
+- To disable immediately, set `AUTO_REPLENISH_SESSIONS=false`, redeploy and
+  confirm the stop log. Existing verified sessions remain playable. Do not
+  erase or manually mark pending funding rows.
+- When the lobby is empty and the flag is enabled,
+  `GET /api/sessions/available` returns:
+  “We are preparing a new funded session for you. Please refresh in 30 seconds.”
+  The lobby displays this message and refreshes automatically every 30
+  seconds.
+
 The deployed Render service keeps `DEMO_FUNDING_ENABLED=false`. During Phase 5
 the payout worker was enabled for the funded-session-to-payout proof and then
 disabled after verification. The current state is `PAYOUT_WORKER_ENABLED=false`.
@@ -104,7 +137,8 @@ Maintain a separate operational reserve for any transaction fees and a session r
 ## Emergency controls
 
 - Set `PAYOUT_WORKER_ENABLED=false` to stop new submissions. Do not erase queued payouts.
-- Set `DEMO_FUNDING_ENABLED=false` to stop new demo sessions.
+- Set `AUTO_REPLENISH_SESSIONS=false` to stop automatic demo sessions; also set `DEMO_FUNDING_ENABLED=false` to block the operator creation route.
+- Set `DEMO_FUNDING_ENABLED=false` to stop new operator-created demo sessions.
 - Keep public API health usable while financial features are disabled.
 - Rotate testnet keys if exposed; invalidate the leaked key and replace all affected testnet config.
 - For any suspected mainnet/key incident, stop all transactions, preserve audit logs, and follow the operator's incident/legal process.

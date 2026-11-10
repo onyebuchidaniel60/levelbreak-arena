@@ -25,7 +25,7 @@ Do not invent commands until scripts exist; update this guide when the repositor
 
 - `NIMIQ_NETWORK=testnet` only.
 - Use separate testnet-only demo-agent and treasury keys.
-- Disable `PAYOUT_WORKER_ENABLED` and `DEMO_FUNDING_ENABLED` by default; enable only after explicitly verifying isolated testnet wallet configuration.
+- Disable `PAYOUT_WORKER_ENABLED` and `DEMO_FUNDING_ENABLED` by default; enable only after explicitly verifying isolated testnet wallet configuration. `AUTO_REPLENISH_SESSIONS=true` is a separate explicit testnet-only opt-in that starts the demo-lobby replenisher; it is the only production path allowed to fund demo sessions while `DEMO_FUNDING_ENABLED=false`. Set it to `false` to disable the worker and redeploy.
 - Use preview API/database configuration, never production data.
 - Do not place server secrets in Vercel client environment variables (`VITE_*`).
 - Mainnet configuration must fail closed in preview.

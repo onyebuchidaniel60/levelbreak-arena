@@ -577,15 +577,29 @@ async function sendDemoFunding(
   }
 }
 
+/**
+ * Only the internal auto-replenisher may bypass the demo-funding and
+ * production gates, and only when AUTO_REPLENISH_SESSIONS is explicitly true.
+ * The operator route never passes this source.
+ */
+export function isAutoReplenisherOverride(
+  source: "operator" | "auto-replenisher" | undefined,
+  enabled = config.autoReplenishSessions,
+): boolean {
+  return source === "auto-replenisher" && enabled;
+}
+
 export async function createDemoSession(input: {
   idempotencyKey: string;
   nimiq: NimiqService;
   logger: LoggerLike;
+  source?: "operator" | "auto-replenisher";
 }): Promise<SessionDTO> {
-  if (!config.demoFundingEnabled) {
+  const autoReplenisher = isAutoReplenisherOverride(input.source);
+  if (!config.demoFundingEnabled && !autoReplenisher) {
     throw errors.forbidden("Demo funding is disabled.");
   }
-  if (config.appEnv === "production") {
+  if (config.appEnv === "production" && !autoReplenisher) {
     throw errors.forbidden("Demo funding is not allowed in production.");
   }
   if (!config.nimiqDemoAgentPrivateKey) {

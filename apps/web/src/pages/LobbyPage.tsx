@@ -337,12 +337,17 @@ export function LobbyPage() {
           })}
         </ul>
       ) : (
-        <EmptyState title="No funded session available.">
+        <EmptyState
+          title={
+            sessionsQuery.data?.message
+              ? "Preparing a new funded session."
+              : "No funded session available."
+          }
+        >
           <div className="space-y-3">
-            <p>
-              No verified demo session is open and no external agent has posted
-              a question yet. A session only appears after its funding is
-              verified or its agent balance is reserved.
+            <p data-testid="empty-lobby-message">
+              {sessionsQuery.data?.message ??
+                "No verified demo session is open and no external agent has posted a question yet. A session only appears after its funding is verified or its agent balance is reserved."}
             </p>
             <div className="flex flex-wrap gap-2">
               <Button

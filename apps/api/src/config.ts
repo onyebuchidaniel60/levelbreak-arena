@@ -28,6 +28,7 @@ const EnvSchema = z.object({
   LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(8000),
   PAYOUT_WORKER_ENABLED: z.enum(["true", "false"]).default("false"),
   DEMO_FUNDING_ENABLED: z.enum(["true", "false"]).default("false"),
+  AUTO_REPLENISH_SESSIONS: z.enum(["true", "false"]).default("false"),
   PREVIEW_MOCK_AUTH_ENABLED: z.enum(["true", "false"]).default("false"),
   LOG_LEVEL: z.string().default("info"),
 });
@@ -92,6 +93,7 @@ export const config = {
   llmTimeoutMs: env.LLM_TIMEOUT_MS,
   payoutWorkerEnabled: env.PAYOUT_WORKER_ENABLED === "true",
   demoFundingEnabled: env.DEMO_FUNDING_ENABLED === "true",
+  autoReplenishSessions: env.AUTO_REPLENISH_SESSIONS === "true",
   previewMockAuthEnabled: env.PREVIEW_MOCK_AUTH_ENABLED === "true",
   logLevel: env.LOG_LEVEL,
   isProduction: env.NODE_ENV === "production",

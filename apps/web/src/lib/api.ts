@@ -284,7 +284,10 @@ export const api = {
   logout: (): Promise<void> =>
     apiRequestVoid("/api/auth/logout", { method: "POST" }),
 
-  availableSessions: (): Promise<{ sessions: AvailableSession[] }> =>
+  availableSessions: (): Promise<{
+    sessions: AvailableSession[];
+    message?: string;
+  }> =>
     apiRequest("/api/sessions/available", {
       schema: availableSessionsResponseSchema,
     }),

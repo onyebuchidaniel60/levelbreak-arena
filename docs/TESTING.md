@@ -460,9 +460,57 @@ Local verification:
 pnpm lint          passed
 pnpm typecheck     passed
 pnpm build         passed
-pnpm test          50 unit passed; 58 Playwright passed; 6 deployed tests skipped
+pnpm test          60 unit passed; 60 Playwright passed; 6 deployed tests skipped
 ```
 
 The deployed preview was also checked in Chromium at 1440px and 390px for the
 landing, agents directory, game decision, Agent Request, payout and fiat modal.
 Those screenshots are stored as `test-results/phase14/live-*.png`.
+
+
+## Phase 16 auto-replenishing lobby and branding
+
+`apps/api/src/services/session-replenisher.test.ts` covers:
+
+- disabled worker no-op;
+- no creation when the target is already present;
+- filling three missing slots with deterministic bucket keys;
+- filling only the missing slots;
+- stopping after a session is still pending funding;
+- stopping and logging after a chain/database failure;
+- scheduler start, interval and clean stop;
+- the auto-replenisher-only funding-gate override.
+
+`tests/e2e/phase16.branding.spec.ts` verifies:
+
+- the header logo loads `/logo.svg` at its intrinsic 64x64 size;
+- the favicon link is `/favicon.svg` and the asset is served as
+  `image/svg+xml`;
+- no horizontal overflow at 320px, 375px or 390px;
+- header screenshots at 1440px and 390px;
+- the empty-lobby message
+  “We are preparing a new funded session for you. Please refresh in 30
+  seconds.” is displayed at 390px.
+
+Screenshots:
+
+```text
+test-results/phase16/header-1440.png
+test-results/phase16/header-390.png
+test-results/phase16/landing-branded-390.png
+test-results/phase16/empty-lobby-390.png
+test-results/phase16/browser-tab-local.png
+```
+
+Final local verification:
+
+```text
+pnpm lint          passed
+pnpm typecheck     passed
+pnpm build         passed
+pnpm test          60 unit passed; 60 Playwright passed; 6 deployed tests skipped
+```
+
+Live verification after deployment also records the replenisher logs, at least
+three `AVAILABLE` sessions, the deployed header screenshot and the browser tab
+with the favicon.

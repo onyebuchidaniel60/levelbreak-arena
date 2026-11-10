@@ -15,14 +15,14 @@ export default defineConfig({
   projects: [
     {
       name: "mobile-320",
-      testIgnore: /phase14\.visual\.spec\.ts/,
+      testIgnore: /phase1[46]\./,
       use: {
         viewport: { width: 320, height: 800 },
       },
     },
     {
       name: "desktop-1280",
-      testIgnore: /phase14\.visual\.spec\.ts/,
+      testIgnore: /phase1[46]\./,
       use: {
         viewport: { width: 1280, height: 800 },
       },
@@ -30,6 +30,13 @@ export default defineConfig({
     {
       name: "phase14-screens",
       testMatch: /phase14\.visual\.spec\.ts/,
+      use: {
+        viewport: { width: 1440, height: 1000 },
+      },
+    },
+    {
+      name: "phase16-screens",
+      testMatch: /phase16\.branding\.spec\.ts/,
       use: {
         viewport: { width: 1440, height: 1000 },
       },

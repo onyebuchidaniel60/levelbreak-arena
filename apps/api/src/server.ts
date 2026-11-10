@@ -13,6 +13,7 @@ import { registerConfigRoutes } from "./routes/config";
 import { registerOperatorRoutes } from "./routes/operator";
 import { registerPlayerRoutes } from "./routes/player";
 import { startPayoutWorker } from "./services/payouts";
+import { startSessionReplenisher } from "./services/session-replenisher";
 
 async function main(): Promise<void> {
   const app = Fastify({
@@ -174,9 +175,11 @@ async function main(): Promise<void> {
   }
 
   let stopPayoutWorker: (() => void) | null = null;
+  let stopSessionReplenisher: (() => void) | null = null;
 
   async function shutdown(signal: string): Promise<void> {
     app.log.info({ signal }, "shutting down");
+    stopSessionReplenisher?.();
     stopPayoutWorker?.();
     await app.close();
     await nimiq.close();
@@ -205,6 +208,20 @@ async function main(): Promise<void> {
       { event: "payout_worker_started" },
       "Serialized payout worker started",
     );
+  }
+
+  if (config.autoReplenishSessions) {
+    if (!config.nimiqDemoAgentPrivateKey) {
+      app.log.warn(
+        { event: "session_replenisher_missing_key" },
+        "AUTO_REPLENISH_SESSIONS requires NIMIQ_DEMO_AGENT_PRIVATE_KEY; session replenisher is not running",
+      );
+    } else {
+      stopSessionReplenisher = startSessionReplenisher({
+        nimiq,
+        logger: app.log,
+      });
+    }
   }
 }
 

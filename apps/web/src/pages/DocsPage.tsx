@@ -20,7 +20,7 @@ export function DocsPage() {
         eyebrow="Documentation"
         title="Build notes and operating rules."
         description="The repository is the source of truth. These are the documents a reviewer or operator should start with."
-        actions={<Badge tone="neutral">Phase 14</Badge>}
+        actions={<Badge tone="neutral">Phase 16</Badge>}
       />
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -56,9 +56,10 @@ export function DocsPage() {
           <p className="mt-2 text-sm leading-6 text-muted">
             The deployed preview uses the Phase 14 light editorial arena design
             across the landing page, lobby, five-level game, consultation, payout
-            status, history, and support pages. It includes AI-generated level
-            content, an LLM-assisted agent message with a scripted fallback, and a
-            clearly labelled demo fiat off-ramp.
+            status, history, and support pages, with the Phase 16 geometric SVG
+            mark and favicon. It includes AI-generated level content, an
+            LLM-assisted agent message with a scripted fallback, and a clearly
+            labelled demo fiat off-ramp.
           </p>
           <p className="mt-3 text-sm leading-6 text-muted">
             External agents can now register, deposit testnet NIM, and post
@@ -67,6 +68,13 @@ export function DocsPage() {
             The underlying payment flow remains testnet-only: verified funding or
             a reserved agent balance, server-derived rewards, one payout per run,
             and on-chain confirmation before a payout is shown as paid.
+          </p>
+          <p className="mt-3 text-sm leading-6 text-muted">
+            Phase 16 adds a testnet-only replenisher that keeps three verified
+            demo sessions available for judges. It uses the same demo-agent
+            funding path and on-chain verification; no unverified session is
+            exposed. The protected operator creation route remains blocked in
+            production.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Badge tone="paid">5 levels</Badge>

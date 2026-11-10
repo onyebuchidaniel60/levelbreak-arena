@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { authenticate, requireCsrf } from "../auth";
+import { config } from "../config";
 import { errors } from "../errors";
 import {
   claimSession,
@@ -15,6 +16,7 @@ import {
   submitDecision,
 } from "../services/game";
 import { generateAgentPrompt } from "../services/llm";
+import { EMPTY_LOBBY_MESSAGE } from "../services/session-replenisher";
 
 const IdempotencyKey = z.string().uuid();
 const ExpectedVersion = z.number().int().min(0);
@@ -81,7 +83,11 @@ export async function registerPlayerRoutes(app: FastifyInstance): Promise<void> 
     { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } },
     async (request) => {
       await authenticate(request);
-      return { sessions: await listAvailableSessions() };
+      const sessions = await listAvailableSessions();
+      if (sessions.length === 0 && config.autoReplenishSessions) {
+        return { sessions, message: EMPTY_LOBBY_MESSAGE };
+      }
+      return { sessions };
     },
   );
 
