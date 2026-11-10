@@ -1,15 +1,15 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 9 November 2026
-**Current phase:** Phase 13.5 — multi-currency fiat off-ramp demo implemented; deployment pending
-**Status:** Phase 13.5 local verification passed; deployment pending. Phase 12 complete. Phase 14 NOT STARTED.
+**Current phase:** Phase 13.5 — multi-currency fiat off-ramp demo deployed and live-verified; awaiting operator acceptance
+**Status:** Phase 13.5 PASS / DEPLOYED / LIVE VERIFIED. Phase 12 complete. Phase 14 NOT STARTED.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `4c512c7` (Phase 12 final UI polish and mobile readiness). Production deployment `https://levelbreak-arena-augv8cwk7-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. A live Chromium check at 390px (and 375px overflow check) confirmed the premium `/agents` directory with all three agents, `Verified MCP`, `post_defi_consultation`, the landing **View directory** action, and the live “Request from MCP Server Agent” question in the lobby. No horizontal overflow at either width; no Vercel checkpoint.
+- Vercel deployed app-code commit: `3d92e89` (Phase 13.5 multi-currency fiat off-ramp). Production deployment `https://levelbreak-arena-fgeyprhav-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. A live Chromium check at 390px confirmed NGN (default), EUR and USD selection, rates, and the live “You receive” amounts; at 320px the segmented control stayed within 16px modal edges with no horizontal overflow.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `4c512c7` (Phase 12 feature commit), deploy `dep-dbp6idlg1s2s73c225jg`, live 2026-11-10T00:45Z. `/health/live` 200 and `/health/ready` 200. No backend code changed in Phase 12; `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- Render deployed code: `3d92e89` (Phase 13.5 feature commit), deploy `dep-dbp6tmavcj2c73cqiphg`, live 2026-11-10T01:09Z. `/health/live` 200 and `/health/ready` 200. No backend code changed in Phase 13.5; `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
 - Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied to production at 2026-11-09T06:51:48.893Z. Phase 11 adds no migration.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
@@ -38,7 +38,7 @@
 
 ## Phase 13.5 — Multi-currency fiat off-ramp (10 November 2026)
 
-**Status:** IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING.
+**Status:** IMPLEMENTED / DEPLOYED / LIVE VERIFIED.
 
 - UI-only update to `apps/web/src/components/FiatOffRampModal.tsx`.
 - Added a segmented currency control at the top of the modal:
@@ -65,8 +65,14 @@
   - `test-results/phase12/fiat-modal-ngn-390.png`
   - `test-results/phase12/fiat-modal-eur-390.png`
   - `test-results/phase12/fiat-modal-usd-390.png`
-- Deployment: **pending** for this commit. The live service currently runs Phase 12 (`4c512c7`).
-- **Single next task:** deploy Phase 13.5, verify the live modal currency states, record the final deployment, and await operator acceptance. Do not begin Phase 14.
+  - Live deployed bundle: `test-results/phase12/live-fiat-ngn-390.png`, `live-fiat-eur-390.png`, `live-fiat-usd-390.png`.
+- Deployment: **COMPLETE**.
+  - Feature commit `3d92e89` — `style: multi-currency fiat off-ramp modal (NGN, EUR, USD)`.
+  - Render deploy `dep-dbp6tmavcj2c73cqiphg`, live 2026-11-10T01:09Z; `/health/live` 200, `/health/ready` 200.
+  - Vercel production deployment `https://levelbreak-arena-fgeyprhav-uhhh2.vercel.app`, alias `https://levelbreak-arena.vercel.app`.
+  - Live 390px Chromium check: NGN selected by default with `1 NIM = 1,350.00 NGN` and `₦33.75`; EUR selected with `1 NIM = 0.82 EUR` and `€0.02`; USD selected with `1 NIM = 0.89 USD` and `$0.02`. At 320px the segmented control stayed inside 16px modal edges and the page had no horizontal overflow.
+  - Final flags: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- **Single next task:** Await operator acceptance of Phase 13.5. Do not begin Phase 14.
 
 ## Phase 12 — Final UI polish and mobile readiness (10 November 2026)
 
