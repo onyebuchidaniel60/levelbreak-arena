@@ -421,7 +421,7 @@ test("Phase 8 five-level play-through and confirmed 2,000 Luna payout", async ({
     await page.getByRole("button", { name: /Withdraw to Fiat/i }).click();
     const dialog = page.getByRole("dialog", { name: /Fiat Off-Ramp/i });
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByText("1 NIM = $0.85")).toBeVisible();
+    await expect(dialog.getByText("1 NIM = 1,350.00 NGN")).toBeVisible();
     await dialog.getByRole("button", { name: /Send to Nimiq Pay/i }).click();
     await expect(
       dialog.getByRole("heading", { name: /Off-ramp request simulated/i }),

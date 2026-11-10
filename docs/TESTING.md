@@ -337,3 +337,33 @@ pnpm test          46 unit passed; 50 Playwright passed; 6 deployed skipped
 
 The existing 320px route smoke suite and 1280px desktop suite remain green, as
 do the Phase 7/8/10/11 UI tests.
+
+
+## Phase 13.5 multi-currency off-ramp
+
+The Phase 12 payout test now also covers the Fiat Off-Ramp currency selector:
+
+- default **NGN** is selected;
+- rate line is `1 NIM = 1,350.00 NGN`, and `2,500 Luna` displays `₦33.75`;
+- switching to **EUR** shows `1 NIM = 0.82 EUR` and `€0.02`;
+- switching to **USD** shows `1 NIM = 0.89 USD` and `$0.02`;
+- the success state carries the selected currency (`Simulated USD handoff`);
+- the segmented control fits at 320px with 16px modal edges and no horizontal overflow;
+- the "You receive" amount is non-wrapping JetBrains Mono with the correct symbol.
+
+390px screenshots are written to:
+
+```text
+test-results/phase12/fiat-modal-ngn-390.png
+test-results/phase12/fiat-modal-eur-390.png
+test-results/phase12/fiat-modal-usd-390.png
+```
+
+Final local verification:
+
+```text
+pnpm lint          passed
+pnpm typecheck     passed
+pnpm build         passed
+pnpm test          46 unit passed; 50 Playwright passed; 6 deployed skipped
+```

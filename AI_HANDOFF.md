@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 9 November 2026
-**Current phase:** Phase 12 — final UI polish and mobile readiness deployed and live-verified; awaiting operator acceptance
-**Status:** Phase 12 PASS / DEPLOYED / LIVE VERIFIED. Phase 11 complete. Phase 13 NOT STARTED.
+**Current phase:** Phase 13.5 — multi-currency fiat off-ramp demo implemented; deployment pending
+**Status:** Phase 13.5 local verification passed; deployment pending. Phase 12 complete. Phase 14 NOT STARTED.
 
 ## Current deployment and wallets
 
@@ -35,6 +35,38 @@
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
 - Operator approval of final visual design: **GIVEN — Direction 1, 4 November 2026**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 8 proof, disabled 2026-11-08 after the payouts).
+
+## Phase 13.5 — Multi-currency fiat off-ramp (10 November 2026)
+
+**Status:** IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING.
+
+- UI-only update to `apps/web/src/components/FiatOffRampModal.tsx`.
+- Added a segmented currency control at the top of the modal:
+  - **NGN** (default) — “Naira”
+  - **EUR** — “Euro”
+  - **USD** — “Dollar”
+- Mocked display rates:
+  - `1 NIM = 1,350.00 NGN`
+  - `1 NIM = 0.82 EUR`
+  - `1 NIM = 0.89 USD`
+- The “You receive” amount updates live from the confirmed NIM payout:
+  - `2,500 Luna` → `₦33.75` / `€0.02` / `$0.02`.
+- Uses JetBrains Mono for amounts and rates, thousands separators and the correct symbol; gold/emerald design tokens only.
+- Disclosure now explicitly says the rates are mocked and no fiat currency is transferred. The success state also carries the selected currency.
+- Layout checked at 320px, 375px and 390px: segmented control fits without overflow, 16px modal edges, non-wrapping amount.
+- No backend, auth, payment, reward, state-machine or payout-worker changes.
+- Tests:
+  - `pnpm lint` passed.
+  - `pnpm typecheck` passed.
+  - `pnpm build` passed.
+  - `pnpm test` passed: 46 unit tests, 50 Playwright tests, 6 deployed tests skipped.
+  - Updated Phase 7 and Phase 12 UI tests for the NGN default and currency switching.
+- 390px screenshots:
+  - `test-results/phase12/fiat-modal-ngn-390.png`
+  - `test-results/phase12/fiat-modal-eur-390.png`
+  - `test-results/phase12/fiat-modal-usd-390.png`
+- Deployment: **pending** for this commit. The live service currently runs Phase 12 (`4c512c7`).
+- **Single next task:** deploy Phase 13.5, verify the live modal currency states, record the final deployment, and await operator acceptance. Do not begin Phase 14.
 
 ## Phase 12 — Final UI polish and mobile readiness (10 November 2026)
 

@@ -1,14 +1,50 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  demoUsdPerNim,
-  formatDemoUsdFromLuna,
-  formatLuna,
-  formatNim,
-} from "../lib/format";
+import { formatLuna, formatNim } from "../lib/format";
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from "./Icons";
-import { Badge, Button, Divider, KeyValue } from "./ui";
+import { Badge, Button, Divider, KeyValue, SectionLabel, cn } from "./ui";
 
 type OffRampState = "idle" | "sending" | "success";
+type FiatCurrency = "NGN" | "EUR" | "USD";
+
+const FIAT_CURRENCIES = {
+  NGN: {
+    name: "Naira",
+    symbol: "₦",
+    rateMinorPerNim: 135_000n,
+  },
+  EUR: {
+    name: "Euro",
+    symbol: "€",
+    rateMinorPerNim: 82n,
+  },
+  USD: {
+    name: "Dollar",
+    symbol: "$",
+    rateMinorPerNim: 89n,
+  },
+} as const satisfies Record<
+  FiatCurrency,
+  { name: string; symbol: string; rateMinorPerNim: bigint }
+>;
+
+const CURRENCY_CODES = Object.keys(FIAT_CURRENCIES) as FiatCurrency[];
+const FIAT_NUMBER_FORMAT = new Intl.NumberFormat("en-US", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+function formatRate(currency: FiatCurrency): string {
+  return FIAT_NUMBER_FORMAT.format(
+    Number(FIAT_CURRENCIES[currency].rateMinorPerNim) / 100,
+  );
+}
+
+function formatFiatAmount(amountLuna: string, currency: FiatCurrency): string {
+  const { rateMinorPerNim, symbol } = FIAT_CURRENCIES[currency];
+  const fiatMinor =
+    (BigInt(amountLuna) * rateMinorPerNim + 50_000n) / 100_000n;
+  return `${symbol}${FIAT_NUMBER_FORMAT.format(Number(fiatMinor) / 100)}`;
+}
 
 export function FiatOffRampModal({
   open,
@@ -26,11 +62,13 @@ export function FiatOffRampModal({
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const [state, setState] = useState<OffRampState>("idle");
+  const [currency, setCurrency] = useState<FiatCurrency>("NGN");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
     setState("idle");
+    setCurrency("NGN");
     setError(null);
     const previouslyFocused = document.activeElement as HTMLElement | null;
     const previousOverflow = document.body.style.overflow;
@@ -68,6 +106,9 @@ export function FiatOffRampModal({
   }, [open, onClose]);
 
   if (!open) return null;
+
+  const rate = formatRate(currency);
+  const receiveAmount = formatFiatAmount(amountLuna, currency);
 
   async function handleSend() {
     setError(null);
@@ -138,10 +179,12 @@ export function FiatOffRampModal({
               </p>
             </div>
             <div className="mt-4 rounded-lg border border-line bg-ink-2 p-3">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-xs text-muted">Simulated handoff</span>
-                <span className="numeric text-sm text-numeric">
-                  {formatNim(amountLuna)} NIM → {formatDemoUsdFromLuna(amountLuna)}
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                <span className="text-xs text-muted">
+                  Simulated {currency} handoff
+                </span>
+                <span className="numeric whitespace-nowrap text-sm text-numeric">
+                  {formatNim(amountLuna)} NIM → {receiveAmount}
                 </span>
               </div>
             </div>
@@ -156,7 +199,71 @@ export function FiatOffRampModal({
           </div>
         ) : (
           <>
-            <div className="mt-5 rounded-lg border border-line bg-ink-2 p-4">
+            <div className="mt-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <SectionLabel>Receive currency</SectionLabel>
+                <Badge tone="neutral">Mocked rate</Badge>
+              </div>
+              <div
+                role="group"
+                aria-label="Fiat currency"
+                className="mt-2 grid grid-cols-3 gap-1 rounded-lg border border-line bg-ink-2 p-1"
+              >
+                {CURRENCY_CODES.map((code) => {
+                  const selected = code === currency;
+                  return (
+                    <button
+                      key={code}
+                      type="button"
+                      onClick={() => setCurrency(code)}
+                      aria-pressed={selected}
+                      className={cn(
+                        "flex min-h-11 flex-col items-center justify-center rounded-md px-2 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70",
+                        selected
+                          ? "bg-gold text-ink"
+                          : "text-muted hover:bg-white/[0.04] hover:text-body",
+                      )}
+                    >
+                      <span className="font-mono text-[11px] font-semibold tracking-[0.08em]">
+                        {code}
+                      </span>
+                      <span
+                        className={cn(
+                          "mt-0.5 text-[10px] leading-4",
+                          selected ? "text-ink/70" : "text-dim",
+                        )}
+                      >
+                        {FIAT_CURRENCIES[code].name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <span className="text-dim">Mocked demo rate</span>
+                <span className="numeric whitespace-nowrap text-gold">
+                  1 NIM = {rate} {currency}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-lg border border-gold/20 bg-gold/[0.04] p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <SectionLabel>You receive</SectionLabel>
+                <Badge tone="pending">Demo rate</Badge>
+              </div>
+              <p
+                aria-live="polite"
+                className="numeric mt-2 whitespace-nowrap text-3xl font-semibold leading-tight text-gold"
+              >
+                {receiveAmount}
+              </p>
+              <p className="mt-1 break-words text-xs leading-5 text-muted">
+                {formatNim(amountLuna)} NIM × {rate} {currency} per NIM
+              </p>
+            </div>
+
+            <div className="mt-4 rounded-lg border border-line bg-ink-2 p-4">
               <dl className="divide-y divide-line">
                 <KeyValue label="Confirmed payout">
                   <span className="numeric">
@@ -164,14 +271,6 @@ export function FiatOffRampModal({
                   </span>
                   <span className="ml-1 text-xs text-dim">
                     ({formatLuna(amountLuna)} Luna)
-                  </span>
-                </KeyValue>
-                <KeyValue label="Indicative demo rate">
-                  <span className="numeric">1 NIM = ${demoUsdPerNim.toFixed(2)}</span>
-                </KeyValue>
-                <KeyValue label="Estimated fiat">
-                  <span className="numeric text-base font-semibold text-gold">
-                    {formatDemoUsdFromLuna(amountLuna)}
                   </span>
                 </KeyValue>
                 {txHash ? (
@@ -184,12 +283,13 @@ export function FiatOffRampModal({
 
             <div className="mt-4 rounded-lg border border-pending/25 bg-pending/[0.06] p-3">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-pending">
-                Demo only — no fiat transfer
+                Demo only — mocked rate, no fiat transfer
               </p>
               <p className="mt-1 text-xs leading-5 text-muted">
-                The rate is illustrative. No exchange API is called, no KYC
-                flow starts, and no funds leave the treasury. A production
-                off-ramp requires a licensed provider and separate approval.
+                The exchange rate is mocked for this demonstration. No fiat
+                currency is transferred, no exchange API is called, no KYC flow
+                starts, and no funds leave the treasury. A production off-ramp
+                requires a licensed provider and separate approval.
               </p>
             </div>
 

@@ -214,8 +214,11 @@ test.describe("Phase 7 game surfaces", () => {
 
     const dialog = page.getByRole("dialog", { name: /Fiat Off-Ramp/i });
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByText("1 NIM = $0.85")).toBeVisible();
-    await expect(dialog.getByText(/Demo only — no fiat transfer/i)).toBeVisible();
+    await expect(dialog.getByText("1 NIM = 1,350.00 NGN")).toBeVisible();
+    await expect(dialog.getByText("₦33.75", { exact: true })).toBeVisible();
+    await expect(
+      dialog.getByText(/Demo only — mocked rate, no fiat transfer/i),
+    ).toBeVisible();
     await expect(dialog.getByText(/No exchange API is called/i)).toBeVisible();
 
     await dialog.getByRole("button", { name: /Send to Nimiq Pay/i }).click();
