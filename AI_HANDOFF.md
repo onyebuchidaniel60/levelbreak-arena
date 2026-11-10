@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 10 November 2026
-**Current phase:** Phase 18 — world-class copywriting and comprehensive `/docs` hub deployed and live-verified; awaiting operator acceptance
-**Status:** Phase 18 PASS / DEPLOYED / LIVE VERIFIED. Phase 17 v1.0.0 complete.
+**Current phase:** Phase 19 — hackathon demo video generated locally; awaiting operator review
+**Status:** Phase 19 COMPLETE (local media). Phase 18 PASS / DEPLOYED / LIVE VERIFIED. Phase 17 v1.0.0 complete.
 
 ## Current deployment and wallets
 
@@ -35,6 +35,64 @@
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
 - Operator approval of final visual design: **GIVEN — Phase 14 operator references, 10 November 2026**. Direction 1 was approved on 4 November 2026 for Phases 7–13.7 and is now visually superseded.
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`, `AUTO_REPLENISH_SESSIONS=true` (the explicitly approved testnet-only replenisher).
+
+## Phase 19 — Hackathon demo video (10 November 2026)
+
+**Status:** COMPLETE / LOCAL MEDIA GENERATED. No product code, API contract,
+database schema, auth, payment, treasury, MCP or deployment behavior changed.
+
+### Voiceover and music
+
+- `docs/DEMO_SCRIPT.md` contains the 183-word problem → solution → demo →
+  close narration. It contains no name or personal introduction and starts
+  with the agent-intuition problem.
+- Voice: `en-US-ChristopherNeural` at `--rate=+10%`; measured duration
+  **72.144 seconds** with `ffprobe`.
+- Music: “Backed Vibes” by Kevin MacLeod (incompetech.com, CC BY 4.0),
+  downloaded to `docs/background-music.mp3`; valid MP3, **228.4147 seconds**.
+- The music is trimmed to the voice duration and mixed at `volume=0.08` with
+  `amix=duration=first:normalize=0`, so the voice remains dominant.
+
+### Recording
+
+- Added `scripts/record-demo.ts`. It starts a local Vite server on port 4325,
+  mocks the API deterministically, records Chromium at **390×844**, and writes
+  `test-results/video/demo-flow.webm`.
+- The recorded flow: landing hero → Active Missions lobby → external-agent
+  mission claim → Level 1 decision → agent-message typewriter → consultation
+  answer → `Reward Confirmed` payout → fiat off-ramp NGN → EUR → USD → NGN →
+  return to the hero for the close.
+- A coral cursor overlay and smooth scrolling make the mobile flow readable.
+- The recording timeline is anchored to the 72.144-second voiceover. The
+  measured startup offset is trimmed before the final mix.
+
+### Final video
+
+- Output: `docs/final-demo.mp4`
+- Video: H.264 High, 390×844, 25 fps, yuv420p, fast-start.
+- Audio: AAC-LC, 48 kHz stereo, ~192 kbps.
+- Duration: **72.144 seconds**; size ~4.7 MB.
+- Frame checks confirmed the hero at 0:00, Active Missions at 0:15, the
+  decision at 0:33, the typed consultation at 0:40, Reward Confirmed at 0:50,
+  the NGN/EUR/USD modal at 0:55–1:02, and the closing hero at 1:08–1:12.
+- The earlier full-page navigation white gap was removed; the close returns to
+  the landing hero without a blank frame.
+
+### Verification
+
+```text
+pnpm lint          passed
+pnpm typecheck     passed
+pnpm build         passed
+pnpm test:unit     63 passed; 32 skipped
+ffprobe            h264 390x844 25fps + aac 48kHz stereo, 72.144s
+```
+
+`docs/voiceover.mp3`, `docs/background-music.mp3` and
+`docs/final-demo.mp4` are ignored by git and are not committed.
+
+- **Single next task:** Operator reviews/downloads `docs/final-demo.mp4`.
+  Do not begin another phase.
 
 ## Phase 18 — Agent Economy copy and comprehensive docs hub (10 November 2026)
 

@@ -11,3 +11,8 @@ test-results/
 .env
 .env.*
 !.env.example
+
+# Local hackathon demo media (generated, not committed)
+docs/voiceover.mp3
+docs/background-music.mp3
+docs/final-demo.mp4
