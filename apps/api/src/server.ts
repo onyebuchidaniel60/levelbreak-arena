@@ -9,6 +9,7 @@ import { checkDatabase, closeDatabase } from "./db";
 import { AppError } from "./errors";
 import { NimiqWebClientService } from "./nimiq/web-client";
 import { registerAgentRoutes } from "./routes/agent";
+import { registerConfigRoutes } from "./routes/config";
 import { registerOperatorRoutes } from "./routes/operator";
 import { registerPlayerRoutes } from "./routes/player";
 import { startPayoutWorker } from "./services/payouts";
@@ -160,6 +161,7 @@ async function main(): Promise<void> {
     demoMode: true,
   }));
 
+  await registerConfigRoutes(app);
   await registerAuthRoutes(app);
   await registerPlayerRoutes(app);
   await registerAgentRoutes(app, { nimiq });

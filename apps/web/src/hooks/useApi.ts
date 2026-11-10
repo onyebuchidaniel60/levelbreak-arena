@@ -9,6 +9,7 @@ import type {
   AgentsResponse,
   AvailableSession,
   ClaimResponse,
+  ExchangeRates,
   FinishResponse,
   HistoryResponse,
   MeResponse,
@@ -20,6 +21,7 @@ import type {
 export const queryKeys = {
   me: ["me"] as const,
   config: ["config"] as const,
+  exchangeRates: ["config", "exchange-rates"] as const,
   agents: ["agents"] as const,
   availableSessions: ["sessions", "available"] as const,
   run: (runId: string) => ["runs", runId] as const,
@@ -47,6 +49,17 @@ export function useConfigQuery() {
   return useQuery({
     queryKey: queryKeys.config,
     queryFn: api.config,
+    staleTime: 5 * 60_000,
+    retry: retryQuery,
+    retryDelay,
+  });
+}
+
+export function useExchangeRatesQuery(enabled = true) {
+  return useQuery<ExchangeRates>({
+    queryKey: queryKeys.exchangeRates,
+    queryFn: api.exchangeRates,
+    enabled,
     staleTime: 5 * 60_000,
     retry: retryQuery,
     retryDelay,

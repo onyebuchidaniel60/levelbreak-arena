@@ -147,6 +147,11 @@ async function mockApi(
       });
     }
 
+    if (path === "/api/config/exchange-rates") {
+      await new Promise((resolve) => setTimeout(resolve, 2_000));
+      return json({ usd: 0.00025, eur: 0.00023, ngn: 0.65 });
+    }
+
     if (path === "/api/me") {
       if (!options.authenticated) {
         return json(
@@ -441,12 +446,22 @@ test.describe("Phase 12 mobile readiness", () => {
     expect(box390?.x ?? 0).toBeGreaterThanOrEqual(15);
     expect((box390?.x ?? 0) + (box390?.width ?? 0)).toBeLessThanOrEqual(390 - 15);
 
+    await expect(dialog.getByText("Loading rate", { exact: true })).toBeVisible();
+    await expect(
+      dialog.getByText("Fetching live rate…", { exact: true }),
+    ).toBeVisible();
+
     const ngnButton = dialog.getByRole("button", { name: /NGN/i });
     await expect(ngnButton).toHaveAttribute("aria-pressed", "true");
-    await expect(dialog.getByText("1 NIM = 1,350.00 NGN")).toBeVisible();
-    await expect(dialog.getByText("₦33.75", { exact: true })).toBeVisible();
+    await expect(dialog.getByText("1 NIM = ₦0.65")).toBeVisible({
+      timeout: 5_000,
+    });
+    await expect(dialog.getByText("₦0.02", { exact: true })).toBeVisible();
     await expect(
-      dialog.getByText(/Demo only — mocked rate, no fiat transfer/i),
+      dialog.getByText("Live rate from CoinGecko. Demo only."),
+    ).toBeVisible();
+    await expect(
+      dialog.getByText(/Demo only — no fiat transfer/i),
     ).toBeVisible();
     await screenshot(page, "fiat-modal-ngn");
 
@@ -467,22 +482,24 @@ test.describe("Phase 12 mobile readiness", () => {
     const eurButton = dialog.getByRole("button", { name: /EUR/i });
     await eurButton.click();
     await expect(eurButton).toHaveAttribute("aria-pressed", "true");
-    await expect(dialog.getByText("1 NIM = 0.82 EUR")).toBeVisible();
-    await expect(dialog.getByText("€0.02", { exact: true })).toBeVisible();
+    await expect(dialog.getByText("1 NIM = €0.00023")).toBeVisible();
+    await expect(dialog.getByText(/Less than 0\.01/)).toBeVisible();
     await screenshot(page, "fiat-modal-eur");
 
     const usdButton = dialog.getByRole("button", { name: /USD/i });
     await usdButton.click();
     await expect(usdButton).toHaveAttribute("aria-pressed", "true");
-    await expect(dialog.getByText("1 NIM = 0.89 USD")).toBeVisible();
-    await expect(dialog.getByText("$0.02", { exact: true })).toBeVisible();
+    await expect(dialog.getByText("1 NIM = $0.00025")).toBeVisible();
+    await expect(dialog.getByText(/Less than 0\.01/)).toBeVisible();
     await screenshot(page, "fiat-modal-usd");
 
     await dialog.getByRole("button", { name: /Send to Nimiq Pay/i }).click();
     await expect(
       dialog.getByText(/Simulated USD handoff/i),
     ).toBeVisible({ timeout: 3_000 });
-    await expect(dialog.getByText(/0\.025 NIM → \$0\.02/)).toBeVisible();
+    await expect(
+      dialog.getByText(/0\.025 NIM → Less than 0\.01/),
+    ).toBeVisible();
 
     const decisionOverflow = await page.evaluate(
       () => document.documentElement.scrollWidth > window.innerWidth,

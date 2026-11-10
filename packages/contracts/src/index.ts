@@ -23,6 +23,12 @@ export const publicConfigSchema = z.object({
   demoMode: z.boolean(),
 });
 
+export const exchangeRatesSchema = z.object({
+  usd: z.number().positive(),
+  eur: z.number().positive(),
+  ngn: z.number().positive(),
+});
+
 export const nonceResponseSchema = z.object({
   nonceId: z.string().uuid(),
   challenge: z.string(),
@@ -282,6 +288,7 @@ export const historyResponseSchema = z.object({
 });
 
 export type PublicConfig = z.infer<typeof publicConfigSchema>;
+export type ExchangeRates = z.infer<typeof exchangeRatesSchema>;
 export type NonceResponse = z.infer<typeof nonceResponseSchema>;
 export type VerifyResponse = z.infer<typeof verifyResponseSchema>;
 export type MeResponse = z.infer<typeof meResponseSchema>;

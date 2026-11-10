@@ -61,6 +61,19 @@ async function mockBase(page: Page, run: Record<string, unknown>, payout?: Recor
       return;
     }
 
+    if (path === "/api/config/exchange-rates") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          usd: 0.00025,
+          eur: 0.00023,
+          ngn: 0.65,
+        }),
+      });
+      return;
+    }
+
     if (path === "/api/me") {
       await route.fulfill({
         status: 200,
@@ -214,10 +227,13 @@ test.describe("Phase 7 game surfaces", () => {
 
     const dialog = page.getByRole("dialog", { name: /Fiat Off-Ramp/i });
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByText("1 NIM = 1,350.00 NGN")).toBeVisible();
-    await expect(dialog.getByText("₦33.75", { exact: true })).toBeVisible();
+    await expect(dialog.getByText("1 NIM = ₦0.65")).toBeVisible();
+    await expect(dialog.getByText("₦0.02", { exact: true })).toBeVisible();
     await expect(
-      dialog.getByText(/Demo only — mocked rate, no fiat transfer/i),
+      dialog.getByText("Live rate from CoinGecko. Demo only."),
+    ).toBeVisible();
+    await expect(
+      dialog.getByText(/Demo only — no fiat transfer/i),
     ).toBeVisible();
     await expect(dialog.getByText(/No exchange API is called/i)).toBeVisible();
 

@@ -5,6 +5,7 @@ import {
   claimResponseSchema,
   decisionResponseSchema,
   errorEnvelopeSchema,
+  exchangeRatesSchema,
   finishResponseSchema,
   historyResponseSchema,
   meResponseSchema,
@@ -19,6 +20,7 @@ import {
   type AvailableSession,
   type ClaimResponse,
   type DecisionResponse,
+  type ExchangeRates,
   type FinishResponse,
   type HistoryResponse,
   type MeResponse,
@@ -244,6 +246,12 @@ export async function apiRequestVoid(
 export const api = {
   config: (): Promise<PublicConfig> =>
     apiRequest("/api/config/public", { schema: publicConfigSchema }),
+
+  exchangeRates: (): Promise<ExchangeRates> =>
+    apiRequest("/api/config/exchange-rates", {
+      schema: exchangeRatesSchema,
+      redirectOn401: false,
+    }),
 
   me: (): Promise<MeResponse> =>
     apiRequest("/api/me", {

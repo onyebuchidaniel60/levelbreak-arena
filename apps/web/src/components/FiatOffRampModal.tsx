@@ -1,49 +1,77 @@
 import { useEffect, useRef, useState } from "react";
+import type { ExchangeRates } from "@levelbreak-arena/contracts";
+import { useExchangeRatesQuery } from "../hooks/useApi";
 import { formatLuna, formatNim } from "../lib/format";
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from "./Icons";
-import { Badge, Button, Divider, KeyValue, SectionLabel, cn } from "./ui";
+import {
+  Badge,
+  Button,
+  Divider,
+  KeyValue,
+  SectionLabel,
+  Skeleton,
+  cn,
+} from "./ui";
 
 type OffRampState = "idle" | "sending" | "success";
 type FiatCurrency = "NGN" | "EUR" | "USD";
 
-const FIAT_CURRENCIES = {
-  NGN: {
-    name: "Naira",
-    symbol: "₦",
-    rateMinorPerNim: 135_000n,
-  },
-  EUR: {
-    name: "Euro",
-    symbol: "€",
-    rateMinorPerNim: 82n,
-  },
-  USD: {
-    name: "Dollar",
-    symbol: "$",
-    rateMinorPerNim: 89n,
-  },
-} as const satisfies Record<
-  FiatCurrency,
-  { name: string; symbol: string; rateMinorPerNim: bigint }
->;
+const CURRENCY_META = {
+  NGN: { name: "Naira", symbol: "₦" },
+  EUR: { name: "Euro", symbol: "€" },
+  USD: { name: "Dollar", symbol: "$" },
+} as const satisfies Record<FiatCurrency, { name: string; symbol: string }>;
 
-const CURRENCY_CODES = Object.keys(FIAT_CURRENCIES) as FiatCurrency[];
-const FIAT_NUMBER_FORMAT = new Intl.NumberFormat("en-US", {
+const RATE_KEYS: Record<FiatCurrency, keyof ExchangeRates> = {
+  NGN: "ngn",
+  EUR: "eur",
+  USD: "usd",
+};
+
+const CURRENCY_CODES = Object.keys(CURRENCY_META) as FiatCurrency[];
+const DEFAULT_EXCHANGE_RATES: ExchangeRates = {
+  usd: 0.00025,
+  eur: 0.00023,
+  ngn: 0.65,
+};
+const FIAT_AMOUNT_FORMAT = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 });
+const RATE_FORMAT = new Intl.NumberFormat("en-US", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 6,
+});
 
-function formatRate(currency: FiatCurrency): string {
-  return FIAT_NUMBER_FORMAT.format(
-    Number(FIAT_CURRENCIES[currency].rateMinorPerNim) / 100,
-  );
+function rateFor(currency: FiatCurrency, rates: ExchangeRates): number {
+  return rates[RATE_KEYS[currency]];
 }
 
-function formatFiatAmount(amountLuna: string, currency: FiatCurrency): string {
-  const { rateMinorPerNim, symbol } = FIAT_CURRENCIES[currency];
-  const fiatMinor =
-    (BigInt(amountLuna) * rateMinorPerNim + 50_000n) / 100_000n;
-  return `${symbol}${FIAT_NUMBER_FORMAT.format(Number(fiatMinor) / 100)}`;
+function formatRate(currency: FiatCurrency, rate: number): string {
+  return `${CURRENCY_META[currency].symbol}${RATE_FORMAT.format(rate)}`;
+}
+
+function calculateFiatAmount(
+  amountLuna: string,
+  currency: FiatCurrency,
+  rates: ExchangeRates,
+): {
+  belowMinimum: boolean;
+  display: string;
+  rate: number;
+} {
+  const earnedNim = Number(amountLuna) / 100_000;
+  const rate = rateFor(currency, rates);
+  const rounded = Math.round((earnedNim * rate + Number.EPSILON) * 100) / 100;
+  const belowMinimum = rounded < 0.01;
+
+  return {
+    rate,
+    belowMinimum,
+    display: belowMinimum
+      ? "Less than 0.01"
+      : `${CURRENCY_META[currency].symbol}${FIAT_AMOUNT_FORMAT.format(rounded)}`,
+  };
 }
 
 export function FiatOffRampModal({
@@ -64,6 +92,7 @@ export function FiatOffRampModal({
   const [state, setState] = useState<OffRampState>("idle");
   const [currency, setCurrency] = useState<FiatCurrency>("NGN");
   const [error, setError] = useState<string | null>(null);
+  const exchangeRatesQuery = useExchangeRatesQuery(open);
 
   useEffect(() => {
     if (!open) return;
@@ -107,8 +136,10 @@ export function FiatOffRampModal({
 
   if (!open) return null;
 
-  const rate = formatRate(currency);
-  const receiveAmount = formatFiatAmount(amountLuna, currency);
+  const rates = exchangeRatesQuery.data ?? DEFAULT_EXCHANGE_RATES;
+  const ratesLoading = exchangeRatesQuery.isLoading;
+  const ratesError = exchangeRatesQuery.isError;
+  const fiat = calculateFiatAmount(amountLuna, currency, rates);
 
   async function handleSend() {
     setError(null);
@@ -184,7 +215,7 @@ export function FiatOffRampModal({
                   Simulated {currency} handoff
                 </span>
                 <span className="numeric whitespace-nowrap text-sm text-numeric">
-                  {formatNim(amountLuna)} NIM → {receiveAmount}
+                  {formatNim(amountLuna)} NIM → {fiat.display}
                 </span>
               </div>
             </div>
@@ -202,7 +233,9 @@ export function FiatOffRampModal({
             <div className="mt-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <SectionLabel>Receive currency</SectionLabel>
-                <Badge tone="neutral">Mocked rate</Badge>
+                <Badge tone={ratesError ? "pending" : "paid"}>
+                  {ratesLoading ? "Loading rate" : ratesError ? "Fallback" : "Live rate"}
+                </Badge>
               </div>
               <div
                 role="group"
@@ -233,34 +266,63 @@ export function FiatOffRampModal({
                           selected ? "text-ink/70" : "text-dim",
                         )}
                       >
-                        {FIAT_CURRENCIES[code].name}
+                        {CURRENCY_META[code].name}
                       </span>
                     </button>
                   );
                 })}
               </div>
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
-                <span className="text-dim">Mocked demo rate</span>
-                <span className="numeric whitespace-nowrap text-gold">
-                  1 NIM = {rate} {currency}
-                </span>
+                <span className="text-dim">Live rate</span>
+                {ratesLoading ? (
+                  <span className="flex items-center gap-1.5 text-dim">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold" />
+                    Fetching live rate…
+                  </span>
+                ) : (
+                  <span className="numeric whitespace-nowrap text-gold">
+                    1 NIM = {formatRate(currency, fiat.rate)}
+                  </span>
+                )}
               </div>
+              <p className="mt-1 text-[10px] leading-4 text-dim">
+                {ratesLoading
+                  ? "Fetching live rate from CoinGecko…"
+                  : ratesError
+                    ? "Live rate unavailable — using demo fallback. Demo only."
+                    : "Live rate from CoinGecko. Demo only."}
+              </p>
             </div>
 
             <div className="mt-4 rounded-lg border border-gold/20 bg-gold/[0.04] p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <SectionLabel>You receive</SectionLabel>
-                <Badge tone="pending">Demo rate</Badge>
+                <Badge tone={ratesLoading ? "neutral" : "paid"}>
+                  {currency}
+                </Badge>
               </div>
-              <p
-                aria-live="polite"
-                className="numeric mt-2 whitespace-nowrap text-3xl font-semibold leading-tight text-gold"
-              >
-                {receiveAmount}
-              </p>
-              <p className="mt-1 break-words text-xs leading-5 text-muted">
-                {formatNim(amountLuna)} NIM × {rate} {currency} per NIM
-              </p>
+              {ratesLoading ? (
+                <>
+                  <Skeleton className="mt-2 h-9 w-40" />
+                  <Skeleton className="mt-2 h-3 w-52" />
+                </>
+              ) : (
+                <>
+                  {fiat.belowMinimum ? (
+                    <p className="mt-2 text-3xl font-semibold leading-tight text-gold">
+                      Less than <span className="numeric">0.01</span>
+                    </p>
+                  ) : (
+                    <p className="numeric mt-2 whitespace-nowrap text-3xl font-semibold leading-tight text-gold">
+                      {fiat.display}
+                    </p>
+                  )}
+                  <p className="mt-1 break-words text-xs leading-5 text-muted">
+                    {formatNim(amountLuna)} NIM ×{" "}
+                    {formatRate(currency, fiat.rate)} per NIM
+                  </p>
+                </>
+              )}
             </div>
 
             <div className="mt-4 rounded-lg border border-line bg-ink-2 p-4">
@@ -283,13 +345,14 @@ export function FiatOffRampModal({
 
             <div className="mt-4 rounded-lg border border-pending/25 bg-pending/[0.06] p-3">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-pending">
-                Demo only — mocked rate, no fiat transfer
+                Demo only — no fiat transfer
               </p>
               <p className="mt-1 text-xs leading-5 text-muted">
-                The exchange rate is mocked for this demonstration. No fiat
-                currency is transferred, no exchange API is called, no KYC flow
-                starts, and no funds leave the treasury. A production off-ramp
-                requires a licensed provider and separate approval.
+                The rate is fetched from CoinGecko for this demonstration. No
+                fiat currency is transferred, no exchange API is called for
+                settlement, no KYC flow starts, and no funds leave the treasury.
+                A production off-ramp requires a licensed provider and separate
+                approval.
               </p>
             </div>
 

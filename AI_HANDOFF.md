@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 9 November 2026
-**Current phase:** Phase 13.5 — multi-currency fiat off-ramp demo deployed and live-verified; awaiting operator acceptance
-**Status:** Phase 13.5 PASS / DEPLOYED / LIVE VERIFIED. Phase 12 complete. Phase 14 NOT STARTED.
+**Current phase:** Phase 13.6 — live CoinGecko exchange rates implemented; deployment pending
+**Status:** Phase 13.6 local verification passed; deployment pending. Phase 13.5 complete. Phase 14 NOT STARTED.
 
 ## Current deployment and wallets
 
@@ -35,6 +35,39 @@
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
 - Operator approval of final visual design: **GIVEN — Direction 1, 4 November 2026**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 8 proof, disabled 2026-11-08 after the payouts).
+
+## Phase 13.6 — Live exchange rates for fiat off-ramp (10 November 2026)
+
+**Status:** IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING.
+
+- Added public `GET /api/config/exchange-rates`:
+  - fetches `https://api.coingecko.com/api/v3/simple/price?ids=nimiq&vs_currencies=usd,eur,ngn`;
+  - validates `{ nimiq: { usd, eur, ngn } }` with Zod;
+  - caches the result in memory for five minutes and coalesces concurrent requests;
+  - falls back to `{ usd: 0.00025, eur: 0.00023, ngn: 0.65 }` on provider/schema failure and logs a structured warning;
+  - is public and rate-limited; no auth or player data is involved.
+- Added `apps/api/src/services/exchange-rates.test.ts`: success + cache, fallback + warning, invalid shape fallback, and five-minute refresh.
+- Frontend:
+  - `api.exchangeRates()` and `useExchangeRatesQuery(enabled)` use TanStack Query with a five-minute stale time;
+  - the off-ramp modal fetches rates when it opens and renders the selector, payout context and disclosure immediately;
+  - while loading, it shows a `Loading rate` badge, “Fetching live rate…”, a gold pulse and amount skeletons;
+  - the live rate line shows `1 NIM = <symbol><rate>` (e.g. `1 NIM = ₦0.65`) and the small disclosure “Live rate from CoinGecko. Demo only.”;
+  - the `You receive` amount is `amountLuna / 100,000 * rate`, formatted as NGN/EUR/USD; sub-cent amounts show “Less than 0.01”;
+  - if the frontend request fails, the modal uses the same fallback rates and says “Live rate unavailable — using demo fallback. Demo only.”;
+  - no backend, auth, payment, reward, state-machine or payout-worker behavior changed.
+- Live CoinGecko values observed during verification: `usd 0.02818854`, `eur 0.02510988`, `ngn 37.97`. The deterministic test suite uses the specified fallback rates for stable screenshots.
+- Tests:
+  - `pnpm lint` passed.
+  - `pnpm typecheck` passed.
+  - `pnpm build` passed.
+  - `pnpm test` passed: 50 unit tests, 50 Playwright tests, 6 deployed tests skipped.
+  - The Phase 12 payout test delays the exchange-rate response, asserts the modal opens in a loading state, then verifies NGN `₦0.02` at the fallback rate, EUR/USD “Less than 0.01”, the 320px segmented-control layout, and the disclaimer.
+- 390px screenshots (deterministic fallback rates):
+  - `test-results/phase12/fiat-modal-ngn-390.png`
+  - `test-results/phase12/fiat-modal-eur-390.png`
+  - `test-results/phase12/fiat-modal-usd-390.png`
+- Deployment: **pending** for this commit. The live service currently runs Phase 13.5 (`3d92e89`). After deploy, the live endpoint and a live-rate NGN modal screenshot are the single next task.
+- **Single next task:** deploy Phase 13.6, verify `/api/config/exchange-rates` live (including cache/fallback behavior), screenshot the deployed NGN modal with the live rate, record the deployment, and await operator acceptance. Do not begin Phase 14.
 
 ## Phase 13.5 — Multi-currency fiat off-ramp (10 November 2026)
 

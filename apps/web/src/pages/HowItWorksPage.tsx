@@ -134,7 +134,7 @@ export function HowItWorksPage() {
             <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
               After a payout is confirmed, the game shows a <strong>Withdraw to Fiat</strong>{" "}
               action. It opens a Nimiq Pay Off-Ramp modal with the confirmed amount,
-              selectable mocked rates for NGN, EUR and USD (NGN is the default),
+              selectable live NGN, EUR and USD rates from CoinGecko (NGN is the default, with a demo fallback),
               and a live fiat estimate. The handoff is simulated: no exchange API
               is called, no KYC starts, no fiat currency moves, and no treasury
               endpoint is invoked. A real off-ramp requires a licensed provider and

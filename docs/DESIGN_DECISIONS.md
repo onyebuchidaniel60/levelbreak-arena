@@ -63,7 +63,7 @@ A dense, quiet DeFi operations terminal. The interface should feel like a real p
 - **Lobby:** funded-session card with public reference, 5 consultations, 500 Luna per answer, 2,500 Luna cap, and one primary Start action.
 - **Game:** bento layout with a 5-segment progress rail, virtual portfolio, scenario/consultation panel, and a persistent reward rail. `Earned` is emerald, `Pending` is amber, `Paid` is emerald with a check.
 - **Consultation:** agent context and dynamically generated agent message first, then bundled static evidence, then options and Skip. The evidence remains authoritative; the LLM only drafts the message.
-- **Payout confirmed:** transaction details, explorer link, and the **Withdraw to Fiat** demo action. The off-ramp modal offers NGN/EUR/USD mocked rates (NGN default), a live "You receive" fiat amount, and is explicitly labelled as a simulation that moves no fiat.
+- **Payout confirmed:** transaction details, explorer link, and the **Withdraw to Fiat** demo action. The off-ramp modal offers NGN/EUR/USD rates fetched live from CoinGecko (NGN default, with a fallback), a live "You receive" fiat amount, and is explicitly labelled as a simulation that moves no fiat.
 - **History:** compact session rows with earned, pending/paid status, payout amount, transaction hash, and explorer link.
 - **Support pages:** same dark terminal shell, readable prose, no dead links or fake GitHub URLs.
 
@@ -117,3 +117,18 @@ A dense, quiet DeFi operations terminal. The interface should feel like a real p
 - The disclosure explicitly says the rates are mocked and no fiat currency is
   transferred. No new colors, backend routes, auth, payment logic or payout
   worker changes were introduced.
+
+
+## Phase 13.6 — live exchange rates
+
+- Added a public `GET /api/config/exchange-rates` endpoint backed by CoinGecko
+  (`ids=nimiq&vs_currencies=usd,eur,ngn`), with a five-minute in-memory cache
+  and realistic fallback rates if the provider fails.
+- The off-ramp modal fetches the rates with TanStack Query when it opens. It
+  renders the selector and confirmed-payout context immediately and uses
+  skeletons while the live rate loads, so the API never blocks the modal.
+- The selected-currency rate is shown as `1 NIM = <symbol><rate>` and the
+  "You receive" amount is calculated from the confirmed NIM payout. Sub-cent
+  amounts display “Less than 0.01” rather than a misleading zero.
+- The small disclosure "Live rate from CoinGecko. Demo only." is shown when the
+  rate is available; a fallback message is shown if the fetch fails.

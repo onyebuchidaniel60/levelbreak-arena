@@ -367,3 +367,45 @@ pnpm typecheck     passed
 pnpm build         passed
 pnpm test          46 unit passed; 50 Playwright passed; 6 deployed skipped
 ```
+
+
+## Phase 13.6 live exchange rates
+
+`apps/api/src/services/exchange-rates.test.ts` covers:
+
+- successful CoinGecko parsing and five-minute coalesced caching;
+- fallback to `{ usd: 0.00025, eur: 0.00023, ngn: 0.65 }` with a warning on
+  provider failure;
+- fallback on an invalid provider shape;
+- refresh after the five-minute cache window.
+
+The public endpoint can be checked directly:
+
+```bash
+curl -sS https://levelbreak-arena.onrender.com/api/config/exchange-rates
+```
+
+The Phase 12 payout test now delays the mock exchange-rate response and asserts
+that the modal opens with a loading state before the live rate appears. It also
+covers the live-rate NGN amount, `Less than 0.01` for sub-cent EUR/USD amounts,
+and the 320px segmented-control layout.
+
+Local verification:
+
+```text
+pnpm lint          passed
+pnpm typecheck     passed
+pnpm build         passed
+pnpm test          50 unit passed; 50 Playwright passed; 6 deployed skipped
+```
+
+Screenshots at 390px:
+
+```text
+test-results/phase12/fiat-modal-ngn-390.png
+test-results/phase12/fiat-modal-eur-390.png
+test-results/phase12/fiat-modal-usd-390.png
+```
+
+The final live verification additionally screenshots the deployed modal with
+the actual live NGN rate from CoinGecko.
