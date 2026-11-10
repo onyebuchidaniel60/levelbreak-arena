@@ -1,15 +1,15 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 10 November 2026
-**Current phase:** Phase 18 — world-class copywriting and comprehensive `/docs` hub; implementation and local verification passed, deployment pending
-**Status:** Phase 18 LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING. Phase 17 v1.0.0 complete.
+**Current phase:** Phase 18 — world-class copywriting and comprehensive `/docs` hub deployed and live-verified; awaiting operator acceptance
+**Status:** Phase 18 PASS / DEPLOYED / LIVE VERIFIED. Phase 17 v1.0.0 complete.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `ead3ce6` (Phase 17 adversarial security hardening; Phase 16 feature commit `40f8d0d`). Production deployment `https://levelbreak-arena-585ppxhpr-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. The Phase 16 header/favicon evidence remains in `test-results/phase16/header-live-*.png` and `browser-tab-live.png`.
+- Vercel deployed app-code commit: `91be1c2` (Phase 18 copy/docs hub, follow-up to feature commit `b16223d`). Production deployment `https://levelbreak-arena-ospi5ac28-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. The deployed docs hub is `https://levelbreak-arena.vercel.app/docs`.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `ead3ce6` (Phase 17 security fixes), deploy `dep-dbpamj142hec73da20s0`, live 2026-11-10T05:28Z; `/health/live` 200 and `/health/ready` 200. `AUTO_REPLENISH_SESSIONS=true`, `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- Render deployed code: `91be1c2` (Phase 18), deploy `dep-dbpbd5q9lscs73b2a0g0`, live 2026-11-10T06:16Z; `/health/live` 200 and `/health/ready` 200. `AUTO_REPLENISH_SESSIONS=true`, `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
 - Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied to production at 2026-11-09T06:51:48.893Z. Phase 11 adds no migration.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`, `AUTO_REPLENISH_SESSIONS=true`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
@@ -38,7 +38,7 @@
 
 ## Phase 18 — Agent Economy copy and comprehensive docs hub (10 November 2026)
 
-**Status:** LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING.
+**Status:** DEPLOYED / LIVE VERIFIED.
 
 ### Copywriting
 
@@ -107,15 +107,31 @@ test-results/phase14/support-docs-1440.png
 test-results/phase14/support-docs-390.png
 ```
 
-### Deployment
+### Deployment and live verification
 
-- Feature commit will use the exact message
-  `feat: polished copywriting and comprehensive docs hub`.
-- Deployment to Vercel is pending this commit; Render health will be
-  rechecked even though no backend code changed.
-- **Single next task:** deploy the copy/docs commit, verify the live landing,
-  Active Missions, game/payout copy and `/docs` at 1440px and 390px, update
-  this handoff with the deployed SHA/URL, commit the release record, and stop.
+- Feature commit: `b16223d` — `feat: polished copywriting and comprehensive
+  docs hub`.
+- Follow-up copy alignment: `91be1c2` — `fix: align landing loop copy`.
+- Vercel production deployment
+  `https://levelbreak-arena-ospi5ac28-uhhh2.vercel.app`, alias
+  `https://levelbreak-arena.vercel.app`.
+- Docs URL: `https://levelbreak-arena.vercel.app/docs`.
+- Render deploy `dep-dbpbd5q9lscs73b2a0g0`, live 2026-11-10T06:16Z;
+  `/health/live` 200 and `/health/ready` 200 after a restart.
+- Live Chromium verification at 1440px and 390px confirmed:
+  - landing headline **“The AI Agent Economy Needs Your Judgment.”**;
+  - subheadline with the marketplace/risk-intelligence positioning;
+  - **Enter the Arena** and **Read the Docs** CTAs;
+  - the **How it works** loop with the three required steps;
+  - docs sections, five anchor targets, two code blocks and no horizontal
+    overflow at 390px or 320px.
+- Live screenshots:
+  - `test-results/phase18/landing-live-1440.png`
+  - `test-results/phase18/landing-live-390.png`
+  - `test-results/phase18/docs-live-1440.png`
+  - `test-results/phase18/docs-live-390.png`
+- **Single next task:** Await operator acceptance of Phase 18. Do not begin
+  another phase.
 
 ## Phase 17 — Adversarial security regression and v1.0.0 release (10 November 2026)
 
