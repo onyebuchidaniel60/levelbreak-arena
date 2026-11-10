@@ -79,7 +79,7 @@ export function PrivacyPage() {
       </Panel>
 
       <p className="text-sm">
-        <Link className="font-medium text-info hover:text-blue-300" to="/terms">
+        <Link className="inline-flex min-h-11 items-center font-semibold text-info hover:text-ink" to="/terms">
           Read the risk disclosure
         </Link>
       </p>

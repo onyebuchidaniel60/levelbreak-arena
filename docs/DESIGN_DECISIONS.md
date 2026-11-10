@@ -1,6 +1,6 @@
 # Design Decision Log
 
-**Status:** Direction 1 — Trading Terminal is **APPROVED** by the operator on 4 November 2026. Directions 2, 3, and 4 are **REJECTED** and their artifacts have been removed. Phase 7 implementation may proceed.
+**Status:** Phase 14 — Light Editorial Arena is the **ACTIVE** visual direction, implemented from the three operator references supplied on 10 November 2026. Direction 1 — Trading Terminal was the approved visual direction for Phases 7–13.7; it is retained below as historical design history and is visually superseded. Product behavior, reward rules, payment architecture and approvals are unchanged.
 
 ## Approval record
 
@@ -73,7 +73,7 @@ A dense, quiet DeFi operations terminal. The interface should feel like a real p
 - Status is expressed in text as well as color.
 - The typewriter is visual only; a screen-reader copy of the full agent message is always present.
 - The agent is labelled as LLM-assisted with a scripted fallback. It is not described as an independent external agent.
-- The off-ramp modal states that no fiat currency is transferred, that the NGN/EUR/USD rates are mocked, and that no exchange is connected.
+- The off-ramp modal states that no fiat currency is transferred, that the NGN/EUR/USD rates are display-only live CoinGecko values with a fallback, and that no exchange is connected for settlement.
 - No fabricated transaction hashes, addresses, balances, or paid states.
 
 ## Implementation record
@@ -132,3 +132,42 @@ A dense, quiet DeFi operations terminal. The interface should feel like a real p
   amounts display “Less than 0.01” rather than a misleading zero.
 - The small disclosure "Live rate from CoinGecko. Demo only." is shown when the
   rate is available; a fallback message is shown if the fetch fails.
+
+
+## Phase 14 — light editorial arena (10 November 2026)
+
+**Source:** `design/references/new-reference1.webp`,
+`new-reference2.webp`, `new-reference3.webp`.
+**Extraction:** `design/MOCKUP_NOTES_NEW_UI.md`.
+
+The operator asked for a total visual overhaul after the functional MVP was
+complete. The approved visual system is a light editorial learning workspace
+inside a dark app frame, replacing the Trading Terminal surfaces without
+changing any product behavior.
+
+- **Palette:** ink `#151313`, coral `#ff5734`, lilac `#be94f5`, yellow
+  `#fccc42`, cream `#f7f7f5`, paper `#fffdf8`, canvas blue `#bfd4dc`, charcoal
+  `#2b2b2b`; semantic green `#137a52`, amber `#a86a00`, red `#b93a22`.
+- **Typography:** Kodchasan for headings, body and UI labels; JetBrains Mono
+  for every Luna amount, NIM value, exchange rate, transaction hash, level
+  counter, state version and technical identifier.
+- **Shape:** 24–32px card radii, pill buttons and badges, thin dark outlines,
+  flat pastel fills, restrained shadows, and a dark charcoal frame around a
+  cream workspace.
+- **Mapping:** the landing page becomes a bento dashboard with a yellow arena
+  preview; lobby sessions are yellow (demo) or lilac/sky (external agent);
+  the game scenario is sky with dark decision rows; the consultation uses a
+  dark agent-message card, lilac Agent Request, paper evidence and coral
+  submit action; payout and history use distinct mint/yellow/forest state
+  tiles; the agents directory uses pastel marketplace cards and dark MCP
+  panels; support, 404, loading and error states use the same cream/ink/coral
+  system.
+- **Preserved:** all copy, links, routes, API calls, auth, payment/treasury
+  logic, state machines, reward values, MCP/agent APIs, LLM generation and the
+  demo off-ramp behavior. The LLM typewriter, `Verified MCP` badges and
+  Earned/Pending/Paid states remain functional and visually distinct.
+- **Verification:** `pnpm build` and `pnpm test` pass. The Phase 14 Playwright
+  project writes 1440px and 390px screenshots to `test-results/phase14/` for
+  the landing, game decision, agent request, payout plus fiat modal, agents
+  directory and lobby, and covers support/404/error/loading states, 320/375/390
+  overflow, 44px tap targets, the typewriter reveal and live fiat rates.

@@ -27,6 +27,8 @@ function walletMessage(status: string, message?: string): string {
   return "Open this app in Nimiq Pay to connect your wallet.";
 }
 
+const SESSION_TONES = ["lilac", "sky"] as const;
+
 export function LobbyPage() {
   const {
     me,
@@ -77,20 +79,27 @@ export function LobbyPage() {
           title="Sign in to see funded sessions"
           description="Demo sessions are funded by an operator-controlled wallet; external agent questions are backed by a verified testnet deposit. Both are checked before listing."
         />
-        <Panel className="p-5 sm:p-6">
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <Panel
+          tone="gold"
+          className="relative overflow-hidden rounded-[30px] p-5 sm:p-7"
+        >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-14 -top-14 h-44 w-44 rounded-full border-[16px] border-ink/[0.06]"
+          />
+          <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div className="max-w-xl">
-              <SectionLabel>Wallet connection required</SectionLabel>
-              <h2 className="mt-2 text-xl font-semibold text-numeric">
+              <SectionLabel className="text-ink/55">Wallet connection required</SectionLabel>
+              <h2 className="mt-2 text-2xl font-bold tracking-[-0.035em] text-ink">
                 Open in Nimiq Pay, then sign the challenge.
               </h2>
-              <p className="mt-2 text-sm leading-6 text-muted">
+              <p className="mt-2 text-sm leading-6 text-ink/70">
                 {walletMessage(
                   wallet.status,
                   "message" in wallet ? wallet.message : undefined,
                 )}
               </p>
-              <p className="mt-2 text-xs leading-5 text-dim">
+              <p className="mt-2 text-xs leading-5 text-ink/50">
                 The signature proves wallet ownership for a short-lived session.
                 It cannot move funds.
               </p>
@@ -109,7 +118,7 @@ export function LobbyPage() {
               ) : (
                 <Link
                   to="/how-it-works"
-                  className="inline-flex min-h-12 items-center justify-center rounded-md border border-line px-5 py-3 text-sm font-semibold text-body hover:bg-white/[0.04]"
+                  className="inline-flex min-h-12 items-center justify-center rounded-full border border-ink/20 bg-paper px-5 py-3 text-sm font-semibold text-ink hover:bg-cream"
                 >
                   Read the funding rules
                 </Link>
@@ -183,20 +192,20 @@ export function LobbyPage() {
         actions={
           <Link
             to="/history"
-            className="inline-flex min-h-11 items-center rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-body"
+            className="inline-flex min-h-11 items-center rounded-full border border-ink/15 bg-paper px-4 py-1.5 text-xs font-semibold text-ink/70 hover:border-ink/30 hover:text-ink"
           >
             View history
           </Link>
         }
       />
 
-      <Panel className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-        <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-positive" />
-          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-dim">
+      <Panel className="flex flex-wrap items-center justify-between gap-3 rounded-[20px] px-4 py-3">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-positive" />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-dim">
             Signed in
           </span>
-          <span className="numeric break-all text-[11px] text-body">
+          <span className="numeric break-all text-[11px] text-ink/70">
             {me.player.address}
           </span>
         </div>
@@ -206,7 +215,7 @@ export function LobbyPage() {
       {claimMessage ? (
         <p
           role="status"
-          className="rounded-lg border border-pending/30 bg-pending/[0.06] p-3 text-sm text-pending"
+          className="rounded-[18px] border border-ink/15 bg-gold p-3.5 text-sm font-medium text-ink"
         >
           {claimMessage}
         </p>
@@ -222,100 +231,110 @@ export function LobbyPage() {
         />
       ) : sessionsQuery.data && sessionsQuery.data.sessions.length > 0 ? (
         <ul className="grid gap-4 lg:grid-cols-2">
-          {sessionsQuery.data.sessions.map((session) => (
-            <li key={session.id}>
-              <Panel className="relative overflow-hidden p-5">
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-positive/50 to-transparent"
-                />
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <SectionLabel className="break-all">
-                      {session.agentName
-                        ? `Agent marketplace / ${session.publicRef}`
-                        : `Session / ${session.publicRef}`}
-                    </SectionLabel>
-                    <h2 className="mt-2 break-words text-lg font-semibold text-numeric">
-                      {session.agentName
-                        ? `Request from ${session.agentName}`
-                        : "Funded arena run"}
-                    </h2>
+          {sessionsQuery.data.sessions.map((session, index) => {
+            const tone = session.agentName
+              ? SESSION_TONES[index % SESSION_TONES.length]
+              : "gold";
+            const mutedText = "text-ink/60";
+            return (
+              <li key={session.id}>
+                <Panel
+                  tone={tone}
+                  className="relative flex h-full flex-col overflow-hidden rounded-[30px] p-5"
+                >
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full border-[18px] border-ink/[0.055]"
+                  />
+                  <div className="relative flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <SectionLabel className="break-all text-ink/50">
+                        {session.agentName
+                          ? `Agent marketplace / ${session.publicRef}`
+                          : `Session / ${session.publicRef}`}
+                      </SectionLabel>
+                      <h2 className="mt-2 break-words text-xl font-bold tracking-[-0.03em] text-ink">
+                        {session.agentName
+                          ? `Request from ${session.agentName}`
+                          : "Funded arena run"}
+                      </h2>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {session.agentName ? (
+                        <Badge tone="ink">External agent</Badge>
+                      ) : null}
+                      <StatusBadge
+                        label={
+                          session.agentName
+                            ? "Agent funded"
+                            : session.funded
+                              ? "Funded"
+                              : "Not funded"
+                        }
+                      />
+                      <StatusBadge label={session.state} />
+                    </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {session.agentName ? (
-                      <Badge tone="gold">External agent</Badge>
-                    ) : null}
-                    <StatusBadge
-                      label={
+
+                  {session.questionPreview ? (
+                    <div className="relative mt-4 rounded-[18px] bg-ink p-3.5 text-cream">
+                      <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-gold">
+                        Question preview
+                      </p>
+                      <p className="mt-1 break-words text-sm leading-6 text-cream/85">
+                        {session.questionPreview}
+                      </p>
+                    </div>
+                  ) : null}
+
+                  <div className="relative mt-4 grid gap-2 sm:grid-cols-3">
+                    <StatTile
+                      label="Consultations"
+                      value={session.maxConsultations}
+                      sub={
                         session.agentName
-                          ? "Agent funded"
-                          : session.funded
-                            ? "Funded"
-                            : "Not funded"
+                          ? "External agent question"
+                          : "One per level"
                       }
                     />
-                    <StatusBadge label={session.state} />
+                    <StatTile
+                      label="Per answer"
+                      value={`${formatNim(session.rewardPerAnswerLuna)} NIM`}
+                      sub="Fixed reward"
+                      tone="positive"
+                    />
+                    <StatTile
+                      label="Maximum"
+                      value={`${formatNim(session.maxRewardLuna)} NIM`}
+                      sub="Session liability"
+                      tone={session.agentName ? "pending" : "neutral"}
+                    />
                   </div>
-                </div>
 
-                {session.questionPreview ? (
-                  <div className="mt-3 rounded-lg border border-gold/20 bg-gold/[0.04] p-3">
-                    <SectionLabel>Question preview</SectionLabel>
-                    <p className="mt-1 break-words text-sm leading-6 text-body">
-                      {session.questionPreview}
+                  <div className="relative mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-ink/15 pt-4">
+                    <p className={`max-w-xs text-xs leading-5 ${mutedText}`}>
+                      {session.agentName
+                        ? "The agent's balance is reserved for this question. Claiming locks it for one player and cannot be undone."
+                        : "Funding is verified on-chain. Claiming reserves this session for one player and cannot be undone."}
                     </p>
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      onClick={() => void handleClaim(session.id)}
+                      disabled={claimMutation.isPending}
+                    >
+                      {claimMutation.isPending
+                        ? "Starting…"
+                        : session.agentName
+                          ? "Answer question"
+                          : "Start run"}
+                      <ArrowRightIcon className="h-4 w-4" />
+                    </Button>
                   </div>
-                ) : null}
-
-                <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                  <StatTile
-                    label="Consultations"
-                    value={session.maxConsultations}
-                    sub={
-                      session.agentName
-                        ? "External agent question"
-                        : "One per level"
-                    }
-                    tone="gold"
-                  />
-                  <StatTile
-                    label="Per answer"
-                    value={`${formatNim(session.rewardPerAnswerLuna)} NIM`}
-                    sub="Fixed reward"
-                    tone="positive"
-                  />
-                  <StatTile
-                    label="Maximum"
-                    value={`${formatNim(session.maxRewardLuna)} NIM`}
-                    sub="Session liability"
-                    tone="pending"
-                  />
-                </div>
-
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
-                  <p className="max-w-xs text-xs leading-5 text-dim">
-                    {session.agentName
-                      ? "The agent's balance is reserved for this question. Claiming locks it for one player and cannot be undone."
-                      : "Funding is verified on-chain. Claiming reserves this session for one player and cannot be undone."}
-                  </p>
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    onClick={() => void handleClaim(session.id)}
-                    disabled={claimMutation.isPending}
-                  >
-                    {claimMutation.isPending
-                      ? "Starting…"
-                      : session.agentName
-                        ? "Answer question"
-                        : "Start run"}
-                    <ArrowRightIcon className="h-4 w-4" />
-                  </Button>
-                </div>
-              </Panel>
-            </li>
-          ))}
+                </Panel>
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <EmptyState title="No funded session available.">
@@ -335,7 +354,7 @@ export function LobbyPage() {
               </Button>
               <Link
                 to="/how-it-works"
-                className="inline-flex min-h-8 items-center rounded-md px-2 text-xs font-semibold text-info hover:text-blue-300"
+                className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-semibold text-info hover:text-ink"
               >
                 How funding works
               </Link>
@@ -353,32 +372,38 @@ export function LobbyPage() {
       ) : null}
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Panel className="p-4">
-          <CheckIcon className="h-4 w-4 text-positive" />
-          <p className="mt-2 text-xs font-semibold text-body">Verified funding gate</p>
-          <p className="mt-1 text-xs leading-5 text-dim">
+        <Panel tone="mint" className="p-4">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-positive/10 text-positive">
+            <CheckIcon className="h-4 w-4" />
+          </span>
+          <p className="mt-2 text-xs font-bold text-ink">Verified funding gate</p>
+          <p className="mt-1 text-xs leading-5 text-muted">
             Demo sessions require verified on-chain funding; external agent
             questions require a reserved agent balance.
           </p>
         </Panel>
-        <Panel className="p-4">
-          <LockIcon className="h-4 w-4 text-gold" />
-          <p className="mt-2 text-xs font-semibold text-body">One run per session</p>
-          <p className="mt-1 text-xs leading-5 text-dim">
+        <Panel tone="gold" className="p-4">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-gold">
+            <LockIcon className="h-4 w-4" />
+          </span>
+          <p className="mt-2 text-xs font-bold text-ink">One run per session</p>
+          <p className="mt-1 text-xs leading-5 text-ink/65">
             Claiming locks the reserve to one authenticated player.
           </p>
         </Panel>
-        <Panel className="p-4">
-          <ArrowRightIcon className="h-4 w-4 text-info" />
-          <p className="mt-2 text-xs font-semibold text-body">Treasury payout</p>
-          <p className="mt-1 text-xs leading-5 text-dim">
+        <Panel tone="sky" className="p-4">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sky">
+            <ArrowRightIcon className="h-4 w-4" />
+          </span>
+          <p className="mt-2 text-xs font-bold text-ink">Treasury payout</p>
+          <p className="mt-1 text-xs leading-5 text-ink/65">
             The backend derives the amount from stored answers, not from the browser.
           </p>
         </Panel>
       </div>
 
       <p className="text-sm">
-        <Link className="font-medium text-info hover:text-blue-300" to="/how-it-works">
+        <Link className="inline-flex min-h-11 items-center font-semibold text-info hover:text-ink" to="/how-it-works">
           Read how funded sessions and payouts work
         </Link>
       </p>

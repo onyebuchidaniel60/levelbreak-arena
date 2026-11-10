@@ -20,7 +20,7 @@ export function DocsPage() {
         eyebrow="Documentation"
         title="Build notes and operating rules."
         description="The repository is the source of truth. These are the documents a reviewer or operator should start with."
-        actions={<Badge tone="neutral">Phase 10</Badge>}
+        actions={<Badge tone="neutral">Phase 14</Badge>}
       />
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -37,7 +37,7 @@ export function DocsPage() {
           <p className="mt-4 text-xs leading-5 text-dim">
             The repository is public and MIT-licensed.{" "}
             <a
-              className="text-info hover:text-blue-300"
+              className="inline-flex min-h-11 items-center font-semibold text-info hover:text-ink"
               href="https://github.com/onyebuchidaniel60/levelbreak-arena"
               target="_blank"
               rel="noreferrer"
@@ -54,7 +54,7 @@ export function DocsPage() {
             Phase 10 — External Agent marketplace.
           </h2>
           <p className="mt-2 text-sm leading-6 text-muted">
-            The deployed preview uses the approved dark trading-terminal design
+            The deployed preview uses the Phase 14 light editorial arena design
             across the landing page, lobby, five-level game, consultation, payout
             status, history, and support pages. It includes AI-generated level
             content, an LLM-assisted agent message with a scripted fallback, and a
@@ -100,7 +100,7 @@ export function DocsPage() {
           ].map(([method, path]) => (
             <div
               key={path}
-              className="flex items-center gap-2 rounded-md border border-line bg-white/[0.02] px-3 py-2"
+              className="flex items-center gap-2 rounded-[14px] border border-ink/10 bg-cream px-3 py-2"
             >
               <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-gold">
                 {method}
@@ -122,7 +122,7 @@ export function DocsPage() {
             supplied through the MCP client environment.
           </p>
           <a
-            className="mt-2 inline-flex text-xs font-medium text-info hover:text-blue-300"
+            className="mt-2 inline-flex min-h-11 items-center text-xs font-semibold text-info hover:text-ink"
             href="https://github.com/onyebuchidaniel60/levelbreak-arena/tree/main/mcp-server"
             target="_blank"
             rel="noreferrer"
@@ -138,13 +138,13 @@ export function DocsPage() {
       </Panel>
 
       <p className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
-        <Link className="font-medium text-info hover:text-blue-300" to="/how-it-works">
+        <Link className="inline-flex min-h-11 items-center font-semibold text-info hover:text-ink" to="/how-it-works">
           How it works
         </Link>
-        <Link className="font-medium text-info hover:text-blue-300" to="/play">
+        <Link className="inline-flex min-h-11 items-center font-semibold text-info hover:text-ink" to="/play">
           Lobby
         </Link>
-        <Link className="font-medium text-info hover:text-blue-300" to="/terms">
+        <Link className="inline-flex min-h-11 items-center font-semibold text-info hover:text-ink" to="/terms">
           Risk disclosure
         </Link>
       </p>

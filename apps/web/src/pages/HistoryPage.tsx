@@ -37,7 +37,7 @@ function HistoryPayout({ item }: { item: HistoryItem }) {
 
   if (!item.txHash) {
     return (
-      <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-dim">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-ink/40">
         No payout transaction hash returned
       </p>
     );
@@ -45,12 +45,12 @@ function HistoryPayout({ item }: { item: HistoryItem }) {
 
   return (
     <div className="space-y-1.5">
-      <p className="break-all font-mono text-[10px] leading-5 text-dim">
+      <p className="break-all font-mono text-[10px] leading-5 text-ink/50">
         {item.txHash}
       </p>
       {explorerUrl ? (
         <a
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-info hover:text-blue-300"
+          className="inline-flex min-h-11 items-center gap-1.5 text-xs font-semibold text-info hover:text-ink"
           href={explorerUrl}
           target="_blank"
           rel="noreferrer"
@@ -118,7 +118,7 @@ export function HistoryPage() {
             history.
           </p>
           <p className="mt-3">
-            <Link className="text-info underline" to="/">
+            <Link className="font-semibold text-info underline" to="/">
               Return to home
             </Link>
           </p>
@@ -179,7 +179,7 @@ export function HistoryPage() {
         actions={
           <Link
             to="/play"
-            className="inline-flex min-h-9 items-center rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-body"
+            className="inline-flex min-h-11 items-center rounded-full border border-ink/15 bg-paper px-4 py-1.5 text-xs font-semibold text-ink/70 hover:border-ink/30 hover:text-ink"
           >
             Go to lobby
           </Link>
@@ -204,7 +204,7 @@ export function HistoryPage() {
             label="Paid"
             value={`${formatNim(totals.paid.toString())} NIM`}
             sub="Confirmed testnet payouts"
-            tone="positive"
+            tone="paid"
           />
         </div>
       ) : null}
@@ -215,14 +215,14 @@ export function HistoryPage() {
             Finish a funded run to create a payout record and see it here.
           </p>
           <p className="mt-3">
-            <Link className="text-info underline" to="/play">
+            <Link className="font-semibold text-info underline" to="/play">
               Go to the lobby
             </Link>
           </p>
         </EmptyState>
       ) : (
         <div className="space-y-3">
-          <div className="hidden grid-cols-[minmax(0,1.2fr)_minmax(0,0.7fr)_minmax(0,0.7fr)_minmax(0,0.7fr)_minmax(0,1fr)] gap-3 px-4 font-mono text-[10px] uppercase tracking-[0.12em] text-dim md:grid">
+          <div className="hidden grid-cols-[minmax(0,1.2fr)_minmax(0,0.7fr)_minmax(0,0.7fr)_minmax(0,0.7fr)_minmax(0,1fr)] gap-3 px-4 text-[10px] font-semibold uppercase tracking-[0.12em] text-dim md:grid">
             <span>Session</span>
             <span>Earned</span>
             <span>Pending</span>
@@ -235,11 +235,11 @@ export function HistoryPage() {
               const pending = pendingAmount(item);
               return (
                 <li key={item.runId}>
-                  <Panel className="p-4">
+                  <Panel className="card-lift p-4 sm:p-5">
                     <div className="grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.7fr)_minmax(0,0.7fr)_minmax(0,0.7fr)_minmax(0,1fr)] md:items-start md:gap-3">
                       <div className="min-w-0">
                         <SectionLabel>Session</SectionLabel>
-                        <h2 className="mt-1 break-all text-sm font-semibold text-numeric">
+                        <h2 className="mt-1 break-all text-sm font-bold text-ink">
                           {item.publicRef}
                         </h2>
                         <p className="mt-1 text-xs text-dim">
@@ -251,7 +251,7 @@ export function HistoryPage() {
                         </div>
                       </div>
                       <div>
-                        <p className="eyebrow md:hidden">Earned</p>
+                        <p className="eyebrow text-ink/40 md:hidden">Earned</p>
                         <p className="numeric mt-1 text-sm font-semibold text-positive">
                           {formatNim(item.earnedLuna)} NIM
                         </p>
@@ -260,8 +260,8 @@ export function HistoryPage() {
                         </p>
                       </div>
                       <div>
-                        <p className="eyebrow md:hidden">Pending</p>
-                        <p className="numeric mt-1 text-sm font-semibold text-pending">
+                        <p className="eyebrow text-ink/40 md:hidden">Pending</p>
+                        <p className="numeric mt-1 text-sm font-semibold text-amber">
                           {formatNim(pending)} NIM
                         </p>
                         <p className="mt-1 text-[10px] text-dim">
@@ -269,7 +269,7 @@ export function HistoryPage() {
                         </p>
                       </div>
                       <div>
-                        <p className="eyebrow md:hidden">Paid</p>
+                        <p className="eyebrow text-ink/40 md:hidden">Paid</p>
                         <p className="numeric mt-1 text-sm font-semibold text-positive">
                           {formatNim(paid)} NIM
                         </p>
@@ -278,7 +278,7 @@ export function HistoryPage() {
                         </p>
                       </div>
                       <div className="min-w-0">
-                        <p className="eyebrow md:hidden">Payout</p>
+                        <p className="eyebrow text-ink/40 md:hidden">Payout</p>
                         <div className="mt-1">
                           <HistoryPayout item={item} />
                         </div>
@@ -293,7 +293,7 @@ export function HistoryPage() {
       )}
 
       <p className="text-sm">
-        <Link className="font-medium text-info hover:text-blue-300" to="/play">
+        <Link className="inline-flex min-h-11 items-center font-semibold text-info hover:text-ink" to="/play">
           Go to the lobby
         </Link>
       </p>

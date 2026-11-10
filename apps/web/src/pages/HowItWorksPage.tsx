@@ -44,7 +44,7 @@ export function HowItWorksPage() {
         />
         <ol className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           {flow.map((step, index) => (
-            <li key={step.title} className="rounded-lg border border-line bg-white/[0.02] p-4">
+            <li key={step.title} className="rounded-[18px] border border-ink/10 bg-cream p-4">
               <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-gold">
                 Step 0{index + 1}
               </span>
@@ -121,14 +121,14 @@ export function HowItWorksPage() {
         </Panel>
       </div>
 
-      <Panel className="border-pending/25 bg-pending/[0.04] p-5 sm:p-6">
+      <Panel tone="gold" className="rounded-[30px] p-5 sm:p-6">
         <div className="flex flex-wrap items-start gap-4">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-pending/30 bg-pending/10 text-pending">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-gold">
             <TerminalIcon className="h-5 w-5" />
           </span>
           <div>
-            <SectionLabel>Fiat off-ramp demo</SectionLabel>
-            <h2 className="mt-1 text-lg font-semibold text-numeric">
+            <SectionLabel className="text-ink/55">Fiat off-ramp demo</SectionLabel>
+            <h2 className="mt-1 text-lg font-bold text-ink">
               The withdrawal modal is a demonstration.
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
@@ -156,7 +156,7 @@ export function HowItWorksPage() {
           enabled.
         </p>
         <p className="mt-4 text-sm">
-          <Link className="font-medium text-info hover:text-blue-300" to="/play">
+          <Link className="inline-flex min-h-11 items-center font-semibold text-info hover:text-ink" to="/play">
             Go to the lobby
           </Link>
         </p>

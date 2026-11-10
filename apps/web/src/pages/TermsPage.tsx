@@ -75,7 +75,7 @@ export function TermsPage() {
       </Panel>
 
       <p className="text-sm">
-        <Link className="font-medium text-info hover:text-blue-300" to="/privacy">
+        <Link className="inline-flex min-h-11 items-center font-semibold text-info hover:text-ink" to="/privacy">
           Read the privacy notice
         </Link>
       </p>

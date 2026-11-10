@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
-**Last updated:** 9 November 2026
-**Current phase:** Phase 13.7 — corrected fallback exchange rates deployed and live-verified; awaiting operator acceptance
-**Status:** Phase 13.7 PASS / DEPLOYED / LIVE VERIFIED. Phase 13.6 complete. Phase 14 NOT STARTED.
+**Last updated:** 10 November 2026
+**Current phase:** Phase 14 — complete visual overhaul from the three new operator references; local verification passed, deployment pending
+**Status:** Phase 14 IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING. Phase 13.7 complete.
 
 ## Current deployment and wallets
 
@@ -30,11 +30,103 @@
 - Phase 5 Session B: `f96476d6-ba9b-4ff9-b555-8761d52da6e6`, ref `685638bc542dad71`; run `03de2187-83dd-46df-a2e0-7573ef678a7b`; payout `5975746e-306b-41e1-88c7-ddf8fc15349e`, 1,500 Luna, tx `b693acd38fdac38008b7faabe921056e5b3ebbae02b36207031faee4435250bf`, block `15839460`.
 - All three Phase 5 payouts are `CONFIRMED`; total paid 3,500 Luna, fees 0. Treasury balance before the payout run: `11,000,006,000` Luna; after: `11,000,002,500` Luna.
 - `NIMIQ_EXPLORER_BASE_URL`: `https://test.nimiq.watch/#`; verified to render tx `899823e2…` and block `15766696`. The API returns `explorerUrl` and the UI/history show a working "View on explorer" link.
-- Design references: 3 operator-supplied VISE Staking Adventure images in `design/references/` (local design input, intentionally not committed)
-- Mockups: Direction 1 — Trading Terminal is **APPROVED**. Directions 2, 3, and 4 (including the interactive prototype) are **REJECTED** and their directories were removed. Direction 1 artifacts remain in `design/mockups/`.
+- Design references: Phase 7 VISE Staking Adventure images in `design/references/`; Phase 14 operator references `design/references/new-reference1.webp`, `new-reference2.webp` and `new-reference3.webp`. The Phase 14 extraction is in `design/MOCKUP_NOTES_NEW_UI.md`.
+- Mockups: Phase 14 — Light Editorial Arena is the **ACTIVE** visual direction, implemented directly from the new operator references. Direction 1 — Trading Terminal was the Phase 7–13.7 visual direction and remains in `design/mockups/` as historical design history; Directions 2, 3 and 4 were rejected.
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
-- Operator approval of final visual design: **GIVEN — Direction 1, 4 November 2026**
+- Operator approval of final visual design: **GIVEN — Phase 14 operator references, 10 November 2026**. Direction 1 was approved on 4 November 2026 for Phases 7–13.7 and is now visually superseded.
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 8 proof, disabled 2026-11-08 after the payouts).
+
+## Phase 14 — Complete visual overhaul from operator references (10 November 2026)
+
+**Status:** IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING.
+
+### Design extraction
+
+`design/MOCKUP_NOTES_NEW_UI.md` records the system extracted from
+`design/references/new-reference1.webp`, `new-reference2.webp` and
+`new-reference3.webp`:
+
+- **Palette:** ink `#151313`, coral `#ff5734`, lilac `#be94f5`, yellow
+  `#fccc42`, cream `#f7f7f5`, paper `#fffdf8`, canvas blue `#bfd4dc`, charcoal
+  `#2b2b2b`, semantic green `#137a52`, amber `#a86a00`, red `#b93a22`.
+- **Typography:** Kodchasan (400/500/600/700) for headings, body and UI labels;
+  JetBrains Mono retained for all Luna amounts, NIM values, exchange rates,
+  transaction hashes, block heights, state versions and numeric counters.
+- **Shape:** 24–32px card radii, pill buttons and badges, thin dark outlines,
+  flat pastel fills, restrained shadows and a charcoal app frame around a
+  cream workspace.
+- **Layout:** bento grids, a dominant focal card, generous 20–28px card
+  padding, asymmetric dark callouts, yellow/lilac/sky feature surfaces, coral
+  primary CTAs and dark contrast cards for agent messages, MCP, trust and the
+  final CTA.
+- **Screen mapping:** landing bento dashboard; yellow demo and lilac/sky agent
+  lobby cards; sky game scenario with dark decision rows; dark agent message,
+  paper evidence and lilac Agent Request; mint/yellow/forest Earned/Pending/Paid
+  tiles; cream fiat modal with yellow currency selector and coral confirmation;
+  pastel agents directory with ink `Verified MCP` badges; cream support, 404,
+  loading and error states.
+
+### Implementation
+
+- `apps/web/index.html`: Kodchasan + JetBrains Mono Google Fonts, canvas theme
+  colour and updated title/description metadata.
+- `apps/web/src/index.css`: complete token replacement, light body canvas,
+  `.panel-*` surface variants (paper, cream, gold, lilac, sky, coral, ink, mint,
+  blush, forest), pill primitives, numeric/eyebrow utilities and light-theme
+  focus/selection styles.
+- `apps/web/src/components/ui.tsx`: rounded Panel tones, coral pill primary
+  buttons, pill badges, pastel StatTiles with distinct paid/earned/pending
+  treatments, light ProgressRail, skeleton, divider and key/value primitives.
+- `apps/web/src/components/Layout.tsx`: sticky charcoal frame/header, gold
+  active nav pills, inverse wallet controls, cream workspace and dark footer.
+- All routes restyled: Landing, Lobby, Game/Decision, Agent Request and
+  consultation, Payout, Fiat Off-Ramp modal, History, Agents directory,
+  How It Works, Docs, Privacy, Terms, 404, loading and error states.
+- `AgentMessage` keeps the typewriter, reduced-motion behaviour and screen
+  reader copy; its visual treatment is now a dark ink card with lilac avatar
+  and gold/ink badges.
+- `FiatOffRampModal` keeps the TanStack Query loading state, fallback rates,
+  NGN/EUR/USD selector, live CoinGecko disclosure, “Less than 0.01” handling
+  and demo-only success flow. The modal now has a fixed action footer so the
+  primary CTA stays visible while the body scrolls on short screens.
+- `AgentCard` uses paper/lilac/sky/gold pastel surfaces and an ink
+  `Verified MCP` badge that is readable on every tone.
+- No backend, API contract, database schema, auth, payment/treasury, payout
+  worker, MCP/agent API or LLM-generator behavior changed.
+
+### Verification
+
+- `pnpm lint` passed.
+- `pnpm typecheck` passed.
+- `pnpm build` passed.
+- `pnpm test` passed: 50 unit tests, 58 Playwright tests, 6 deployed tests
+  skipped.
+- Phase 14 Playwright screenshots at 1440px and 390px:
+  - `test-results/phase14/landing-1440.png` / `landing-390.png`
+  - `test-results/phase14/game-decision-1440.png` / `game-decision-390.png`
+  - `test-results/phase14/agent-request-1440.png` / `agent-request-390.png`
+  - `test-results/phase14/payout-1440.png` / `payout-390.png`
+  - `test-results/phase14/fiat-modal-1440.png` / `fiat-modal-390.png`
+  - `test-results/phase14/agents-1440.png` / `agents-390.png`
+  - `test-results/phase14/lobby-1440.png` / `lobby-390.png`
+  - Support and state evidence: `support-how-it-works-1440.png`,
+    `support-docs-1440.png`, `not-found-1440.png`, `error-state-1440.png`,
+    `loading-state-390.png`.
+- Mobile guards: no horizontal overflow at 320px, 375px or 390px on landing,
+  lobby, game, Agent Request, agents directory and fiat modal; minimum 44px
+  decision/option controls and primary actions; fiat modal CTA visible at
+  390px.
+- Functionality guards: typewriter emits a partial string then completes;
+  `Verified MCP` badges render; live NGN rate `1 NIM = ₦37.97` and `₦0.95`
+  display; Earned/Pending/Paid use mint/yellow/forest surfaces.
+- Design files: `design/MOCKUP_NOTES_NEW_UI.md`.
+- Deployment: **PENDING** for this commit. After deploy, capture live
+  screenshots of the landing and game/modal at 1440px and 390px, verify the
+  footer docs/GitHub links and the main journey, and record the deployed SHA.
+- **Single next task:** deploy Phase 14, verify the live landing, lobby, game,
+  Agent Request, payout/fiat modal and agents directory at 1440px and 390px,
+  confirm health and production flags, record the deployment evidence in this
+  handoff, then stop and await operator acceptance. Do not begin another phase.
 
 ## Phase 13.7 — Correct stale fallback exchange rates (10 November 2026)
 
@@ -62,7 +154,7 @@
   - The live endpoint returned the corrected fallback `{"usd":0.0282,"eur":0.0251,"ngn":37.97}` while CoinGecko was rate-limiting the Render IP.
   - The deployed fallback modal showed `1 NIM = ₦37.97` and `You receive ₦0.95`; the screenshot `test-results/phase12/live-fiat-ngn-fallback-390.png` was refreshed with these values.
   - Final flags: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
-- **Single next task:** Await operator acceptance of Phase 13.7. Do not begin Phase 14.
+- Phase 14 was explicitly requested by the operator on 10 November 2026 after Phase 13.7 was live-verified.
 
 ## Phase 13.6 — Live exchange rates for fiat off-ramp (10 November 2026)
 

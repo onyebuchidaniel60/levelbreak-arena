@@ -156,7 +156,7 @@ export function FiatOffRampModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-ink/80 p-4 backdrop-blur-sm sm:items-center sm:p-6"
+      className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-ink/75 p-4 backdrop-blur-sm sm:items-center sm:p-6"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -167,27 +167,29 @@ export function FiatOffRampModal({
         aria-modal="true"
         aria-labelledby="off-ramp-title"
         aria-describedby="off-ramp-description"
-        className="panel-raised max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-xl p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl sm:max-h-[92vh] sm:p-6 sm:pb-6"
+        className="flex max-h-[calc(100dvh-2rem)] w-full max-w-lg flex-col overflow-hidden rounded-[28px] border border-ink/15 bg-paper p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-2xl sm:max-h-[92vh] sm:p-6 sm:pb-6"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <p className="eyebrow">Nimiq Pay</p>
-              <Badge tone="pending">Demo</Badge>
+              <p className="eyebrow text-amber">Nimiq Pay</p>
+              <Badge tone="gold">Demo</Badge>
             </div>
-            <h2 id="off-ramp-title" className="mt-2 text-xl font-semibold tracking-tight text-numeric">
+            <h2
+              id="off-ramp-title"
+              className="mt-2 text-2xl font-bold tracking-[-0.04em] text-ink"
+            >
               Fiat Off-Ramp
             </h2>
             <p id="off-ramp-description" className="mt-1 text-sm leading-6 text-muted">
-              A preview of how a confirmed NIM payout could be handed to a
-              Nimiq Pay off-ramp.
+              Preview the Nimiq Pay fiat handoff.
             </p>
           </div>
           <button
             ref={closeRef}
             type="button"
             onClick={onClose}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-line text-muted transition-colors hover:border-line-soft hover:text-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-ink/15 bg-cream text-ink/60 transition-colors hover:border-ink/30 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral"
             aria-label="Close off-ramp modal"
           >
             <CloseIcon className="h-4 w-4" />
@@ -195,12 +197,12 @@ export function FiatOffRampModal({
         </div>
 
         {state === "success" ? (
-          <div className="mt-6" role="status" aria-live="polite">
-            <div className="flex flex-col items-center rounded-lg border border-positive/25 bg-positive/[0.06] px-4 py-8 text-center">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full border border-positive/30 bg-positive/10 text-positive">
-                <CheckIcon className="h-6 w-6" />
+          <div className="mt-6 min-h-0 flex-1 overflow-y-auto pr-1" role="status" aria-live="polite">
+            <div className="flex flex-col items-center rounded-[24px] border border-positive/25 bg-positive/[0.08] px-4 py-8 text-center">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-positive text-paper">
+                <CheckIcon className="h-7 w-7" />
               </span>
-              <h3 className="mt-4 text-lg font-semibold text-numeric">
+              <h3 className="mt-4 text-xl font-bold text-ink">
                 Off-ramp request simulated
               </h3>
               <p className="mt-2 max-w-sm text-sm leading-6 text-muted">
@@ -209,12 +211,12 @@ export function FiatOffRampModal({
                 demonstration using the confirmed testnet payout.
               </p>
             </div>
-            <div className="mt-4 rounded-lg border border-line bg-ink-2 p-3">
+            <div className="mt-4 rounded-[18px] bg-ink p-4 text-cream">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                <span className="text-xs text-muted">
+                <span className="text-xs text-cream/50">
                   Simulated {currency} handoff
                 </span>
-                <span className="numeric whitespace-nowrap text-sm text-numeric">
+                <span className="numeric whitespace-nowrap text-sm font-semibold text-gold">
                   {formatNim(amountLuna)} NIM → {fiat.display}
                 </span>
               </div>
@@ -230,7 +232,8 @@ export function FiatOffRampModal({
           </div>
         ) : (
           <>
-            <div className="mt-5">
+            <div className="mt-5 min-h-0 flex-1 overflow-y-auto pr-1">
+            <div>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <SectionLabel>Receive currency</SectionLabel>
                 <Badge tone={ratesError ? "pending" : "paid"}>
@@ -240,7 +243,7 @@ export function FiatOffRampModal({
               <div
                 role="group"
                 aria-label="Fiat currency"
-                className="mt-2 grid grid-cols-3 gap-1 rounded-lg border border-line bg-ink-2 p-1"
+                className="mt-2 grid grid-cols-3 gap-1 rounded-full border border-ink/10 bg-cream p-1"
               >
                 {CURRENCY_CODES.map((code) => {
                   const selected = code === currency;
@@ -251,10 +254,10 @@ export function FiatOffRampModal({
                       onClick={() => setCurrency(code)}
                       aria-pressed={selected}
                       className={cn(
-                        "flex min-h-11 flex-col items-center justify-center rounded-md px-2 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70",
+                        "flex min-h-12 flex-col items-center justify-center rounded-full px-2 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral",
                         selected
-                          ? "bg-gold text-ink"
-                          : "text-muted hover:bg-white/[0.04] hover:text-body",
+                          ? "bg-gold text-ink shadow-[0_2px_0_0_rgba(21,19,19,0.18)]"
+                          : "text-ink/55 hover:bg-paper hover:text-ink",
                       )}
                     >
                       <span className="font-mono text-[11px] font-semibold tracking-[0.08em]">
@@ -263,7 +266,7 @@ export function FiatOffRampModal({
                       <span
                         className={cn(
                           "mt-0.5 text-[10px] leading-4",
-                          selected ? "text-ink/70" : "text-dim",
+                          selected ? "text-ink/60" : "text-ink/40",
                         )}
                       >
                         {CURRENCY_META[code].name}
@@ -272,20 +275,20 @@ export function FiatOffRampModal({
                   );
                 })}
               </div>
-              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
                 <span className="text-dim">Live rate</span>
                 {ratesLoading ? (
-                  <span className="flex items-center gap-1.5 text-dim">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold" />
+                  <span className="flex items-center gap-1.5 text-ink/50">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-coral" />
                     Fetching live rate…
                   </span>
                 ) : (
-                  <span className="numeric whitespace-nowrap text-gold">
+                  <span className="numeric whitespace-nowrap rounded-full bg-gold px-2.5 py-1 font-semibold text-ink">
                     1 NIM = {formatRate(currency, fiat.rate)}
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-[10px] leading-4 text-dim">
+              <p className="mt-1.5 text-[10px] leading-4 text-dim">
                 {ratesLoading
                   ? "Fetching live rate from CoinGecko…"
                   : ratesError
@@ -294,30 +297,28 @@ export function FiatOffRampModal({
               </p>
             </div>
 
-            <div className="mt-4 rounded-lg border border-gold/20 bg-gold/[0.04] p-4">
+            <div className="mt-3 rounded-[22px] border border-ink/15 bg-gold p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <SectionLabel>You receive</SectionLabel>
-                <Badge tone={ratesLoading ? "neutral" : "paid"}>
-                  {currency}
-                </Badge>
+                <SectionLabel className="text-ink/55">You receive</SectionLabel>
+                <Badge tone="ink">{currency}</Badge>
               </div>
               {ratesLoading ? (
                 <>
-                  <Skeleton className="mt-2 h-9 w-40" />
-                  <Skeleton className="mt-2 h-3 w-52" />
+                  <Skeleton className="mt-2 h-10 w-40 bg-ink/10" />
+                  <Skeleton className="mt-2 h-3 w-52 bg-ink/10" />
                 </>
               ) : (
                 <>
                   {fiat.belowMinimum ? (
-                    <p className="mt-2 text-3xl font-semibold leading-tight text-gold">
+                    <p className="mt-2 text-3xl font-bold leading-tight text-ink">
                       Less than <span className="numeric">0.01</span>
                     </p>
                   ) : (
-                    <p className="numeric mt-2 whitespace-nowrap text-3xl font-semibold leading-tight text-gold">
+                    <p className="numeric mt-2 whitespace-nowrap text-4xl font-semibold leading-tight text-ink">
                       {fiat.display}
                     </p>
                   )}
-                  <p className="mt-1 break-words text-xs leading-5 text-muted">
+                  <p className="mt-1 break-words text-xs leading-5 text-ink/60">
                     {formatNim(amountLuna)} NIM ×{" "}
                     {formatRate(currency, fiat.rate)} per NIM
                   </p>
@@ -325,8 +326,8 @@ export function FiatOffRampModal({
               )}
             </div>
 
-            <div className="mt-4 rounded-lg border border-line bg-ink-2 p-4">
-              <dl className="divide-y divide-line">
+            <div className="mt-3 rounded-[20px] border border-ink/10 bg-cream p-4">
+              <dl className="divide-y divide-ink/10">
                 <KeyValue label="Confirmed payout">
                   <span className="numeric">
                     {formatNim(amountLuna)} NIM
@@ -335,24 +336,17 @@ export function FiatOffRampModal({
                     ({formatLuna(amountLuna)} Luna)
                   </span>
                 </KeyValue>
-                {txHash ? (
-                  <KeyValue label="Settlement" mono>
-                    {txHash.slice(0, 10)}…{txHash.slice(-8)}
-                  </KeyValue>
-                ) : null}
               </dl>
             </div>
 
-            <div className="mt-4 rounded-lg border border-pending/25 bg-pending/[0.06] p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-pending">
+            <div className="mt-3 rounded-[20px] border border-ink/15 bg-lilac/40 p-3.5">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
                 Demo only — no fiat transfer
               </p>
-              <p className="mt-1 text-xs leading-5 text-muted">
-                The rate is fetched from CoinGecko for this demonstration. No
-                fiat currency is transferred, no exchange API is called for
-                settlement, no KYC flow starts, and no funds leave the treasury.
-                A production off-ramp requires a licensed provider and separate
-                approval.
+              <p className="mt-1 text-xs leading-5 text-ink/65">
+                Display-only CoinGecko rate. No fiat transfer and no exchange
+                API is called for settlement. No KYC or treasury movement.
+                Production off-ramp requires separate approval.
               </p>
             </div>
 
@@ -361,35 +355,44 @@ export function FiatOffRampModal({
                 {error}
               </p>
             ) : null}
+            </div>
 
-            <div className="mt-5 flex flex-col gap-2">
+            <div className="mt-3 shrink-0 border-t border-ink/10 pt-3">
+            <div className="flex flex-col gap-2 min-[360px]:flex-row">
               <Button
                 variant="primary"
                 size="lg"
+                className="flex-1"
                 onClick={() => void handleSend()}
                 disabled={state === "sending"}
               >
                 {state === "sending" ? "Opening demo handoff…" : "Send to Nimiq Pay"}
               </Button>
-              <Button variant="ghost" size="md" onClick={onClose}>
+              <Button
+                variant="ghost"
+                size="md"
+                className="shrink-0 px-5"
+                onClick={onClose}
+              >
                 Cancel
               </Button>
             </div>
 
             {txHash && explorerUrl ? (
               <>
-                <Divider className="my-4" />
+                <Divider className="my-3" />
                 <a
                   href={explorerUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-info hover:text-blue-300"
+                  className="inline-flex min-h-11 items-center gap-1.5 text-xs font-semibold text-info hover:text-ink"
                 >
                   View the confirmed payout on the explorer
                   <ExternalLinkIcon className="h-3.5 w-3.5" />
                 </a>
               </>
             ) : null}
+            </div>
           </>
         )}
       </div>

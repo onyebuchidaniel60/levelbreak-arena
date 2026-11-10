@@ -409,3 +409,56 @@ test-results/phase12/fiat-modal-usd-390.png
 
 The final live verification additionally screenshots the deployed modal with
 the actual live NGN rate from CoinGecko.
+
+
+## Phase 14 visual overhaul
+
+The Phase 14 Playwright project (`tests/e2e/phase14.visual.spec.ts`) runs at
+1440x1000 and captures the required 390px states by resizing the page. It
+writes:
+
+```text
+test-results/phase14/landing-1440.png
+test-results/phase14/landing-390.png
+test-results/phase14/game-decision-1440.png
+test-results/phase14/game-decision-390.png
+test-results/phase14/agent-request-1440.png
+test-results/phase14/agent-request-390.png
+test-results/phase14/payout-1440.png
+test-results/phase14/payout-390.png
+test-results/phase14/fiat-modal-1440.png
+test-results/phase14/fiat-modal-390.png
+test-results/phase14/agents-1440.png
+test-results/phase14/agents-390.png
+test-results/phase14/lobby-1440.png
+test-results/phase14/lobby-390.png
+test-results/phase14/support-how-it-works-1440.png
+test-results/phase14/support-docs-1440.png
+test-results/phase14/not-found-1440.png
+test-results/phase14/error-state-1440.png
+test-results/phase14/loading-state-390.png
+```
+
+The suite also checks:
+
+- no horizontal overflow on the landing, lobby, game, agent request, agents
+  directory and fiat modal at 320px, 375px and 390px;
+- 44px minimum decision/option controls, the off-ramp CTA and the primary
+  action buttons;
+- the LLM typewriter emits an intermediate partial string, finishes, and
+  leaves the full agent message visible;
+- `Verified MCP` badges render on external-agent cards and the Agent Request;
+- the live NGN rate (`1 NIM = ₦37.97`), `₦0.95` fiat display, CoinGecko
+  disclosure and demo-only fiat disclosure remain visible;
+- Earned/Pending/Paid tiles use mint/yellow/forest surfaces so the three payout
+  states stay visually distinct;
+- support pages, 404, loading and API error states use the new theme.
+
+Local verification:
+
+```text
+pnpm lint          passed
+pnpm typecheck     passed
+pnpm build         passed
+pnpm test          50 unit passed; 58 Playwright passed; 6 deployed tests skipped
+```

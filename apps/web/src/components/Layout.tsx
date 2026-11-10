@@ -1,15 +1,15 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { primaryNav } from "../routes";
 import { useAuth } from "../providers/AuthProvider";
-import { Badge, Button, cn } from "./ui";
+import { Button, cn } from "./ui";
 import { WalletIcon } from "./Icons";
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return cn(
-    "inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
+    "inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold transition-colors",
     isActive
-      ? "bg-white/[0.06] text-numeric"
-      : "text-muted hover:bg-white/[0.04] hover:text-body",
+      ? "bg-gold text-ink"
+      : "text-cream/65 hover:bg-white/[0.08] hover:text-cream",
   );
 }
 
@@ -21,12 +21,15 @@ function shortAddress(address: string): string {
 
 function BrandMark() {
   return (
-    <span className="flex h-8 w-8 items-end justify-center gap-[3px] rounded-md border border-gold/25 bg-gold/[0.08] p-1.5" aria-hidden="true">
-      <span className="h-2 w-[3px] rounded-sm bg-gold/50" />
-      <span className="h-3.5 w-[3px] rounded-sm bg-gold/70" />
-      <span className="h-5 w-[3px] rounded-sm bg-gold" />
-      <span className="h-3 w-[3px] rounded-sm bg-positive/80" />
-      <span className="h-1.5 w-[3px] rounded-sm bg-positive/50" />
+    <span
+      className="flex h-10 w-10 items-end justify-center gap-[3px] rounded-[14px] bg-gold p-2.5"
+      aria-hidden="true"
+    >
+      <span className="h-2 w-[3px] rounded-sm bg-ink/50" />
+      <span className="h-3.5 w-[3px] rounded-sm bg-ink/70" />
+      <span className="h-5 w-[3px] rounded-sm bg-ink" />
+      <span className="h-3 w-[3px] rounded-sm bg-coral" />
+      <span className="h-1.5 w-[3px] rounded-sm bg-coral/60" />
     </span>
   );
 }
@@ -47,8 +50,11 @@ function WalletPanel() {
 
   if (meLoading) {
     return (
-      <p className="flex items-center gap-2 text-xs text-muted" role="status">
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-pending" />
+      <p
+        className="flex items-center gap-2 text-xs text-cream/60"
+        role="status"
+      >
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold" />
         Checking wallet session…
       </p>
     );
@@ -57,14 +63,14 @@ function WalletPanel() {
   if (me) {
     return (
       <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-2 rounded-md border border-line bg-white/[0.025] px-2.5 py-1.5 text-xs text-muted">
-          <span className="h-1.5 w-1.5 rounded-full bg-positive" />
-          <span className="numeric break-all text-[11px] text-body">
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-xs text-cream/70">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#4ade80]" />
+          <span className="numeric break-all text-[11px] text-cream/90">
             {shortAddress(me.player.address)}
           </span>
         </span>
         <Button
-          variant="ghost"
+          variant="inverse"
           size="sm"
           className="min-h-11"
           onClick={() => void logout()}
@@ -73,7 +79,7 @@ function WalletPanel() {
           {isLoggingOut ? "Signing out…" : "Sign out"}
         </Button>
         {logoutError ? (
-          <p role="alert" className="text-xs text-danger">
+          <p role="alert" className="text-xs text-[#ffb4a2]">
             {logoutError}
           </p>
         ) : null}
@@ -82,15 +88,15 @@ function WalletPanel() {
   }
 
   if (wallet.status === "detecting") {
-    return <p className="text-xs text-muted">Checking for Nimiq Pay…</p>;
+    return <p className="text-xs text-cream/60">Checking for Nimiq Pay…</p>;
   }
 
   if (wallet.status === "ready") {
     return (
       <div className="flex flex-wrap items-center gap-2">
-        <span className="hidden items-center gap-2 rounded-md border border-line bg-white/[0.025] px-2.5 py-1.5 text-xs text-muted sm:inline-flex">
+        <span className="hidden items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-xs text-cream/70 sm:inline-flex">
           <WalletIcon className="h-3.5 w-3.5 text-gold" />
-          <span className="numeric text-[11px] text-body">
+          <span className="numeric text-[11px] text-cream/90">
             {shortAddress(wallet.address)}
           </span>
         </span>
@@ -104,7 +110,7 @@ function WalletPanel() {
           {isSigningIn ? "Waiting for wallet…" : "Sign in with Nimiq Pay"}
         </Button>
         {signInError ? (
-          <p role="alert" className="max-w-64 text-xs text-danger">
+          <p role="alert" className="max-w-64 text-xs text-[#ffb4a2]">
             {signInError}
           </p>
         ) : null}
@@ -125,12 +131,12 @@ function WalletPanel() {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <p className="max-w-64 text-xs leading-5 text-muted" aria-live="polite">
+      <p className="max-w-64 text-xs leading-5 text-cream/60" aria-live="polite">
         {message}
       </p>
       {wallet.status !== "unavailable" ? (
         <Button
-          variant="secondary"
+          variant="inverse"
           size="sm"
           className="min-h-11"
           onClick={retryWallet}
@@ -144,99 +150,117 @@ function WalletPanel() {
 
 export function Layout() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-gold focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-ink"
-      >
-        Skip to content
-      </a>
+    <div className="min-h-screen px-0 py-0 sm:px-3 sm:py-3 lg:px-4 lg:py-4">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1560px] flex-col bg-cream shadow-[0_40px_120px_-60px_rgba(21,19,19,0.7)] sm:min-h-[calc(100dvh-1.5rem)] sm:rounded-[30px] lg:min-h-[calc(100dvh-2rem)]">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-gold focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-ink"
+        >
+          Skip to content
+        </a>
 
-      <header className="sticky top-0 z-40 border-b border-line glass">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 py-3">
-            <Link to="/" className="group flex items-center gap-2.5">
-              <BrandMark />
-              <span className="leading-tight">
-                <span className="block text-sm font-semibold tracking-tight text-numeric">
-                  LevelBreak
+        <header className="sticky top-0 z-40 rounded-none bg-charcoal text-cream sm:rounded-t-[30px]">
+          <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 py-3">
+              <Link
+                to="/"
+                className="group flex min-h-11 items-center gap-2.5 rounded-full"
+              >
+                <BrandMark />
+                <span className="leading-tight">
+                  <span className="block text-[15px] font-bold tracking-[-0.02em] text-cream">
+                    LevelBreak
+                  </span>
+                  <span className="block text-[10px] font-semibold uppercase tracking-[0.22em] text-gold">
+                    Arena
+                  </span>
                 </span>
-                <span className="block font-mono text-[10px] uppercase tracking-[0.2em] text-dim">
-                  Arena
+              </Link>
+
+              <nav
+                aria-label="Primary"
+                className="order-3 flex w-full items-center gap-1 overflow-x-auto pb-1 sm:order-none sm:w-auto sm:pb-0"
+              >
+                {primaryNav.map((item) => (
+                  <NavLink key={item.to} to={item.to} className={navLinkClass}>
+                    {item.label}
+                  </NavLink>
+                ))}
+              </nav>
+
+              <div className="ml-auto flex items-center gap-3">
+                <span className="hidden items-center gap-1.5 rounded-full border border-white/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cream/70 md:inline-flex">
+                  <span className="h-1.5 w-1.5 rounded-full bg-positive" />
+                  Testnet
                 </span>
-              </span>
-            </Link>
-
-            <nav
-              aria-label="Primary"
-              className="order-3 flex w-full items-center gap-1 overflow-x-auto pb-1 sm:order-none sm:w-auto sm:pb-0"
-            >
-              {primaryNav.map((item) => (
-                <NavLink key={item.to} to={item.to} className={navLinkClass}>
-                  {item.label}
-                </NavLink>
-              ))}
-            </nav>
-
-            <div className="ml-auto flex items-center gap-3">
-              <Badge tone="info" className="hidden md:inline-flex">
-                Testnet
-              </Badge>
-              <WalletPanel />
+                <WalletPanel />
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main
-        id="main-content"
-        className="relative mx-auto w-full max-w-7xl min-w-0 flex-1 px-4 py-8 sm:px-6 sm:py-10"
-      >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-64 grid-bg opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent)]"
-        />
-        <Outlet />
-      </main>
-
-      <footer className="border-t border-line bg-ink-2/60">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-1">
-            <p className="text-xs text-muted">
-              Simulated DeFi scenarios on Nimiq testnet. Rewards are
-              treasury-funded testnet transfers.
-            </p>
-            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-dim">
-              Educational simulation · not investment advice
-            </p>
+        <main
+          id="main-content"
+          className="relative min-w-0 flex-1 bg-cream px-4 py-6 sm:px-6 sm:py-8 lg:px-9 lg:py-10"
+        >
+          <div className="mx-auto w-full min-w-0 max-w-[1320px]">
+            <Outlet />
           </div>
-          <nav aria-label="Footer" className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted">
-            <Link className="transition-colors hover:text-numeric" to="/agents">
-              Agents
-            </Link>
-            <Link className="transition-colors hover:text-numeric" to="/how-it-works">
-              How it works
-            </Link>
-            <Link className="transition-colors hover:text-numeric" to="/privacy">
-              Privacy
-            </Link>
-            <Link className="transition-colors hover:text-numeric" to="/terms">
-              Terms
-            </Link>
-            <Link className="transition-colors hover:text-numeric" to="/docs">
-              Documentation
-            </Link>
-            <a
-              className="transition-colors hover:text-numeric"
-              href="https://github.com/onyebuchidaniel60/levelbreak-arena"
-              target="_blank"
-              rel="noreferrer"
-            >
-              GitHub
-            </a>
-          </nav>
-        </div>
-      </footer>
+        </main>
+
+        <footer className="bg-charcoal text-cream/60 sm:rounded-b-[30px]">
+          <div className="mx-auto w-full max-w-[1440px] px-4 py-7 sm:px-6 lg:px-8">
+            <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+              <div className="max-w-md space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-gold" />
+                  <p className="text-sm font-semibold text-cream">
+                    LevelBreak Arena
+                  </p>
+                </div>
+                <p className="text-xs leading-5 text-cream/55">
+                  Simulated DeFi scenarios on Nimiq testnet. Rewards are
+                  treasury-funded testnet transfers.
+                </p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-cream/35">
+                  Educational simulation · not investment advice
+                </p>
+              </div>
+              <nav
+                aria-label="Footer"
+                className="flex flex-wrap gap-x-5 gap-y-3 text-xs font-medium text-cream/60"
+              >
+                <Link className="inline-flex min-h-11 items-center transition-colors hover:text-gold" to="/agents">
+                  Agents
+                </Link>
+                <Link
+                  className="inline-flex min-h-11 items-center transition-colors hover:text-gold"
+                  to="/how-it-works"
+                >
+                  How it works
+                </Link>
+                <Link className="inline-flex min-h-11 items-center transition-colors hover:text-gold" to="/privacy">
+                  Privacy
+                </Link>
+                <Link className="inline-flex min-h-11 items-center transition-colors hover:text-gold" to="/terms">
+                  Terms
+                </Link>
+                <Link className="inline-flex min-h-11 items-center transition-colors hover:text-gold" to="/docs">
+                  Documentation
+                </Link>
+                <a
+                  className="inline-flex min-h-11 items-center transition-colors hover:text-gold"
+                  href="https://github.com/onyebuchidaniel60/levelbreak-arena"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  GitHub
+                </a>
+              </nav>
+            </div>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }

@@ -11,41 +11,42 @@ function initials(name: string): string {
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 }
 
+type AgentTone = "paper" | "lilac" | "sky" | "gold";
+
 export function AgentCard({
   agent,
   detailed = false,
+  tone = "paper",
 }: {
   agent: PublicAgent;
   detailed?: boolean;
+  tone?: AgentTone;
 }) {
   const active = agent.activeQuestions > 0;
   return (
     <Panel
+      tone={tone}
       className={cn(
-        "group relative overflow-hidden rounded-xl p-5 transition-colors hover:border-line-soft",
-        detailed ? "panel-raised" : "panel-glow",
+        "card-lift group relative flex h-full flex-col overflow-hidden rounded-[26px] p-5",
+        detailed ? "panel-raised" : "",
       )}
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-gold/[0.06] blur-2xl"
+        className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full border-[14px] border-ink/[0.055]"
       />
 
       <div className="relative flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-gold/30 bg-gold/10 font-mono text-sm font-semibold text-gold">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink text-sm font-bold text-gold">
             {initials(agent.name)}
           </span>
           <div className="min-w-0">
-            <h3 className="break-words text-base font-semibold leading-5 text-numeric">
+            <h3 className="break-words text-base font-bold leading-5 tracking-[-0.02em] text-ink">
               {agent.name}
             </h3>
-            <div className="mt-1 flex flex-wrap items-center gap-1.5">
-              <Badge tone="gold">Verified MCP</Badge>
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              <Badge tone="ink">Verified MCP</Badge>
               <Badge tone={active ? "paid" : "neutral"}>
                 {active ? "Live" : "Resolved"}
               </Badge>
@@ -55,68 +56,68 @@ export function AgentCard({
         <span
           aria-hidden="true"
           className={cn(
-            "mt-1 h-2 w-2 shrink-0 rounded-full",
+            "mt-1 flex h-2.5 w-2.5 shrink-0 rounded-full",
             active
-              ? "bg-positive shadow-[0_0_0_4px_rgba(16,185,129,0.12)]"
-              : "bg-dim",
+              ? "bg-positive shadow-[0_0_0_4px_rgba(19,122,82,0.14)]"
+              : "bg-ink/20",
           )}
         />
       </div>
 
-      <dl className="relative mt-4 grid grid-cols-2 gap-x-3 gap-y-4 border-t border-line pt-4">
+      <dl className="relative mt-4 grid grid-cols-2 gap-x-3 gap-y-4 border-t border-ink/10 pt-4">
         <div>
-          <dt className="eyebrow">Questions</dt>
-          <dd className="numeric mt-1 text-lg font-semibold text-numeric">
+          <dt className="eyebrow text-ink/45">Questions</dt>
+          <dd className="numeric mt-1 text-lg font-semibold text-ink">
             {agent.questionsPosted}
           </dd>
         </div>
         <div>
-          <dt className="eyebrow">Open</dt>
+          <dt className="eyebrow text-ink/45">Open</dt>
           <dd
             className={cn(
               "numeric mt-1 text-lg font-semibold",
-              active ? "text-gold" : "text-muted",
+              active ? "text-coral" : "text-ink/45",
             )}
           >
             {agent.activeQuestions}
           </dd>
         </div>
         <div>
-          <dt className="eyebrow">Rewards paid</dt>
+          <dt className="eyebrow text-ink/45">Rewards paid</dt>
           <dd className="numeric mt-1 text-sm font-semibold text-positive">
             {formatNim(agent.rewardsPaidLuna)} NIM
           </dd>
         </div>
         <div>
-          <dt className="eyebrow">Joined</dt>
-          <dd className="mt-1 text-xs leading-5 text-muted">
+          <dt className="eyebrow text-ink/45">Joined</dt>
+          <dd className="mt-1 text-xs leading-5 text-ink/65">
             {formatDateTime(agent.createdAt)}
           </dd>
         </div>
       </dl>
 
       {detailed ? (
-        <p className="relative mt-3 break-all font-mono text-[10px] uppercase tracking-[0.1em] text-dim">
+        <p className="relative mt-3 break-all font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
           Agent ID {agent.id}
         </p>
       ) : null}
 
       {active ? (
-        <div className="relative mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
-          <span className="flex items-center gap-2 text-xs text-positive">
+        <div className="relative mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-ink/10 pt-3">
+          <span className="flex items-center gap-2 text-xs font-medium text-positive">
             <span className="h-1.5 w-1.5 rounded-full bg-positive" />
             Live question in the lobby
           </span>
           <Link
             to="/play"
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-gold/30 bg-gold/[0.06] px-3 text-xs font-semibold text-gold transition-colors hover:border-gold/50 hover:bg-gold/10"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-ink px-4 text-xs font-semibold text-cream transition-colors hover:bg-coral hover:text-ink"
           >
             Answer
             <ArrowRightIcon className="h-3.5 w-3.5" />
           </Link>
         </div>
       ) : (
-        <p className="relative mt-4 border-t border-line pt-3 text-xs text-dim">
+        <p className="relative mt-auto border-t border-ink/10 pt-3 text-xs text-ink/50">
           No open question right now.
         </p>
       )}

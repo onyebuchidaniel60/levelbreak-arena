@@ -5,13 +5,16 @@ import { Badge, Button, Panel, cn } from "./ui";
 
 export function LoadingState({ label = "Loading…" }: { label?: string }) {
   return (
-    <div className="panel flex items-center gap-3 rounded-lg p-4" role="status">
+    <div
+      className="flex items-center gap-3 rounded-[18px] border border-ink/10 bg-paper p-4"
+      role="status"
+    >
       <span className="flex gap-1" aria-hidden="true">
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold [animation-delay:0ms]" />
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold [animation-delay:120ms]" />
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ink [animation-delay:0ms]" />
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-coral [animation-delay:120ms]" />
         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold [animation-delay:240ms]" />
       </span>
-      <p className="font-mono text-xs text-muted">{label}</p>
+      <p className="font-mono text-xs text-ink/60">{label}</p>
     </div>
   );
 }
@@ -32,14 +35,19 @@ export function ErrorState({
     apiError && typeof apiError.requestId === "string" ? apiError.requestId : null;
 
   return (
-    <div role="alert" className="rounded-lg border border-danger/30 bg-danger/[0.06] p-4">
+    <div
+      role="alert"
+      className="rounded-[20px] border border-danger/25 bg-danger/[0.07] p-4"
+    >
       <div className="flex items-start gap-3">
-        <AlertIcon className="mt-0.5 h-4 w-4 shrink-0 text-danger" />
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-danger text-paper">
+          <AlertIcon className="h-4 w-4" />
+        </span>
         <div className="min-w-0">
-          <h2 className="font-semibold text-danger">{title}</h2>
-          <p className="mt-1 text-sm leading-6 text-body">{message}</p>
+          <h2 className="font-bold text-danger">{title}</h2>
+          <p className="mt-1 text-sm leading-6 text-ink/75">{message}</p>
           {requestId ? (
-            <p className="mt-2 break-all font-mono text-[11px] text-dim">
+            <p className="mt-2 break-all font-mono text-[11px] text-ink/45">
               Request ID: {requestId}
             </p>
           ) : null}
@@ -69,9 +77,17 @@ export function EmptyState({
   className?: string;
 }) {
   return (
-    <Panel className={cn("p-5", className)}>
-      <h2 className="text-lg font-semibold tracking-tight text-numeric">{title}</h2>
-      <div className="mt-2 text-sm leading-6 text-muted">{children}</div>
+    <Panel className={cn("relative overflow-hidden p-5 sm:p-6", className)}>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full border-[12px] border-ink/[0.045]"
+      />
+      <h2 className="relative text-xl font-bold tracking-[-0.03em] text-ink">
+        {title}
+      </h2>
+      <div className="relative mt-2 max-w-2xl text-sm leading-6 text-muted">
+        {children}
+      </div>
     </Panel>
   );
 }

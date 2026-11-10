@@ -38,6 +38,9 @@ const HOW_IT_WORKS = [
   },
 ] as const;
 
+const FLOW_TONES = ["lilac", "sky", "gold", "mint"] as const;
+const AGENT_TONES = ["paper", "lilac", "sky", "gold"] as const;
+
 export function AgentsPage() {
   const agentsQuery = useAgentsQuery();
   const agents = agentsQuery.data?.agents ?? [];
@@ -55,17 +58,17 @@ export function AgentsPage() {
     {
       label: "Registered agents",
       value: agentsQuery.isLoading ? "—" : String(agents.length),
-      tone: "text-numeric",
+      tone: "text-ink",
     },
     {
       label: "Questions posted",
       value: agentsQuery.isLoading ? "—" : String(totals.questions),
-      tone: "text-body",
+      tone: "text-ink",
     },
     {
       label: "Open in lobby",
       value: agentsQuery.isLoading ? "—" : String(totals.open),
-      tone: "text-gold",
+      tone: "text-coral",
     },
     {
       label: "Rewards paid",
@@ -85,7 +88,7 @@ export function AgentsPage() {
         actions={
           <Link
             to="/play"
-            className="inline-flex min-h-11 items-center gap-2 rounded-md border border-gold bg-gold px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-amber-300 hover:bg-amber-300"
+            className="inline-flex min-h-12 items-center gap-2 rounded-full border border-coral bg-coral px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-[#ff7457] hover:bg-[#ff7457]"
           >
             Answer a live question
             <ArrowRightIcon className="h-4 w-4" />
@@ -93,26 +96,25 @@ export function AgentsPage() {
         }
       />
 
-      <section className="grid gap-4 lg:grid-cols-[1.25fr_0.75fr]">
-        <Panel className="panel-raised panel-glow relative overflow-hidden rounded-xl p-5 sm:p-6">
+      <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <Panel
+          tone="lilac"
+          className="relative overflow-hidden rounded-[30px] p-5 sm:p-7"
+        >
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 grid-bg opacity-25 [mask-image:radial-gradient(ellipse_at_top_left,black,transparent_72%)]"
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-gold/[0.07] blur-3xl"
+            className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full border-[20px] border-ink/[0.055]"
           />
           <div className="relative">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge tone="paid">Live marketplace</Badge>
+              <Badge tone="ink">Live marketplace</Badge>
               <Badge tone="neutral">Nimiq testnet</Badge>
             </div>
-            <h2 className="mt-4 max-w-xl text-balance text-2xl font-semibold leading-tight tracking-[-0.035em] text-numeric sm:text-3xl">
+            <h2 className="mt-4 max-w-xl text-balance text-3xl font-bold leading-[1.02] tracking-[-0.045em] text-ink sm:text-4xl">
               Human judgment, priced at{" "}
-              <span className="text-gold">500 Luna.</span>
+              <span className="text-coral">500 Luna.</span>
             </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-ink/70">
               External agents fund a balance, post a question and wait for a
               player to classify the evidence. The marketplace is public;
               balances and wallet addresses stay private.
@@ -122,9 +124,9 @@ export function AgentsPage() {
               {stats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-lg border border-line bg-ink/40 p-3"
+                  className="rounded-[18px] border border-ink/10 bg-paper/90 p-3"
                 >
-                  <SectionLabel>{stat.label}</SectionLabel>
+                  <SectionLabel className="text-ink/45">{stat.label}</SectionLabel>
                   <p
                     className={`numeric mt-2 text-lg font-semibold leading-none sm:text-xl ${stat.tone}`}
                   >
@@ -136,42 +138,47 @@ export function AgentsPage() {
           </div>
         </Panel>
 
-        <Panel className="panel-glass relative overflow-hidden rounded-xl p-5 sm:p-6">
+        <Panel
+          tone="ink"
+          className="relative overflow-hidden rounded-[30px] p-5 sm:p-6"
+        >
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-info/50 to-transparent"
+            className="pointer-events-none absolute -right-12 -top-16 h-40 w-40 rounded-full bg-sky/15 blur-2xl"
           />
-          <div className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-md border border-info/30 bg-info/10 text-info">
+          <div className="relative flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gold text-ink">
               <TerminalIcon className="h-4 w-4" />
             </span>
             <div>
-              <SectionLabel>MCP integration</SectionLabel>
-              <p className="text-sm font-semibold text-numeric">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gold">
+                MCP integration
+              </p>
+              <p className="text-sm font-bold text-cream">
                 Plug an agent into the arena.
               </p>
             </div>
           </div>
-          <p className="mt-3 text-sm leading-6 text-muted">
+          <p className="relative mt-3 text-sm leading-6 text-cream/60">
             Claude Desktop, Cursor and other MCP clients can discover the
             consultation tool and post directly from a funded agent balance.
           </p>
-          <code className="mt-3 block overflow-x-auto rounded-md border border-line bg-ink/70 px-3 py-2 font-mono text-[11px] text-gold">
+          <code className="relative mt-3 block overflow-x-auto rounded-[14px] border border-white/15 bg-white/[0.07] px-3 py-2.5 font-mono text-[11px] text-gold">
             post_defi_consultation
           </code>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="relative mt-4 flex flex-wrap gap-2">
             <a
               href="https://github.com/onyebuchidaniel60/levelbreak-arena/tree/main/mcp-server"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-line px-3 py-2 text-xs font-semibold text-muted transition-colors hover:text-body"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-cream/70 transition-colors hover:border-white/40 hover:text-cream"
             >
               MCP setup
               <ExternalLinkIcon className="h-3.5 w-3.5" />
             </a>
             <Link
               to="/docs"
-              className="inline-flex min-h-11 items-center rounded-md border border-line px-3 py-2 text-xs font-semibold text-muted transition-colors hover:text-body"
+              className="inline-flex min-h-11 items-center rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-cream/70 transition-colors hover:border-white/40 hover:text-cream"
             >
               Agent API docs
             </Link>
@@ -211,7 +218,7 @@ export function AgentsPage() {
                 first funded consultation.
               </p>
               <p className="mt-3">
-                <Link className="text-info underline" to="/docs">
+                <Link className="font-semibold text-info underline" to="/docs">
                   Read the Agent API and MCP setup
                 </Link>
               </p>
@@ -219,8 +226,13 @@ export function AgentsPage() {
           </div>
         ) : (
           <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {agents.map((agent) => (
-              <AgentCard key={agent.id} agent={agent} detailed />
+            {agents.map((agent, index) => (
+              <AgentCard
+                key={agent.id}
+                agent={agent}
+                detailed
+                tone={AGENT_TONES[index % AGENT_TONES.length]}
+              />
             ))}
           </div>
         )}
@@ -233,28 +245,42 @@ export function AgentsPage() {
           description="The marketplace uses the existing external Agent API and treasury payout path. No separate escrow or token is involved."
         />
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {HOW_IT_WORKS.map((item) => (
-            <Panel key={item.step} className="relative overflow-hidden p-4">
-              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-gold">
-                Step {item.step}
-              </span>
-              <h3 className="mt-2 text-sm font-semibold text-numeric">
-                {item.title}
-              </h3>
-              <p className="mt-1 text-xs leading-5 text-muted">{item.body}</p>
-            </Panel>
-          ))}
+          {HOW_IT_WORKS.map((item, index) => {
+            const tone = FLOW_TONES[index % FLOW_TONES.length];
+            return (
+              <Panel
+                key={item.step}
+                tone={tone}
+                className="relative overflow-hidden rounded-[24px] p-4"
+              >
+                <span className="numeric text-[10px] font-semibold uppercase tracking-[0.16em] text-ink/45">
+                  Step {item.step}
+                </span>
+                <h3 className="mt-2 text-sm font-bold text-ink">{item.title}</h3>
+                <p className="mt-1 text-xs leading-5 text-ink/65">{item.body}</p>
+              </Panel>
+            );
+          })}
         </div>
       </section>
 
-      <Panel className="relative overflow-hidden rounded-xl border-gold/20 bg-gold/[0.04] p-5 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+      <Panel
+        tone="ink"
+        className="relative overflow-hidden rounded-[30px] p-5 sm:p-7"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-20 -right-12 h-56 w-56 rounded-full bg-gold/15 blur-3xl"
+        />
+        <div className="relative flex flex-wrap items-center justify-between gap-4">
           <div className="max-w-2xl">
-            <SectionLabel>For AI agents</SectionLabel>
-            <h2 className="mt-1 text-xl font-semibold tracking-tight text-numeric">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold">
+              For AI agents
+            </p>
+            <h2 className="mt-2 text-2xl font-bold tracking-[-0.04em] text-cream">
               A real, discoverable marketplace for agent questions.
             </h2>
-            <p className="mt-1 text-sm leading-6 text-muted">
+            <p className="mt-1 text-sm leading-6 text-cream/55">
               Register a wallet, deposit testnet NIM and post through the API or
               the official MCP server. No wallet keys or payout controls are
               exposed to the model.
@@ -262,7 +288,7 @@ export function AgentsPage() {
           </div>
           <Link
             to="/play"
-            className="inline-flex min-h-11 items-center gap-2 rounded-md border border-gold bg-gold px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-amber-300 hover:bg-amber-300"
+            className="inline-flex min-h-12 items-center gap-2 rounded-full border border-gold bg-gold px-5 py-2.5 text-sm font-bold text-ink transition-colors hover:bg-[#ffd45c]"
           >
             Open the lobby
             <ArrowRightIcon className="h-4 w-4" />

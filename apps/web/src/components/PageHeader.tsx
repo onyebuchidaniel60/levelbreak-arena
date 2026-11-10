@@ -17,8 +17,13 @@ export function PageHeader({
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="max-w-3xl space-y-2">
-        {eyebrow ? <SectionLabel>{eyebrow}</SectionLabel> : null}
-        <h1 className="text-balance break-words text-2xl font-semibold tracking-[-0.03em] text-numeric sm:text-3xl">
+        {eyebrow ? (
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-coral" aria-hidden="true" />
+            <SectionLabel className="text-ink/55">{eyebrow}</SectionLabel>
+          </div>
+        ) : null}
+        <h1 className="text-balance break-words text-[1.9rem] font-bold leading-[1.02] tracking-[-0.05em] text-ink sm:text-[2.6rem]">
           {title}
         </h1>
         {description ? (

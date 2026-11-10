@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Badge, Skeleton, cn } from "./ui";
+import { Badge, cn } from "./ui";
 
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false);
@@ -70,38 +70,46 @@ export function AgentMessage({
   return (
     <section
       aria-labelledby="agent-message-heading"
-      className={cn("relative overflow-hidden rounded-lg border border-line bg-ink-2 p-4 sm:p-5", className)}
+      className={cn(
+        "relative overflow-hidden rounded-[26px] border border-ink bg-ink p-4 text-cream sm:p-5",
+        className,
+      )}
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent"
+        className="pointer-events-none absolute -right-12 -top-16 h-40 w-40 rounded-full bg-lilac/20 blur-2xl"
       />
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md border border-gold/30 bg-gold/10 font-mono text-sm font-semibold text-gold">
+      <div className="relative flex flex-wrap items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-lilac text-sm font-bold text-ink">
             A
           </div>
-          <div>
-            <h3 id="agent-message-heading" className="text-sm font-semibold text-numeric">
+          <div className="min-w-0">
+            <h3
+              id="agent-message-heading"
+              className="text-sm font-bold tracking-[-0.01em] text-cream"
+            >
               Agent message
             </h3>
-            <p className="mt-0.5 break-words text-[11px] text-dim">{context}</p>
+            <p className="mt-0.5 break-words text-[11px] leading-4 text-cream/50">
+              {context}
+            </p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone={source === "llm" || source === "external" ? "gold" : "neutral"}>
+          <Badge tone={source === "llm" || source === "external" ? "gold" : "dark"}>
             {sourceLabel}
           </Badge>
           {verified ? <Badge tone="gold">Verified MCP</Badge> : null}
-          <Badge tone="neutral">{confidenceLabel}</Badge>
+          <Badge tone="dark">{confidenceLabel}</Badge>
         </div>
       </div>
 
       {loading ? (
-        <div className="mt-5 space-y-2" role="status" aria-live="polite">
-          <Skeleton className="h-4 w-11/12" />
-          <Skeleton className="h-4 w-8/12" />
-          <p className="pt-1 font-mono text-[11px] text-dim">
+        <div className="relative mt-5 space-y-2" role="status" aria-live="polite">
+          <div className="h-4 w-11/12 animate-pulse rounded-xl bg-white/10" />
+          <div className="h-4 w-8/12 animate-pulse rounded-xl bg-white/10" />
+          <p className="pt-1 font-mono text-[11px] text-cream/45">
             Agent is reading the bundled evidence…
           </p>
         </div>
@@ -112,7 +120,7 @@ export function AgentMessage({
           </p>
           <p
             aria-hidden="true"
-            className="mt-5 min-h-16 text-[15px] leading-7 text-body"
+            className="relative mt-5 min-h-16 text-[15px] leading-7 text-cream/85"
           >
             {displayed}
             {displayed.length < text.length ? (
