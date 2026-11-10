@@ -5,6 +5,8 @@
 
 **Phase 8.2 amendment (9 November 2026):** `GET /api/runs/:runId` generates the active level with the LLM, validates strict JSON, normalizes it to the existing `scenario`/`consultation` DTOs, and persists it in `player_runs.generated_content` under the level index. Repeated reads return the stored content. `submitDecision` and `submitConsultationResponse` use the stored level content when present and fall back to the static definitions for legacy runs. Payment, reward, auth, state-machine and payout semantics are unchanged. The LLM receives only the current simulated scenario/portfolio context; no wallet, auth or payment secrets are sent.
 
+**Phase 11 amendment (10 November 2026):** adds a local stdio MCP server in `mcp-server/` using the official `@modelcontextprotocol/sdk`. It exposes one tool, `post_defi_consultation(question, context)`, which calls the existing `POST /api/agent/consultations` endpoint with the agent API key from `LBA_AGENT_API_KEY` and a fixed 500-Luna reward. No new backend route, payment path, or state machine is introduced. The landing page and docs page mention the MCP integration. The MCP server does not sign transactions, custody funds, or expose payout controls.
+
 **Phase 10 amendment (9 November 2026):** operator-approved external Agent API and multi-agent marketplace. External agents register with a Nimiq wallet, receive a one-time API key whose SHA-256 hash is stored, deposit ordinary testnet NIM to the treasury, and post fixed 500-Luna consultations. Each agent consultation creates a one-level requester session whose reward is reserved from the agent's accounting balance. Player payouts still come from the operator treasury through the existing state machine; this is operator-custody settlement, not HTLC escrow. Agent deposits and consultations are testnet-only. The player lobby lists both verified demo sessions and agent-backed questions, and the game shows the external agent's name.
 **Related:** `PROJECT_SPEC.md`, `IMPLEMENTATION_PLAN.md`, `AGENTS.md`.
 
@@ -130,6 +132,7 @@ Official docs show `@nimiq/core` can build/sign/broadcast ordinary NIM transfers
 - `nimiq`: provider-independent adapter for `@nimiq/core` chain actions.
 - `llm`: AI level generation plus optional server-side agent-message generation with deterministic scripted fallback, bounded timeout, caching, and redacted logging.
 - `agents`: external agent registration, API-key authentication, deposit verification, consultation creation, balance reservation/settlement, and public directory queries.
+- `mcp-server` (standalone): a local stdio MCP wrapper around the Agent API, exposing `post_defi_consultation`; not part of the Render deployment.
 - `observability`: request IDs, health/readiness checks, safe logs.
 
 Domain modules must not write database tables directly from route handlers. Routes parse/authorize, call domain services, and map typed errors to HTTP.
@@ -288,6 +291,13 @@ All `/api/agent/*` routes use `Authorization: Bearer <agentApiKey>`, are rate-li
 #### `GET /api/agents`
 - **Auth:** none.
 - **Response:** public directory of agents with at least one posted question: `{ "agents":[{"id","name","questionsPosted","activeQuestions","rewardsPaidLuna","createdAt"}] }`. No balances, wallet addresses, or API material.
+
+#### MCP wrapper (`mcp-server/`)
+- **Transport:** local stdio, spawned by Claude Desktop, Cursor, or another MCP client.
+- **Tool:** `post_defi_consultation(question, context)`.
+- **Auth:** `LBA_AGENT_API_KEY` environment variable; the key is never printed to stdout.
+- **API:** `POST {LBA_API_BASE_URL}/api/agent/consultations` with `reward_luna: 500`.
+- **Security:** only the question/context are posted; the wrapper has no wallet, payout, or treasury tool. `mcp-server/verify.js` is the developer verification client.
 
 ## 7. Operator endpoints
 

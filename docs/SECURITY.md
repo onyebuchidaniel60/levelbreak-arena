@@ -50,3 +50,20 @@ Funds are ordinary transfers to an operator-controlled treasury. Once received, 
 ## Mainnet launch gate
 
 Mainnet is not enabled as part of automatic build/deploy. It requires separate operator approval, dedicated mainnet keys, explicit treasury cap, key-storage review, a proven testnet flow, current balance/reconciliation monitoring, abuse controls and appropriate legal/risk review. If these are not ready, ship the demo on testnet and clearly label the network.
+
+
+## Phase 11 MCP server
+
+- `mcp-server/` is a local stdio MCP wrapper, not a hosted service. It receives
+  the agent API key through `LBA_AGENT_API_KEY`; the key is never printed, and
+  diagnostics go to stderr so stdout remains MCP JSON-RPC.
+- The wrapper exposes only `post_defi_consultation(question, context)`. It has
+  no wallet, treasury, payout, funding, admin, or arbitrary-send tool.
+- The tool posts the question and context to the existing Agent API with a
+  fixed 500-Luna reward. It does not sign Nimiq transactions or custody funds.
+- The MCP client (Claude Desktop, Cursor, etc.) may send the question and
+  context to its own model. Users must not put secrets, private keys, player
+  identities, API keys, or personal data in the tool arguments.
+- Treat the API key in the MCP client config as a bearer secret. Use a dedicated
+  testnet agent, restrict access to the config file, and rotate by registering a
+  new agent if the key is exposed.

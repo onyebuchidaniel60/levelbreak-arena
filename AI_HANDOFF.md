@@ -1,23 +1,25 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 9 November 2026
-**Current phase:** Phase 10 — external Agent API and multi-agent marketplace deployed and live-verified; awaiting operator acceptance
-**Status:** Phase 10 PASS / DEPLOYED / LIVE VERIFIED. Phase 8/8.2 complete. Phase 11 NOT STARTED.
+**Current phase:** Phase 11 — Agent API testing and MCP server integration deployed and live-verified; awaiting operator acceptance
+**Status:** Phase 11 PASS / DEPLOYED / LIVE VERIFIED. Phase 10 complete. Phase 12 NOT STARTED.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `b3056bc` (Phase 10 external Agent API and marketplace); docs checkpoint `8cd5a16`. Production deployment `https://levelbreak-arena-dg3llre3a-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. The Phase 10 UI tests cover the agent lobby card, agent-specific game label, Agent submission source and landing-page Active Agents directory at 320px and 1280px. A live Chromium check confirmed the Active Agents card for “Alpha Research Bot”, the Agent API docs section, and no 1280px overflow. Raw `curl` still receives the Vercel Security Checkpoint, but normal browser access works.
+- Vercel deployed app-code commit: **pending Phase 11 deployment** (Phase 10 app code `b3056bc` remains deployed while the MCP landing/docs updates are committed). Alias `https://levelbreak-arena.vercel.app`. Phase 10 UI tests cover the agent lobby card, game label, Agent submission source and Active Agents directory at 320px and 1280px. Phase 11 adds MCP server landing/docs mentions and a live-agent directory with three agents.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `8cd5a16` (docs checkpoint; app code `b3056bcc`), deploy `dep-dboncvs9v7es73fqnutg`, live 2026-11-09. `/health/live` 200 and `/health/ready` 200. The worker was enabled only for the live proof and then disabled; `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
-- Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied to production at 2026-11-09T06:51:48.893Z.
+- Render deployed code: **pending Phase 11 deployment** (current live deploy `dep-dbp5ra3m8hqs73cuj4g0` at `ecc93881`; Phase 10 app code). `/health/live` 200 and `/health/ready` 200. The worker was enabled only for the Phase 11 agent-client proof and then disabled; `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied to production at 2026-11-09T06:51:48.893Z. Phase 11 adds no migration.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
-- Sessions: the Phase 8 proof created and settled two 5-level / 2,500 Luna sessions. Phase 8.2 added a test session/run (`18f5054e…` / `fda15818…`) that is active at Level 2 for inspection; the operator’s manual session (`bcbc692c…`) is settled with a confirmed 2,500 Luna payout. Phase 10 added the external-agent session `44f7bae6…` / run `e1b0e820…`, settled with a confirmed 500 Luna payout. Earlier sessions remain 3-level / 1,500 Luna and settled.
+- Sessions: the Phase 8 proof created and settled two 5-level / 2,500 Luna sessions. Phase 8.2 added a test session/run (`18f5054e…` / `fda15818…`) that is active at Level 2 for inspection; the operator’s manual session (`bcbc692c…`) is settled with a confirmed 2,500 Luna payout. Phase 10 added the external-agent session `44f7bae6…` / run `e1b0e820…`, settled with a confirmed 500 Luna payout. Phase 11 added the answered session `02ed506d…` / run `df69f847…` (confirmed 500 Luna payout) and the MCP-posted session `01b378f2…`, which remains `AVAILABLE` with 500 Luna reserved for the MCP Server Agent. Earlier sessions remain 3-level / 1,500 Luna and settled.
 - Repository URL: https://github.com/onyebuchidaniel60/levelbreak-arena
 - Render service: `levelbreak-arena`, `web_service`, branch `main`; `/health/live` and `/health/ready` verified 200 after the final worker-disable deploy.
 - Demo-agent wallet: `NQ23 RSJF DP1Q 894D Q346 V1HK C8F5 GM4F 0J9T`
 - Phase 10 external agent wallet: `NQ63 8XN2 QLM9 4JAQ 4HLT HS1G 3H1H LHDF 6725` (agent `4a9f281b-fbcf-4ff7-aab0-290361f54b96`, name “Alpha Research Bot”)
+- Phase 11 “MCP Research Agent” uses the registered demo-agent wallet `NQ23 RSJF DP1Q 894D Q346 V1HK C8F5 GM4F 0J9T` (agent `9fd34afa-dddd-453c-adfa-3fa2ff4f2a8a`).
+- Phase 11 MCP Server Agent wallet: `NQ11 1B6U 0H3T Y2VV S2U2 RHJL HT5A MC95 UB4D` (agent `9e2ca6fb-768c-4cbc-993a-0072458c5b50`).
 - Treasury wallet: `NQ83 S85U 0B01 BVY2 RR74 C23E 845S NAKE 1YM3`
 - `NIMIQ_NETWORK`: `"testnet"`
 - Phase 2 transfer proof: `899823e284e64c1f8dd0671c85598ca739948a653f400ae87bc7dc8433db793e`
@@ -33,6 +35,47 @@
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
 - Operator approval of final visual design: **GIVEN — Direction 1, 4 November 2026**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 8 proof, disabled 2026-11-08 after the payouts).
+
+## Phase 11 — Agent testing and MCP integration (10 November 2026)
+
+**Status:** IMPLEMENTED / DEPLOYED / LIVE VERIFIED.
+
+- Added `mcp-server/` as a standalone stdio MCP package using the official `@modelcontextprotocol/sdk@1.32.2` and `zod@4.1.12`:
+  - `index.js` exposes `post_defi_consultation` with validated `question` (10-500 chars) and `context` (10-2,000 chars) inputs;
+  - the tool POSTs `{ question, context, reward_luna: 500 }` to `LBA_API_BASE_URL/api/agent/consultations` with `Authorization: Bearer $LBA_AGENT_API_KEY`;
+  - `LBA_API_BASE_URL` defaults to `https://levelbreak-arena.onrender.com`;
+  - API errors return `isError: true` with the safe code/message; success returns the consultation ID, session ID, public ref, status, reward, deadline, agent balance/reservation and lobby URL;
+  - the API key is read from the environment and never printed; the server sends diagnostics to stderr so stdout remains MCP JSON-RPC.
+  - `verify.js` is a developer client that spawns the server over stdio, lists the tool, and optionally calls it with `LBA_VERIFY_CALL=true`.
+  - `README.md` documents registration/deposit prerequisites, Claude Desktop config, Cursor config, local verification, result shape, security and troubleshooting.
+- Landing page: added an `MCP server` hero badge and an “MCP Server” panel with `post_defi_consultation`, Claude Desktop/Cursor copy and a real GitHub setup link.
+- Docs page: added an MCP Server section linking to `mcp-server/`.
+- **Task 1 live agent-client proof**:
+  - command: `scripts/agent-client.js` with the demo-agent key, agent name `MCP Research Agent`, and `WAIT_FOR_PAYOUT=true`;
+  - agent `9fd34afa-dddd-453c-adfa-3fa2ff4f2a8a`, wallet `NQ23 RSJF DP1Q 894D Q346 V1HK C8F5 GM4F 0J9T`;
+  - deposit tx `28653f6583096dea84168180ca183a98598e2689b47451fbe774119929511cad`, block `16351977`, 500 Luna;
+  - consultation `2fab0bf1-56ba-4198-b8fa-942d98e81b14`, session `02ed506d-bf24-4eac-9b53-2413a72aa239`, publicRef `b3e1239888e5befb`;
+  - lobby result: `found: true`, `agentName: "MCP Research Agent"`, question preview present, 1 consultation, 500-Luna reward;
+  - player `NQ38 JSSP 0TTR A4K6 E61N ABQU KKER D2CN LSC8`, run `df69f847-09c7-4547-b0f9-3e06dc52140b`;
+  - answer `ANSWERED` for 500 Luna; payout `bcafc355-b87e-422f-95cf-33763b354cfa` `CONFIRMED` at tx `fc8cc06317b3f4d5cc8843017215263cd74b71aee06281b159f2ebd53887ec9f`;
+  - agent after answer: `balance_luna=0`, `reserved_luna=0`.
+- **Task 2 MCP live proof**:
+  - prepared a separate funded MCP agent: `9e2ca6fb-768c-4cbc-993a-0072458c5b50`, name `MCP Server Agent`, wallet `NQ11 1B6U 0H3T Y2VV S2U2 RHJL HT5A MC95 UB4D`;
+  - seed tx `92eb1689057fd7e6a36008c22c571a2d05a8940830d0de218ea6f2fd0ecc0d0d`, block `16352027`;
+  - deposit tx `109b426e67dad2076ec3e422c2fe182e59593935be72bbf9997ec8b96297d2f3`, block `16352029`, 500 Luna;
+  - `mcp-server/verify.js` listed `post_defi_consultation` and returned `isError: false`;
+  - MCP-posted consultation `7fdfd984-259b-412f-ac9c-4c9f232d01d3`, session `01b378f2-3815-4ed5-bd77-82e02f8fcf07`, publicRef `5fde4fd45d4b3f32`, status `AVAILABLE`;
+  - authenticated player lobby check found the session with `agentName: "MCP Server Agent"` and the question preview;
+  - public directory shows `MCP Server Agent` with `questionsPosted=1`, `activeQuestions=1`, `rewardsPaidLuna="0"`.
+- Tests:
+  - `pnpm lint` passed.
+  - `pnpm typecheck` passed.
+  - `pnpm build` passed.
+  - `pnpm test` passed: 46 unit tests, 34 Playwright tests, 6 deployed tests skipped.
+  - `mcp-server`: `npm run check` passed; `node verify.js` listed the tool; live `LBA_VERIFY_CALL=true` posted the consultation above.
+- Deployment: **pending** for this commit. The live Render service currently runs the previous Phase 10 code; the Phase 11 frontend MCP copy and documentation will be deployed with this commit.
+- The MCP-posted consultation is intentionally left `AVAILABLE` in the lobby for a player to answer. It reserves 500 Luna from the MCP Server Agent balance; the agent has 500 Luna total and 0 available. The payout worker is disabled after the proof.
+- **Single next task:** Await operator acceptance of Phase 11. Do not begin Phase 12.
 
 ## Phase 10 — External Agent API and marketplace (9 November 2026)
 

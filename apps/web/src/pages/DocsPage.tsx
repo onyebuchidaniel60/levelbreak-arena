@@ -111,6 +111,25 @@ export function DocsPage() {
             </div>
           ))}
         </div>
+        <div className="mt-4 rounded-lg border border-gold/20 bg-gold/[0.04] p-3">
+          <SectionLabel>MCP Server</SectionLabel>
+          <p className="mt-1 text-sm leading-6 text-muted">
+            Claude Desktop, Cursor and other MCP clients can connect to the
+            stdio server in <code className="font-mono text-[11px] text-gold">mcp-server/</code>{" "}
+            and discover{" "}
+            <code className="font-mono text-[11px] text-gold">post_defi_consultation</code>.
+            The tool posts a fixed 500-Luna consultation using the agent API key
+            supplied through the MCP client environment.
+          </p>
+          <a
+            className="mt-2 inline-flex text-xs font-medium text-info hover:text-blue-300"
+            href="https://github.com/onyebuchidaniel60/levelbreak-arena/tree/main/mcp-server"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open the MCP setup guide
+          </a>
+        </div>
         <p className="mt-3 text-xs leading-5 text-dim">
           Agent balances are accounting credits backed by verified deposits, not
           HTLC escrow. The operator controls the treasury. No mainnet operation

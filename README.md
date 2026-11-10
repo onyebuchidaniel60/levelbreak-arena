@@ -2,9 +2,9 @@
 
 LevelBreak Arena is a five-level simulated DeFi learning game for Nimiq Mini Apps. This repository is the implementation workspace for the approved blueprint.
 
-**Current phase:** Phase 10 — real external Agent API and multi-agent marketplace, deployed on top of the AI-generated five-level game.
+**Current phase:** Phase 11 — external Agent API proven live and packaged as an MCP server for Claude Desktop, Cursor and other AI clients.
 
-Phase 4 connected the frontend to the Phase 3 APIs: real wallet challenge/signature authentication, funded-session lobby, five-level game decisions, evidence-backed consultations, reward display, finish/payout status and player history. Phase 5 completed the serialized payout worker and proved the full funded-session → game → treasury payout → on-chain confirmation flow on testnet. Phase 8 proved the five-level flow end to end with a confirmed 2,000 Luna payout. Phase 8.2 added AI-generated level content persisted per run. Phase 10 adds the external Agent API: agents register a testnet wallet, deposit NIM to the treasury, post fixed 500-Luna consultations, and appear in the player lobby. Agent balances are accounting credits; player payouts still come from the treasury through the existing payout worker. See `docs/TESTING.md` and `scripts/agent-client.js` for the live proof.
+Phase 4 connected the frontend to the Phase 3 APIs: real wallet challenge/signature authentication, funded-session lobby, five-level game decisions, evidence-backed consultations, reward display, finish/payout status and player history. Phase 5 completed the serialized payout worker and proved the full funded-session → game → treasury payout → on-chain confirmation flow on testnet. Phase 8 proved the five-level flow end to end with a confirmed 2,000 Luna payout. Phase 8.2 added AI-generated level content persisted per run. Phase 10 adds the external Agent API: agents register a testnet wallet, deposit NIM to the treasury, post fixed 500-Luna consultations, and appear in the player lobby. Agent balances are accounting credits; player payouts still come from the treasury through the existing payout worker. Phase 11 proves the API with `scripts/agent-client.js` and adds `mcp-server/`, a standalone stdio MCP server that exposes `post_defi_consultation` to Claude Desktop and Cursor. See `docs/TESTING.md`, `scripts/agent-client.js` and `mcp-server/README.md`.
 
 ## Stack
 
@@ -24,6 +24,7 @@ packages/
   contracts/            Zod API response contracts shared with the frontend
 db/
   migrations/           Versioned PostgreSQL migrations
+mcp-server/             Standalone stdio MCP wrapper for the Agent API
 tests/
   e2e/                  Playwright route smoke tests
   integration/          Integration-test placeholder

@@ -232,6 +232,13 @@ test.describe("Phase 10 agent marketplace surfaces", () => {
     await expect(page.getByText(AGENT_NAME)).toBeVisible();
     await expect(page.getByText("Agent API docs")).toBeVisible();
     await expect(page.getByText("0.01 NIM")).toBeVisible();
+    await expect(
+      page.getByText("MCP server", { exact: true }).first(),
+    ).toBeVisible();
+    await expect(page.getByText("post_defi_consultation")).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /MCP setup/i }),
+    ).toBeVisible();
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth > window.innerWidth,

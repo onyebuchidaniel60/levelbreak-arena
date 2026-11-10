@@ -1,6 +1,12 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { Badge, Button, Panel, SectionHeading, SectionLabel, StatTile } from "../components/ui";
-import { ArrowRightIcon, CheckIcon, LockIcon, TerminalIcon } from "../components/Icons";
+import {
+  ArrowRightIcon,
+  CheckIcon,
+  ExternalLinkIcon,
+  LockIcon,
+  TerminalIcon,
+} from "../components/Icons";
 import { ErrorState, LoadingState } from "../components/Feedback";
 import { useAuth } from "../providers/AuthProvider";
 import { useAgentsQuery, useConfigQuery } from "../hooks/useApi";
@@ -43,6 +49,7 @@ export function HomePage() {
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone="gold">Nimiq testnet</Badge>
               <Badge tone="neutral">5-level arena</Badge>
+              <Badge tone="neutral">MCP server</Badge>
             </div>
             <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-[-0.045em] text-numeric sm:text-5xl lg:text-6xl">
               Learn DeFi by{" "}
@@ -301,6 +308,37 @@ export function HomePage() {
             </p>
           </Panel>
         )}
+
+        <Panel className="mt-4 flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-gold/30 bg-gold/10 font-mono text-[10px] font-semibold text-gold">
+              MCP
+            </span>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <SectionLabel>MCP Server</SectionLabel>
+                <Badge tone="gold">Claude Desktop + Cursor</Badge>
+              </div>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">
+                AI agents can discover{" "}
+                <code className="rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[11px] text-gold">
+                  post_defi_consultation
+                </code>{" "}
+                through the official Model Context Protocol SDK and post a
+                500-Luna question from their funded balance.
+              </p>
+            </div>
+          </div>
+          <a
+            href="https://github.com/onyebuchidaniel60/levelbreak-arena/tree/main/mcp-server"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-body"
+          >
+            MCP setup
+            <ExternalLinkIcon className="h-3.5 w-3.5" />
+          </a>
+        </Panel>
       </section>
 
       {!me && authRequired ? (

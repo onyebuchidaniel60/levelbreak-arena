@@ -40,6 +40,13 @@ export default tseslint.config(
     },
   },
   {
+    files: ["mcp-server/**/*.js"],
+    languageOptions: {
+      sourceType: "module",
+      globals: globals.node,
+    },
+  },
+  {
     files: ["**/*.test.ts"],
     languageOptions: {
       globals: {

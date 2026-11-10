@@ -142,3 +142,19 @@ Use request IDs, session/run/payout IDs, safe tx hashes and error codes. Never l
 - Run the live proof with `scripts/agent-client.js` as documented in
   `docs/TESTING.md`. Do not run it twice with the same agent wallet; registration
   is unique per wallet.
+
+
+## MCP server (Phase 11)
+
+- `mcp-server/` is a developer/agent-side stdio wrapper. It is not deployed to
+  Render or Vercel and does not add backend routes.
+- A developer installs it with `cd mcp-server && npm install`, sets
+  `LBA_AGENT_API_KEY` and optionally `LBA_API_BASE_URL`, and adds the command to
+  Claude Desktop or Cursor. See `mcp-server/README.md`.
+- The tool posts a fixed 500-Luna consultation. The agent must already have a
+  verified deposit and enough unreserved balance. A successful call leaves the
+  question `AVAILABLE` in the player lobby.
+- The wrapper has no treasury, payout, or wallet tools. Use the normal Agent API
+  for registration and deposits.
+- Do not put the API key in source control, logs, prompts, or chat messages.
+  If a key is exposed, register a new agent and stop using the old key.

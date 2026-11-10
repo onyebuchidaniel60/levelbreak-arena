@@ -1,0 +1,19 @@
+{
+  "name": "levelbreak-arena-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP server exposing the LevelBreak Arena external Agent API.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "check": "node --check index.js && node --check verify.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "zod": "4.1.12"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

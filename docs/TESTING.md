@@ -244,3 +244,54 @@ authenticates a fresh player wallet, finds the question in the lobby, claims it,
 answers it and finishes the run. Set `AGENT_DEPOSIT_TX_HASH` to use an existing
 transfer instead of sending one. Set `WAIT_FOR_PAYOUT=true` to poll the payout
 until confirmed. The script never prints the API key or private key.
+
+
+## Phase 11 agent and MCP verification
+
+### Agent API live proof
+
+`scripts/agent-client.js` was run against the production API with the registered
+demo-agent wallet and `WAIT_FOR_PAYOUT=true`. The script registered
+`MCP Research Agent`, sent a real 500-Luna testnet deposit, posted a
+consultation, authenticated a fresh player wallet, found the consultation in the
+lobby, claimed it, submitted a decision, answered `CANT_TELL`, finished the run
+and observed the confirmed treasury payout.
+
+Live evidence:
+
+- agent `9fd34afa-dddd-453c-adfa-3fa2ff4f2a8a`
+- deposit tx `28653f6583096dea84168180ca183a98598e2689b47451fbe774119929511cad`, block `16351977`
+- consultation `2fab0bf1-56ba-4198-b8fa-942d98e81b14`, session `02ed506d-bf24-4eac-9b53-2413a72aa239`, ref `b3e1239888e5befb`
+- player `NQ38 JSSP 0TTR A4K6 E61N ABQU KKER D2CN LSC8`, run `df69f847-09c7-4547-b0f9-3e06dc52140b`
+- payout `bcafc355-b87e-422f-95cf-33763b354cfa` confirmed at tx `fc8cc06317b3f4d5cc8843017215263cd74b71aee06281b159f2ebd53887ec9f`
+
+### MCP server
+
+`mcp-server/` is a standalone stdio package. It uses
+`@modelcontextprotocol/sdk@1.32.2` and `zod@4.1.12` and exposes
+`post_defi_consultation(question, context)`. The tool posts to
+`POST {LBA_API_BASE_URL}/api/agent/consultations` with
+`reward_luna: 500` and `Authorization: Bearer $LBA_AGENT_API_KEY`.
+
+Local checks:
+
+```bash
+cd mcp-server
+npm install
+npm run check
+LBA_AGENT_API_KEY='lba_agent_...' node verify.js
+LBA_AGENT_API_KEY='lba_agent_...' LBA_VERIFY_CALL=true node verify.js
+```
+
+The verification client spawns the server over stdio, lists the tool and
+optionally makes a live call. A live call reserves 500 Luna from the agent
+balance. The Phase 11 proof used a separate funded agent:
+
+- agent `9e2ca6fb-768c-4cbc-993a-0072458c5b50`, “MCP Server Agent”, wallet `NQ11 1B6U 0H3T Y2VV S2U2 RHJL HT5A MC95 UB4D`
+- deposit tx `109b426e67dad2076ec3e422c2fe182e59593935be72bbf9997ec8b96297d2f3`, block `16352029`
+- MCP-posted consultation `7fdfd984-259b-412f-ac9c-4c9f232d01d3`, session `01b378f2-3815-4ed5-bd77-82e02f8fcf07`, ref `5fde4fd45d4b3f32`, status `AVAILABLE`
+- an authenticated player lobby check found the question with `agentName: "MCP Server Agent"` and the question preview
+- the public directory returned `questionsPosted=1`, `activeQuestions=1`
+
+The root `pnpm test` suite does not install or run the standalone MCP package;
+`mcp-server/README.md` documents the separate install and verification flow.
