@@ -1,15 +1,15 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 9 November 2026
-**Current phase:** Phase 12 — final UI polish and mobile readiness implemented; deployment pending
-**Status:** Phase 12 local verification passed; deployment pending. Phase 11 complete. Phase 13 NOT STARTED.
+**Current phase:** Phase 12 — final UI polish and mobile readiness deployed and live-verified; awaiting operator acceptance
+**Status:** Phase 12 PASS / DEPLOYED / LIVE VERIFIED. Phase 11 complete. Phase 13 NOT STARTED.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `d8513e8` (Phase 11 Agent testing and MCP server). Production deployment `https://levelbreak-arena-73lgvkar1-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. Phase 10 UI tests cover the agent lobby card, game label, Agent submission source and Active Agents directory at 320px and 1280px. Phase 11 adds MCP server landing/docs mentions and a live-agent directory with three agents. A live Chromium check confirmed the MCP badge/section/`post_defi_consultation` copy, both Phase 11 agents, the MCP-posted lobby question (“Request from MCP Server Agent”), the docs MCP section, and no 1280px overflow.
+- Vercel deployed app-code commit: `4c512c7` (Phase 12 final UI polish and mobile readiness). Production deployment `https://levelbreak-arena-augv8cwk7-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. A live Chromium check at 390px (and 375px overflow check) confirmed the premium `/agents` directory with all three agents, `Verified MCP`, `post_defi_consultation`, the landing **View directory** action, and the live “Request from MCP Server Agent” question in the lobby. No horizontal overflow at either width; no Vercel checkpoint.
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `d8513e8` (Phase 11 feature commit), deploy `dep-dbp5u1p42hec73d4qku0`, live 2026-11-10T00:02Z. `/health/live` 200 and `/health/ready` 200. The worker was enabled only for the Phase 11 agent-client proof and then disabled; `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- Render deployed code: `4c512c7` (Phase 12 feature commit), deploy `dep-dbp6idlg1s2s73c225jg`, live 2026-11-10T00:45Z. `/health/live` 200 and `/health/ready` 200. No backend code changed in Phase 12; `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
 - Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied to production at 2026-11-09T06:51:48.893Z. Phase 11 adds no migration.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
@@ -38,7 +38,7 @@
 
 ## Phase 12 — Final UI polish and mobile readiness (10 November 2026)
 
-**Status:** IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING.
+**Status:** IMPLEMENTED / DEPLOYED / LIVE VERIFIED.
 
 - Added a dedicated public `/agents` directory page:
   - premium bento hero with live marketplace telemetry: registered agents, questions posted, open questions, rewards paid;
@@ -70,8 +70,16 @@
   - `pnpm test` passed: 46 unit tests, 50 Playwright tests, 6 deployed tests skipped.
   - New `tests/e2e/phase12.mobile.spec.ts`: 7 tests covering landing, `/agents`, lobby, decision, Agent Request, confirmed payout + off-ramp modal, and history at 375px and 390px; asserts no horizontal overflow, 44px decision/option targets, and 16px card/modal edges.
   - 390px screenshots generated in `test-results/phase12/`: `landing-390.png`, `agents-390.png`, `lobby-390.png`, `game-decision-390.png`, `game-agent-request-390.png`, `game-payout-modal-390.png`, `history-390.png`.
-- Deployment: **pending** for this commit. The live service currently runs the Phase 11 app code (`d8513e8`); the Phase 12 frontend will be deployed with this commit.
-- **Single next task:** deploy Phase 12, verify the live `/agents` page and 390px screens, record the final deployment, and await operator acceptance. Do not begin Phase 13.
+- Deployment: **COMPLETE**.
+  - Feature commit `4c512c7` — `style: mobile responsiveness and agent marketplace polish`.
+  - Render deploy `dep-dbp6idlg1s2s73c225jg`, live 2026-11-10T00:45Z; `/health/live` 200, `/health/ready` 200.
+  - Vercel production deployment `https://levelbreak-arena-augv8cwk7-uhhh2.vercel.app`, alias `https://levelbreak-arena.vercel.app`.
+  - Live 390px Chromium check: `/agents` shows “The agent directory.”, `MCP Server Agent`, `MCP Research Agent`, `Alpha Research Bot`, `Verified MCP` and `post_defi_consultation`; the landing page shows the MCP mention and **View directory**; the lobby shows “Request from MCP Server Agent” and the MCP question. No overflow at 375px or 390px.
+  - Final flags: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- 390px screenshots:
+  - Mock/state suite: `test-results/phase12/landing-390.png`, `agents-390.png`, `lobby-390.png`, `game-decision-390.png`, `game-agent-request-390.png`, `game-payout-modal-390.png`, `history-390.png`.
+  - Live deployed suite: `test-results/phase12/live-agents-390.png`, `live-home-390.png`, `live-lobby-390.png`.
+- **Single next task:** Await operator acceptance of Phase 12. Do not begin Phase 13.
 
 ## Phase 11 — Agent testing and MCP integration (10 November 2026)
 
