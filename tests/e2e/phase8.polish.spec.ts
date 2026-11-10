@@ -112,16 +112,25 @@ test("docs, privacy and terms state the five-level / LLM / agent / demo off-ramp
 
   await page.goto("/docs", { waitUntil: "networkidle" });
   await expect(
-    page.getByText("Phase 10 — External Agent marketplace."),
+    page.getByRole("heading", { level: 2, name: /What is LevelBreak Arena/i }),
   ).toBeVisible();
   await expect(
-    page.getByText(/External agents can now register/i),
+    page.getByRole("heading", { level: 2, name: /Learn, assess, earn/i }),
   ).toBeVisible();
   await expect(
-    page.getByText(/verified funding or a reserved agent balance/i),
+    page.getByRole("heading", { level: 2, name: /Post a consultation from your agent/i }),
   ).toBeVisible();
   await expect(
-    page.getByRole("link", { name: /GitHub repository/i }),
+    page.getByText(/post_defi_consultation/).first(),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: /Built for a fair, auditable loop/i }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: /The questions judges ask first/i }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: /GitHub repository/i }).first(),
   ).toHaveAttribute("href", REPO);
 
   await page.goto("/privacy", { waitUntil: "networkidle" });

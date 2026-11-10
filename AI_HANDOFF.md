@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 10 November 2026
-**Current phase:** Phase 17 — adversarial security regression and v1.0.0 final release deployed; release tag recorded
-**Status:** Phase 17 PASS / DEPLOYED / LIVE VERIFIED / RELEASE TAGGED. Phase 16 complete.
+**Current phase:** Phase 18 — world-class copywriting and comprehensive `/docs` hub; implementation and local verification passed, deployment pending
+**Status:** Phase 18 LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING. Phase 17 v1.0.0 complete.
 
 ## Current deployment and wallets
 
@@ -35,6 +35,87 @@
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
 - Operator approval of final visual design: **GIVEN — Phase 14 operator references, 10 November 2026**. Direction 1 was approved on 4 November 2026 for Phases 7–13.7 and is now visually superseded.
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`, `AUTO_REPLENISH_SESSIONS=true` (the explicitly approved testnet-only replenisher).
+
+## Phase 18 — Agent Economy copy and comprehensive docs hub (10 November 2026)
+
+**Status:** LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING.
+
+### Copywriting
+
+- Landing hero:
+  - headline: **“The AI Agent Economy Needs Your Judgment.”**
+  - subheadline: “LevelBreak Arena is a DeFi training ground and micro-task
+    marketplace. Prove your risk intelligence to AI agents and earn real
+    NIM.”
+  - primary CTA: **Enter the Arena**; secondary CTA: **Read the Docs**.
+  - added the three-step **How it works** loop: Learn DeFi concepts → Prove
+    your skill → Agents pay for your judgment.
+  - Proof-of-Learning copy now explains RLHF and the agent-feedback loop.
+- Lobby:
+  - title: **Active Missions**;
+  - subtitle: “Funded by external AI agents. Claim a session, answer the
+    prompt, and earn testnet NIM.”
+  - empty state: “Preparing a new mission.” / “No active mission available.”
+- Game:
+  - agent identity: “Agent Zeta (Simulated) needs your assessment on this
+    scenario.” or `<agent> (Verified MCP) needs your assessment on this
+    scenario.`
+  - CTA: **Provide Assessment & Earn 500 Luna**.
+  - confirmed payout heading **Reward Confirmed.** with “Your testnet NIM is
+    in your wallet.”
+- Fiat modal: added “In production, this connects directly to the Nimiq Pay
+  fiat off-ramp, allowing instant cash-out to your local bank.” inside the
+  demo-only disclosure.
+
+### Documentation hub
+
+`/docs` is now a full documentation site with:
+
+- sticky desktop sidebar / horizontally scrollable mobile section navigation;
+- Introduction covering RLHF and why agents need human judgment;
+- For Players: mission loop, 500-Luna reward, zero for skips, 2,500-Luna cap
+  and treasury payout explanation;
+- For AI Agents: MCP server setup, `post_defi_consultation`, Agent API
+  register/deposit/post endpoints and real code examples;
+- Architecture & Security: React/Fastify/Nimiq stack, funded-session and
+  idempotency controls, signature auth, treasury custody disclosure and
+  links to privacy, terms and the security model;
+- FAQ: testnet rationale, difference from a standard quiz, smart-contract
+  status and the Verified MCP label;
+- working anchors and internal/external links, with contained code-block
+  scrolling and no horizontal page overflow at 320/375/390px.
+
+### Verification
+
+```text
+pnpm lint          passed
+pnpm typecheck     passed
+pnpm build         passed
+pnpm test          63 unit passed; 60 Playwright passed; 6 deployed skipped
+pnpm test:integration (local PostgreSQL) 32 passed
+```
+
+Playwright covers the new hero and loop, Active Missions heading, agent
+assessment language, assessment CTA, Reward Confirmed copy, docs section
+headings, every docs anchor target, no empty links, code-block contents and
+320/375/390 overflow. Screenshots:
+
+```text
+test-results/phase14/landing-1440.png
+test-results/phase14/landing-390.png
+test-results/phase14/support-docs-1440.png
+test-results/phase14/support-docs-390.png
+```
+
+### Deployment
+
+- Feature commit will use the exact message
+  `feat: polished copywriting and comprehensive docs hub`.
+- Deployment to Vercel is pending this commit; Render health will be
+  rechecked even though no backend code changed.
+- **Single next task:** deploy the copy/docs commit, verify the live landing,
+  Active Missions, game/payout copy and `/docs` at 1440px and 390px, update
+  this handoff with the deployed SHA/URL, commit the release record, and stop.
 
 ## Phase 17 — Adversarial security regression and v1.0.0 release (10 November 2026)
 

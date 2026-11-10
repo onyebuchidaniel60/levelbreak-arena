@@ -65,20 +65,20 @@ export function HomePage() {
               <Badge tone="neutral">MCP server</Badge>
             </div>
 
-            <h1 className="mt-5 max-w-[13ch] text-balance text-[2.6rem] font-bold leading-[0.98] tracking-[-0.05em] text-ink sm:text-6xl lg:text-[4.4rem]">
-              Learn DeFi by{" "}
-              <span className="relative inline-block whitespace-nowrap text-coral">
+            <h1 className="mt-5 max-w-[16ch] text-balance text-[2.45rem] font-bold leading-[0.98] tracking-[-0.05em] text-ink sm:text-5xl lg:text-[4.15rem]">
+              The AI Agent Economy Needs Your{" "}
+              <span className="relative inline-block text-coral">
                 <span
                   aria-hidden="true"
                   className="absolute inset-x-0 bottom-0.5 h-3 -rotate-1 rounded-sm bg-gold/80 sm:bottom-1 sm:h-4"
                 />
-                <span className="relative">breaking it.</span>
+                <span className="relative">Judgment.</span>
               </span>
             </h1>
             <p className="mt-5 max-w-xl text-[15px] leading-7 text-muted sm:text-base">
-              Five simulated market scenarios. One LLM-assisted agent. Real
-              testnet NIM for accepted judgment calls. No real DeFi position is
-              ever opened.
+              LevelBreak Arena is a DeFi training ground and micro-task
+              marketplace. Prove your risk intelligence to AI agents and earn
+              real NIM.
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
@@ -91,7 +91,7 @@ export function HomePage() {
                   to={me.activeRunId ? `/play/${me.activeRunId}` : "/play"}
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-coral bg-coral px-6 py-3 text-sm font-semibold text-ink transition-colors hover:border-[#ff7457] hover:bg-[#ff7457] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coral focus-visible:ring-offset-2"
                 >
-                  {me.activeRunId ? "Resume active run" : "Enter the arena"}
+                  {me.activeRunId ? "Resume Active Run" : "Enter the Arena"}
                   <ArrowRightIcon className="h-4 w-4" />
                 </Link>
               ) : wallet.status === "ready" ? (
@@ -101,7 +101,7 @@ export function HomePage() {
                   onClick={() => void signIn()}
                   disabled={isSigningIn}
                 >
-                  {isSigningIn ? "Waiting for wallet…" : "Connect with Nimiq Pay"}
+                  {isSigningIn ? "Waiting for wallet…" : "Enter the Arena"}
                   <ArrowRightIcon className="h-4 w-4" />
                 </Button>
               ) : (
@@ -109,15 +109,15 @@ export function HomePage() {
                   to="/play"
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-coral bg-coral px-6 py-3 text-sm font-semibold text-ink transition-colors hover:border-[#ff7457] hover:bg-[#ff7457]"
                 >
-                  Open the lobby
+                  Enter the Arena
                   <ArrowRightIcon className="h-4 w-4" />
                 </Link>
               )}
               <Link
-                to="/how-it-works"
+                to="/docs"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-ink/15 bg-paper px-5 py-3 text-sm font-semibold text-ink transition-colors hover:border-ink/30 hover:bg-cream"
               >
-                How it works
+                Read the Docs
               </Link>
             </div>
             {signInError ? (
@@ -277,6 +277,66 @@ export function HomePage() {
         </div>
       </section>
 
+      <section aria-labelledby="how-it-works-heading" className="space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <SectionLabel>The loop</SectionLabel>
+            <h2
+              id="how-it-works-heading"
+              className="mt-1 text-2xl font-bold tracking-[-0.035em] text-ink sm:text-[1.75rem]"
+            >
+              How it works
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">
+              Three steps from learning DeFi to earning from your judgment.
+            </p>
+          </div>
+          <Link
+            to="/docs"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-ink/15 bg-paper px-4 py-1.5 text-xs font-semibold text-ink/70 transition-colors hover:border-ink/30 hover:text-ink"
+          >
+            Read the player guide
+            <ArrowRightIcon className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          {[
+            {
+              number: "01",
+              title: "Learn DeFi concepts",
+              body: "Work through five simulated risk scenarios: stablecoins, liquidity, yield, oracles and liquidation cascades.",
+              tone: "lilac" as const,
+            },
+            {
+              number: "02",
+              title: "Prove your skill",
+              body: "Make a decision, review the bundled evidence, and submit a structured risk assessment.",
+              tone: "sky" as const,
+            },
+            {
+              number: "03",
+              title: "Agents pay for your judgment",
+              body: "Accepted assessments earn 500 Luna from the operator treasury. Skipping earns zero.",
+              tone: "gold" as const,
+            },
+          ].map((step) => (
+            <Panel
+              key={step.number}
+              tone={step.tone}
+              className="relative overflow-hidden rounded-[24px] p-5"
+            >
+              <span className="numeric text-[11px] font-semibold tracking-[0.16em] text-ink/45">
+                Step {step.number}
+              </span>
+              <h3 className="mt-2 text-lg font-bold tracking-[-0.03em] text-ink">
+                {step.title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-ink/65">{step.body}</p>
+            </Panel>
+          ))}
+        </div>
+      </section>
+
       <section
         aria-label="Proof-of-Learning"
         className="panel panel-ink relative overflow-hidden rounded-[30px] p-5 sm:p-7 lg:p-8"
@@ -291,13 +351,14 @@ export function HomePage() {
               Proof-of-Learning
             </p>
             <h2 className="mt-3 max-w-3xl text-balance text-2xl font-bold leading-tight tracking-[-0.04em] text-cream sm:text-3xl">
-              Your judgment is the product. The arena makes it legible.
+              Your judgment is the feedback AI agents need.
             </h2>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-cream/60">
-              AI Agents need human intuition to calibrate their risk models. By
-              conquering these sectors, you prove you have the baseline DeFi
-              literacy required to provide valuable judgment calls. Agents pay
-              you in NIM for your insights.
+              AI agents improve through reinforcement learning from human
+              feedback (RLHF). LevelBreak Arena turns that feedback into a
+              funded micro-task: you assess the risk, the agent learns from
+              your signal, and you earn NIM for the judgment. The arena makes
+              your DeFi literacy legible, one decision at a time.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-2 lg:w-[340px]">
@@ -452,7 +513,7 @@ export function HomePage() {
                   to={me.activeRunId ? `/play/${me.activeRunId}` : "/play"}
                   className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-positive/25 bg-positive/[0.09] px-3.5 py-1.5 text-xs font-semibold text-positive"
                 >
-                  {me.activeRunId ? "Resume run" : "Find a session"}
+                  {me.activeRunId ? "Resume run" : "Find a mission"}
                   <ArrowRightIcon className="h-3.5 w-3.5" />
                 </Link>
                 <Link
@@ -605,7 +666,7 @@ export function HomePage() {
             to={me?.activeRunId ? `/play/${me.activeRunId}` : "/play"}
             className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full border border-gold bg-gold px-5 py-2.5 text-sm font-bold text-ink transition-colors hover:bg-[#ffd45c]"
           >
-            {me?.activeRunId ? "Resume run" : "Open the lobby"}
+            {me?.activeRunId ? "Resume run" : "Enter the Arena"}
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
         </div>

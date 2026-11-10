@@ -306,7 +306,7 @@ test("Phase 8 five-level play-through and confirmed 2,000 Luna payout", async ({
       if (index === 0) {
         await expect(
           page.getByText(
-            "Agent Zeta (Simulated) is requesting human risk assessment.",
+            "Agent Zeta (Simulated) needs your assessment on this scenario.",
           ),
         ).toBeVisible();
       }
@@ -327,7 +327,7 @@ test("Phase 8 five-level play-through and confirmed 2,000 Luna payout", async ({
 
       if (level.action === "ANSWER") {
         await page
-          .getByRole("button", { name: /Submit Judgment & Earn 500 Luna/i })
+          .getByRole("button", { name: /Provide Assessment & Earn 500 Luna/i })
           .click();
       } else {
         await page.getByRole("button", { name: /Skip/i }).click();
@@ -412,7 +412,7 @@ test("Phase 8 five-level play-through and confirmed 2,000 Luna payout", async ({
     expect(payout!.txHash).toMatch(/^[0-9a-f]{64}$/);
 
     await expect(
-      page.getByRole("heading", { name: /Paid on-chain/i }),
+      page.getByRole("heading", { name: /Reward Confirmed/i }),
     ).toBeVisible({ timeout: 30_000 });
     await expect(
       page.getByRole("button", { name: /Withdraw to Fiat/i }),

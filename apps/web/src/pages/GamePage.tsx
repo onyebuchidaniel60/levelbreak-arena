@@ -449,8 +449,8 @@ export function GamePage() {
                     </p>
                     <p className="mt-0.5 break-words text-xs leading-5 text-cream/55">
                       {consultation.agentName
-                        ? "Verified external agent · MCP integration"
-                        : "Agent Zeta (Simulated) is requesting human risk assessment."}
+                        ? `${consultation.agentName} (Verified MCP) needs your assessment on this scenario.`
+                        : "Agent Zeta (Simulated) needs your assessment on this scenario."}
                     </p>
                   </div>
                 </div>
@@ -506,7 +506,7 @@ export function GamePage() {
                     }}
                     disabled={!selectedAnswerKey || respondMutation.isPending}
                   >
-                    Submit Judgment & Earn {formatLuna(consultation.rewardLuna)} Luna
+                    Provide Assessment & Earn {formatLuna(consultation.rewardLuna)} Luna
                   </Button>
                   <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink/15 pt-4">
                     <p className="max-w-sm text-xs leading-5 text-ink/55">
@@ -560,12 +560,15 @@ export function GamePage() {
                 </div>
                 <h2 className="mt-2 text-2xl font-bold tracking-[-0.04em] text-ink sm:text-3xl">
                   {payoutConfirmed
-                    ? "Paid on-chain."
+                    ? "Reward Confirmed."
                     : run.state === "COMPLETED_NO_REWARD"
                       ? "Complete — no reward."
                       : "Reward recorded. Payout pending."}
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-muted">
+                  {payoutConfirmed
+                    ? "Your testnet NIM is in your wallet. "
+                    : ""}
                   {run.responses.length} of {totalLevels} consultation actions
                   recorded. {formatNim(run.earnedLuna)} NIM earned from accepted
                   responses.

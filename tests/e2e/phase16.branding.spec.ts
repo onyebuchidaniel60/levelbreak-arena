@@ -126,10 +126,10 @@ test.describe("Phase 16 branding and empty lobby", () => {
     await page.goto("/play");
 
     await expect(
-      page.getByRole("heading", { level: 1, name: /Funded sessions/i }),
+      page.getByRole("heading", { level: 1, name: /Active Missions/i }),
     ).toBeVisible();
     await expect(
-      page.getByText("Preparing a new funded session."),
+      page.getByText("Preparing a new mission."),
     ).toBeVisible();
     await expect(page.getByTestId("empty-lobby-message")).toHaveText(
       EMPTY_MESSAGE,

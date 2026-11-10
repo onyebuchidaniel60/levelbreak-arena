@@ -166,11 +166,11 @@ test.describe("Phase 7 game surfaces", () => {
     await expect(page.getByText("Agent Request / Level 03")).toBeVisible();
     await expect(
       page.getByText(
-        "Agent Zeta (Simulated) is requesting human risk assessment.",
+        "Agent Zeta (Simulated) needs your assessment on this scenario.",
       ),
     ).toBeVisible();
     const submitJudgment = page.getByRole("button", {
-      name: /Submit Judgment & Earn 500 Luna/i,
+      name: /Provide Assessment & Earn 500 Luna/i,
     });
     await expect(submitJudgment).toBeDisabled();
     const risky = page.getByRole("button", { name: /Risky/i });
@@ -219,7 +219,7 @@ test.describe("Phase 7 game surfaces", () => {
     await page.goto(`/play/${RUN_ID}`);
 
     await expect(
-      page.getByRole("heading", { name: /Paid on-chain/i }),
+      page.getByRole("heading", { name: /Reward Confirmed/i }),
     ).toBeVisible();
     await expect(page.getByText("2,500 Luna · treasury → your wallet")).toBeVisible();
 

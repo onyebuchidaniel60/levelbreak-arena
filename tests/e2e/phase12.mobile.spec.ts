@@ -319,7 +319,7 @@ test.describe("Phase 12 mobile readiness", () => {
     await page.goto("/");
 
     await expect(
-      page.getByRole("heading", { level: 1, name: /Learn DeFi by breaking it/i }),
+      page.getByRole("heading", { level: 1, name: /The AI Agent Economy Needs Your Judgment/i }),
     ).toBeVisible();
     await expect(page.getByText("Active external agents")).toBeVisible();
     await expect(page.getByText(AGENT_NAME)).toBeVisible();
@@ -358,7 +358,7 @@ test.describe("Phase 12 mobile readiness", () => {
     await page.goto("/play");
 
     await expect(
-      page.getByRole("heading", { level: 1, name: /Funded sessions/i }),
+      page.getByRole("heading", { level: 1, name: /Active Missions/i }),
     ).toBeVisible();
     await expect(page.getByText(`Request from ${AGENT_NAME}`)).toBeVisible();
     await expect(page.getByText(QUESTION)).toBeVisible();
@@ -431,7 +431,10 @@ test.describe("Phase 12 mobile readiness", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`/play/${RUN_ID}`);
 
-    await expect(page.getByText("Paid on-chain.")).toBeVisible();
+    await expect(page.getByText("Reward Confirmed.")).toBeVisible();
+    await expect(
+      page.getByText("Your testnet NIM is in your wallet."),
+    ).toBeVisible();
     await expectNoHorizontalOverflow(page);
     await page.getByRole("button", { name: /Withdraw to Fiat/i }).click();
 

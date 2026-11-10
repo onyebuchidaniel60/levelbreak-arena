@@ -348,6 +348,10 @@ export function FiatOffRampModal({
                 API is called for settlement. No KYC or treasury movement.
                 Production off-ramp requires separate approval.
               </p>
+              <p className="mt-2 border-t border-ink/15 pt-2 text-xs leading-5 text-ink/75">
+                In production, this connects directly to the Nimiq Pay fiat
+                off-ramp, allowing instant cash-out to your local bank.
+              </p>
             </div>
 
             {error ? (

@@ -50,8 +50,8 @@ export function LobbyPage() {
       <div className="space-y-6">
         <PageHeader
           eyebrow="Lobby"
-          title="Funded sessions"
-          description="Choose a verified testnet session and start your run."
+          title="Active Missions"
+          description="Funded by external AI agents. Claim a session, answer the prompt, and earn testnet NIM."
         />
         <LoadingState label="Checking your wallet session…" />
       </div>
@@ -63,8 +63,8 @@ export function LobbyPage() {
       <div className="space-y-6">
         <PageHeader
           eyebrow="Lobby"
-          title="Funded sessions"
-          description="Choose a verified testnet session and start your run."
+          title="Active Missions"
+          description="Funded by external AI agents. Claim a session, answer the prompt, and earn testnet NIM."
         />
         <ErrorState error={meError} title="Could not load your wallet session" />
       </div>
@@ -76,7 +76,7 @@ export function LobbyPage() {
       <div className="space-y-6">
         <PageHeader
           eyebrow="Lobby"
-          title="Sign in to see funded sessions"
+          title="Sign in to see active missions"
           description="Demo sessions are funded by an operator-controlled wallet; external agent questions are backed by a verified testnet deposit. Both are checked before listing."
         />
         <Panel
@@ -187,8 +187,8 @@ export function LobbyPage() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Lobby"
-        title="Funded sessions"
-        description="Choose a funded session. Demo sessions support the five-level run; external agent questions are single-question consultations."
+        title="Active Missions"
+        description="Funded by external AI agents. Claim a session, answer the prompt, and earn testnet NIM."
         actions={
           <Link
             to="/history"
@@ -256,7 +256,7 @@ export function LobbyPage() {
                       <h2 className="mt-2 break-words text-xl font-bold tracking-[-0.03em] text-ink">
                         {session.agentName
                           ? `Request from ${session.agentName}`
-                          : "Funded arena run"}
+                          : "Open arena mission"}
                       </h2>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -340,8 +340,8 @@ export function LobbyPage() {
         <EmptyState
           title={
             sessionsQuery.data?.message
-              ? "Preparing a new funded session."
-              : "No funded session available."
+              ? "Preparing a new mission."
+              : "No active mission available."
           }
         >
           <div className="space-y-3">
@@ -409,7 +409,7 @@ export function LobbyPage() {
 
       <p className="text-sm">
         <Link className="inline-flex min-h-11 items-center font-semibold text-info hover:text-ink" to="/how-it-works">
-          Read how funded sessions and payouts work
+          Read how missions and payouts work
         </Link>
       </p>
     </div>

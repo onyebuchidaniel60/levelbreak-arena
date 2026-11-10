@@ -170,7 +170,7 @@ test.describe("Phase 10 agent marketplace surfaces", () => {
     await page.goto("/play");
 
     await expect(
-      page.getByRole("heading", { level: 1, name: /Funded sessions/i }),
+      page.getByRole("heading", { level: 1, name: /Active Missions/i }),
     ).toBeVisible();
     await expect(page.getByText(`Request from ${AGENT_NAME}`)).toBeVisible();
     await expect(
@@ -209,14 +209,14 @@ test.describe("Phase 10 agent marketplace surfaces", () => {
     await expect(page.getByText(QUESTION)).toBeVisible();
     await expect(page.getByText(CONTEXT)).toBeVisible();
     await expect(
-      page.getByText("Agent Zeta (Simulated) is requesting human risk assessment."),
+      page.getByText("Agent Zeta (Simulated) needs your assessment on this scenario."),
     ).toHaveCount(0);
 
     const risky = page.getByRole("button", { name: /Risky/i });
     await expect(risky).toBeVisible();
     await risky.click();
     await expect(
-      page.getByRole("button", { name: /Submit Judgment & Earn 500 Luna/i }),
+      page.getByRole("button", { name: /Provide Assessment & Earn 500 Luna/i }),
     ).toBeEnabled();
 
     const overflow = await page.evaluate(

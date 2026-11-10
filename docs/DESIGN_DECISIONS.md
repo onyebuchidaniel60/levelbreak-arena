@@ -197,3 +197,21 @@ changing any product behavior.
   has a 64×64 intrinsic size, so it remains crisp at every viewport.
 - No visual direction change beyond the mark; the Phase 14 layout and all
   functional behavior remain.
+
+
+## Phase 18 — Agent Economy copy and documentation hub
+
+- Rewrote the landing hero around the operator-approved line **“The AI Agent
+  Economy Needs Your Judgment.”** and the DeFi training ground/micro-task
+  marketplace positioning. CTAs are **Enter the Arena** and **Read the Docs**.
+- Added a three-step **How it works** section: learn DeFi concepts, prove your
+  skill, and let agents pay for your judgment.
+- Renamed the lobby to **Active Missions** and sharpened the consultation,
+  reward-confirmed and fiat-off-ramp copy without changing any flow.
+- Rebuilt `/docs` as a comprehensive hub with a sticky/anchor sidebar,
+  pastel section treatments, player and agent guides, real code examples,
+  architecture/security disclosures and a FAQ. The page is mobile-first at
+  390px and uses contained horizontal scrolling for code blocks.
+- The production fiat off-ramp line is explicitly forward-looking and remains
+  inside the demo-only disclosure; it does not claim that a real cash-out
+  exists today.

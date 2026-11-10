@@ -564,3 +564,40 @@ pnpm test          63 unit passed; 60 Playwright passed; 6 deployed skipped
 pnpm test:integration (with local PostgreSQL) 32 passed
 npm --prefix mcp-server run check             passed
 ```
+
+
+## Phase 18 copywriting and documentation hub
+
+The copy changes are covered by Playwright, not unit tests:
+
+- the landing heading now matches **“The AI Agent Economy Needs Your
+  Judgment.”**;
+- the three-step **How it works** loop is visible;
+- the lobby heading is **Active Missions**;
+- the agent-request sentence, assessment CTA and **Reward Confirmed**
+  payout copy are present;
+- the `/docs` hub exposes the Introduction, For Players, For AI Agents,
+  Architecture & Security and FAQ sections;
+- every anchor link on `/docs` resolves to exactly one section, and no link is
+  empty or `#`;
+- the docs page has no horizontal overflow at 320px, 375px or 390px;
+- code blocks contain the MCP configuration and consultation example.
+
+Screenshots:
+
+```text
+test-results/phase14/support-docs-1440.png
+test-results/phase14/support-docs-390.png
+test-results/phase14/landing-1440.png
+test-results/phase14/landing-390.png
+```
+
+Final local verification:
+
+```text
+pnpm lint          passed
+pnpm typecheck     passed
+pnpm build         passed
+pnpm test          63 unit passed; 60 Playwright passed; 6 deployed skipped
+pnpm test:integration (local PostgreSQL) 32 passed
+```

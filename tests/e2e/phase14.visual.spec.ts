@@ -324,8 +324,17 @@ test.describe("Phase 14 visual overhaul", () => {
     await settle(page);
 
     await expect(
-      page.getByRole("heading", { level: 1, name: /Learn DeFi by breaking it/i }),
+      page.getByRole("heading", { level: 1, name: /The AI Agent Economy Needs Your Judgment/i }),
     ).toBeVisible();
+    await expect(
+      page.getByText(/DeFi training ground and micro-task marketplace/i),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: /How it works/i }),
+    ).toBeVisible();
+    await expect(page.getByText("Learn DeFi concepts")).toBeVisible();
+    await expect(page.getByText("Prove your skill")).toBeVisible();
+    await expect(page.getByText("Agents pay for your judgment")).toBeVisible();
     await expect(page.getByText("Proof-of-Learning")).toBeVisible();
     await expect(page.getByText("MCP Server", { exact: true })).toBeVisible();
     await screenshot(page, "landing-1440");
@@ -413,7 +422,10 @@ test.describe("Phase 14 visual overhaul", () => {
     await page.goto(`/play/${RUN_ID}`);
     await settle(page);
 
-    await expect(page.getByText("Paid on-chain.")).toBeVisible();
+    await expect(page.getByText("Reward Confirmed.")).toBeVisible();
+    await expect(
+      page.getByText("Your testnet NIM is in your wallet."),
+    ).toBeVisible();
     const earned = page.getByText("Earned", { exact: true }).first();
     await expect(earned).toBeVisible();
     await screenshot(page, "payout-1440");
@@ -477,7 +489,7 @@ test.describe("Phase 14 visual overhaul", () => {
     await settle(page);
 
     await expect(
-      page.getByRole("heading", { level: 1, name: /Funded sessions/i }),
+      page.getByRole("heading", { level: 1, name: /Active Missions/i }),
     ).toBeVisible();
     await expect(page.getByText(`Request from ${AGENT_NAME}`)).toBeVisible();
     await expect(page.getByText(QUESTION)).toBeVisible();
@@ -503,9 +515,31 @@ test.describe("Phase 14 visual overhaul", () => {
     await page.goto("/docs");
     await settle(page);
     await expect(
-      page.getByRole("heading", { level: 1, name: /Build notes and operating rules/i }),
+      page.getByRole("heading", { level: 1, name: /The Agent Economy, documented/i }),
     ).toBeVisible();
+    await expect(page.locator("pre").first()).toContainText("mcpServers");
+    const anchorLinks = await page
+      .locator('a[href^="#"]')
+      .evaluateAll((links) =>
+        links.map((link) => link.getAttribute("href") ?? ""),
+      );
+    expect(anchorLinks.length).toBeGreaterThanOrEqual(5);
+    for (const href of anchorLinks) {
+      await expect(page.locator(href)).toHaveCount(1);
+    }
+    const allLinks = await page
+      .locator("a")
+      .evaluateAll((links) =>
+        links.map((link) => link.getAttribute("href") ?? ""),
+      );
+    expect(allLinks.every((href) => href.length > 0 && href !== "#")).toBe(true);
     await screenshot(page, "support-docs-1440");
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForTimeout(150);
+    await expectNoHorizontalOverflow(page, "docs");
+    await screenshot(page, "support-docs-390");
+    await page.setViewportSize({ width: 1440, height: 1000 });
 
     await page.goto("/route-that-does-not-exist");
     await settle(page);
