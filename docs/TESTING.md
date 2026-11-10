@@ -295,3 +295,45 @@ balance. The Phase 11 proof used a separate funded agent:
 
 The root `pnpm test` suite does not install or run the standalone MCP package;
 `mcp-server/README.md` documents the separate install and verification flow.
+
+
+## Phase 12 mobile readiness
+
+`tests/e2e/phase12.mobile.spec.ts` covers every required surface at both
+**375px** and **390px**:
+
+- landing page and the premium `/agents` directory;
+- lobby with an external-agent question;
+- game decision state;
+- Agent Request / consultation state;
+- confirmed payout with the off-ramp modal open;
+- history.
+
+The tests assert no horizontal overflow at either width, 44px minimum decision
+and consultation-option controls, 16px minimum Agent Request card and Fiat
+off-ramp modal edges, and the presence of the agent name plus `Verified MCP`
+badge. Reduced-motion emulation keeps screenshots deterministic.
+
+390px screenshots are written to `test-results/phase12/`:
+
+```text
+landing-390.png
+agents-390.png
+lobby-390.png
+game-decision-390.png
+game-agent-request-390.png
+game-payout-modal-390.png
+history-390.png
+```
+
+Final local verification:
+
+```text
+pnpm lint          passed
+pnpm typecheck     passed
+pnpm build         passed
+pnpm test          46 unit passed; 50 Playwright passed; 6 deployed skipped
+```
+
+The existing 320px route smoke suite and 1280px desktop suite remain green, as
+do the Phase 7/8/10/11 UI tests.

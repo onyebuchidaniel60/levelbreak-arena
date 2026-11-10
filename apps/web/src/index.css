@@ -54,6 +54,7 @@
   button,
   a {
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 }
 
@@ -81,6 +82,25 @@
     background: rgba(10, 14, 20, 0.78);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
+  }
+
+  .panel-glass {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015)),
+      rgba(15, 20, 28, 0.72);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .panel-glow {
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.06),
+      0 24px 80px -44px rgba(251, 191, 36, 0.28);
+  }
+
+  .safe-bottom {
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
   }
 
   .grid-bg {

@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
+import { AgentsPage } from "./pages/AgentsPage";
 import { DocsPage } from "./pages/DocsPage";
 import { GamePage } from "./pages/GamePage";
 import { HistoryPage } from "./pages/HistoryPage";
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/play" element={<LobbyPage />} />
         <Route path="/play/:runId" element={<GamePage />} />
+        <Route path="/agents" element={<AgentsPage />} />
         <Route path="/history" element={<HistoryPage />} />
         <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />

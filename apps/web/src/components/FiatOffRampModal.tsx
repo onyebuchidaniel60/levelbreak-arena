@@ -84,7 +84,7 @@ export function FiatOffRampModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-ink/80 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+      className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-ink/80 p-4 backdrop-blur-sm sm:items-center sm:p-6"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -95,7 +95,7 @@ export function FiatOffRampModal({
         aria-modal="true"
         aria-labelledby="off-ramp-title"
         aria-describedby="off-ramp-description"
-        className="panel-raised max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-xl p-5 shadow-2xl sm:rounded-xl sm:p-6"
+        className="panel-raised max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-xl p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl sm:max-h-[92vh] sm:p-6 sm:pb-6"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -115,7 +115,7 @@ export function FiatOffRampModal({
             ref={closeRef}
             type="button"
             onClick={onClose}
-            className="rounded-md border border-line p-2 text-muted transition-colors hover:border-line-soft hover:text-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-line text-muted transition-colors hover:border-line-soft hover:text-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
             aria-label="Close off-ramp modal"
           >
             <CloseIcon className="h-4 w-4" />

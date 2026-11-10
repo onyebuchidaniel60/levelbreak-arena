@@ -20,8 +20,14 @@ export function Panel({
   );
 }
 
-export function SectionLabel({ children }: { children: ReactNode }) {
-  return <p className="eyebrow">{children}</p>;
+export function SectionLabel({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <p className={cn("eyebrow", className)}>{children}</p>;
 }
 
 export function SectionHeading({
@@ -64,8 +70,8 @@ const buttonVariants: Record<ButtonVariant, string> = {
 };
 
 const buttonSizes: Record<ButtonSize, string> = {
-  sm: "min-h-8 px-3 py-1.5 text-xs",
-  md: "min-h-10 px-4 py-2 text-sm",
+  sm: "min-h-9 px-3 py-1.5 text-xs",
+  md: "min-h-11 px-4 py-2 text-sm",
   lg: "min-h-12 px-5 py-3 text-sm",
 };
 

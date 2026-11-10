@@ -183,7 +183,7 @@ export function LobbyPage() {
         actions={
           <Link
             to="/history"
-            className="inline-flex min-h-9 items-center rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-body"
+            className="inline-flex min-h-11 items-center rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-body"
           >
             View history
           </Link>
@@ -231,12 +231,12 @@ export function LobbyPage() {
                 />
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <SectionLabel>
+                    <SectionLabel className="break-all">
                       {session.agentName
                         ? `Agent marketplace / ${session.publicRef}`
                         : `Session / ${session.publicRef}`}
                     </SectionLabel>
-                    <h2 className="mt-2 text-lg font-semibold text-numeric">
+                    <h2 className="mt-2 break-words text-lg font-semibold text-numeric">
                       {session.agentName
                         ? `Request from ${session.agentName}`
                         : "Funded arena run"}
@@ -262,7 +262,7 @@ export function LobbyPage() {
                 {session.questionPreview ? (
                   <div className="mt-3 rounded-lg border border-gold/20 bg-gold/[0.04] p-3">
                     <SectionLabel>Question preview</SectionLabel>
-                    <p className="mt-1 text-sm leading-6 text-body">
+                    <p className="mt-1 break-words text-sm leading-6 text-body">
                       {session.questionPreview}
                     </p>
                   </div>

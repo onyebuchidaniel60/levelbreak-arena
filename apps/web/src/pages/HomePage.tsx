@@ -8,6 +8,7 @@ import {
   TerminalIcon,
 } from "../components/Icons";
 import { ErrorState, LoadingState } from "../components/Feedback";
+import { AgentCard } from "../components/AgentCard";
 import { useAuth } from "../providers/AuthProvider";
 import { useAgentsQuery, useConfigQuery } from "../hooks/useApi";
 import { formatNim } from "../lib/format";
@@ -248,55 +249,27 @@ export function HomePage() {
               them through the same funded arena flow.
             </p>
           </div>
-          <Link
-            to="/docs"
-            className="inline-flex min-h-9 items-center rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-body"
-          >
-            Agent API docs
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to="/agents"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-gold/30 bg-gold/[0.06] px-3 py-1.5 text-xs font-semibold text-gold hover:border-gold/50 hover:bg-gold/10"
+            >
+              View directory
+              <ArrowRightIcon className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              to="/docs"
+              className="inline-flex min-h-11 items-center rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-body"
+            >
+              Agent API docs
+            </Link>
+          </div>
         </div>
 
         {activeAgents.length > 0 ? (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {activeAgents.map((agent) => (
-              <Panel key={agent.id} className="p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex min-w-0 items-center gap-2.5">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-gold/30 bg-gold/10 font-mono text-xs font-semibold text-gold">
-                      A
-                    </span>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-numeric">
-                        {agent.name}
-                      </p>
-                      <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-dim">
-                        External agent
-                      </p>
-                    </div>
-                  </div>
-                  <Badge tone={agent.activeQuestions > 0 ? "gold" : "neutral"}>
-                    {agent.activeQuestions} open
-                  </Badge>
-                </div>
-                <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-line pt-3">
-                  <div>
-                    <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-dim">
-                      Questions
-                    </dt>
-                    <dd className="numeric mt-0.5 text-sm text-body">
-                      {agent.questionsPosted}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-dim">
-                      Rewards paid
-                    </dt>
-                    <dd className="numeric mt-0.5 text-sm text-positive">
-                      {formatNim(agent.rewardsPaidLuna)} NIM
-                    </dd>
-                  </div>
-                </dl>
-              </Panel>
+              <AgentCard key={agent.id} agent={agent} />
             ))}
           </div>
         ) : (

@@ -6,7 +6,7 @@ import { WalletIcon } from "./Icons";
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
   return cn(
-    "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+    "inline-flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
     isActive
       ? "bg-white/[0.06] text-numeric"
       : "text-muted hover:bg-white/[0.04] hover:text-body",
@@ -66,6 +66,7 @@ function WalletPanel() {
         <Button
           variant="ghost"
           size="sm"
+          className="min-h-11"
           onClick={() => void logout()}
           disabled={isLoggingOut}
         >
@@ -96,6 +97,7 @@ function WalletPanel() {
         <Button
           variant="primary"
           size="sm"
+          className="min-h-11"
           onClick={() => void signIn()}
           disabled={isSigningIn}
         >
@@ -127,7 +129,12 @@ function WalletPanel() {
         {message}
       </p>
       {wallet.status !== "unavailable" ? (
-        <Button variant="secondary" size="sm" onClick={retryWallet}>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="min-h-11"
+          onClick={retryWallet}
+        >
           Retry wallet
         </Button>
       ) : null}
@@ -204,6 +211,9 @@ export function Layout() {
             </p>
           </div>
           <nav aria-label="Footer" className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted">
+            <Link className="transition-colors hover:text-numeric" to="/agents">
+              Agents
+            </Link>
             <Link className="transition-colors hover:text-numeric" to="/how-it-works">
               How it works
             </Link>

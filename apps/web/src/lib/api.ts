@@ -282,7 +282,10 @@ export const api = {
     }),
 
   agents: (): Promise<AgentsResponse> =>
-    apiRequest("/api/agents", { schema: agentsResponseSchema }),
+    apiRequest("/api/agents", {
+      schema: agentsResponseSchema,
+      redirectOn401: false,
+    }),
 
   claim: (sessionId: string, idempotencyKey: string): Promise<ClaimResponse> =>
     apiRequest(`/api/sessions/${sessionId}/claim`, {

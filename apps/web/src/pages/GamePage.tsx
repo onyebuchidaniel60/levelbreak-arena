@@ -271,7 +271,7 @@ export function GamePage() {
         </div>
         <Link
           to="/play"
-          className="inline-flex min-h-9 items-center rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-body"
+          className="inline-flex min-h-11 items-center rounded-md border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-body"
         >
           Back to lobby
         </Link>
@@ -333,7 +333,7 @@ export function GamePage() {
                   <SectionLabel>Level {String(run.levelIndex).padStart(2, "0")} / Decision</SectionLabel>
                   <Badge tone="gold">Portfolio consequence</Badge>
                 </div>
-                <h2 className="mt-2 text-balance text-xl font-semibold tracking-tight text-numeric sm:text-2xl">
+                <h2 className="mt-2 break-words text-balance text-xl font-semibold tracking-tight text-numeric sm:text-2xl">
                   {run.scenario.title}
                 </h2>
               </div>
@@ -342,7 +342,7 @@ export function GamePage() {
                   {run.scenario.setting}
                 </p>
                 <p className="text-[15px] leading-7 text-body">{run.scenario.situation}</p>
-                <p className="text-base font-semibold leading-7 text-numeric">
+                <p className="break-words text-base font-semibold leading-7 text-numeric">
                   {run.scenario.prompt}
                 </p>
                 <div className="grid gap-2 sm:grid-cols-2">
@@ -358,8 +358,8 @@ export function GamePage() {
                         {choice.decisionKey}
                       </span>
                       <span className="mt-2 flex w-full items-center justify-between gap-2 text-sm font-semibold text-numeric">
-                        {choice.label}
-                        <ArrowRightIcon className="h-4 w-4 text-dim transition-colors group-hover:text-gold" />
+                        <span className="break-words">{choice.label}</span>
+                        <ArrowRightIcon className="h-4 w-4 shrink-0 text-dim transition-colors group-hover:text-gold" />
                       </span>
                     </button>
                   ))}
@@ -380,28 +380,44 @@ export function GamePage() {
                 fallback={consultation.agentMessage}
                 prompt={agentPromptQuery.data?.prompt}
                 source={agentPromptQuery.data?.source}
+                verified={Boolean(consultation.agentName)}
                 loading={agentPromptQuery.isLoading}
               />
 
               <EvidenceCard evidence={consultation.evidence} />
 
-              <Panel className="p-4 sm:p-5">
+              <Panel className="p-4 sm:p-5" data-testid="agent-request-card">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <SectionLabel>Agent Request / Level {String(run.levelIndex).padStart(2, "0")}</SectionLabel>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <SectionLabel>
+                      Agent Request / Level{" "}
+                      {String(run.levelIndex).padStart(2, "0")}
+                    </SectionLabel>
+                    <Badge tone={consultation.agentName ? "gold" : "neutral"}>
+                      {consultation.agentName ? "Verified MCP" : "Simulated"}
+                    </Badge>
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     <Badge tone="gold">+{formatNim(consultation.rewardLuna)} NIM</Badge>
                     <Badge tone="neutral">No hidden answer key</Badge>
                   </div>
                 </div>
-                <p className="mt-3 inline-flex max-w-full items-start gap-2 rounded border border-gold/30 bg-gold/[0.08] px-2.5 py-1.5 font-mono text-[10px] leading-4 text-gold">
-                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" aria-hidden="true" />
-                  <span>
-                    {consultation.agentName
-                      ? `Request from ${consultation.agentName} · External agent`
-                      : "Agent Zeta (Simulated) is requesting human risk assessment."}
+                <div className="mt-3 flex items-start gap-3 rounded-lg border border-gold/20 bg-gold/[0.04] p-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-gold/30 bg-gold/10 font-mono text-xs font-semibold text-gold">
+                    A
                   </span>
-                </p>
-                <h2 className="mt-3 text-balance text-xl font-semibold tracking-tight text-numeric">
+                  <div className="min-w-0">
+                    <p className="break-words text-sm font-semibold text-numeric">
+                      {consultation.agentName ?? "Agent Zeta (Simulated)"}
+                    </p>
+                    <p className="mt-0.5 break-words text-xs leading-5 text-muted">
+                      {consultation.agentName
+                        ? "Verified external agent · MCP integration"
+                        : "Agent Zeta (Simulated) is requesting human risk assessment."}
+                    </p>
+                  </div>
+                </div>
+                <h2 className="mt-3 break-words text-balance text-xl font-semibold tracking-tight text-numeric">
                   {consultation.question}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-muted">
@@ -420,7 +436,7 @@ export function GamePage() {
                         disabled={respondMutation.isPending}
                         aria-pressed={selected}
                         className={cn(
-                          "flex flex-col gap-1 rounded-lg border px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 disabled:cursor-not-allowed disabled:opacity-50",
+                          "flex min-h-11 flex-col gap-1 rounded-lg border px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 disabled:cursor-not-allowed disabled:opacity-50",
                           selected
                             ? "border-gold/60 bg-gold/[0.06]"
                             : "border-line bg-white/[0.02] hover:border-gold/50 hover:bg-gold/[0.04]",
@@ -462,7 +478,8 @@ export function GamePage() {
                     </p>
                     <Button
                       variant="ghost"
-                      size="sm"
+                      size="md"
+                      className="min-h-11"
                       onClick={() => void handleRespond("SKIP")}
                       disabled={respondMutation.isPending}
                     >

@@ -41,6 +41,7 @@ export function AgentMessage({
   fallback,
   prompt,
   source,
+  verified = false,
   loading,
   className,
 }: {
@@ -49,6 +50,7 @@ export function AgentMessage({
   fallback: string;
   prompt?: string;
   source?: "llm" | "scripted" | "external";
+  verified?: boolean;
   loading?: boolean;
   className?: string;
 }) {
@@ -83,13 +85,14 @@ export function AgentMessage({
             <h3 id="agent-message-heading" className="text-sm font-semibold text-numeric">
               Agent message
             </h3>
-            <p className="mt-0.5 text-[11px] text-dim">{context}</p>
+            <p className="mt-0.5 break-words text-[11px] text-dim">{context}</p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone={source === "llm" || source === "external" ? "gold" : "neutral"}>
             {sourceLabel}
           </Badge>
+          {verified ? <Badge tone="gold">Verified MCP</Badge> : null}
           <Badge tone="neutral">{confidenceLabel}</Badge>
         </div>
       </div>

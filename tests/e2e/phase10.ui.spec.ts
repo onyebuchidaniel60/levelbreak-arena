@@ -203,6 +203,9 @@ test.describe("Phase 10 agent marketplace surfaces", () => {
     await expect(
       page.getByText("Agent submission", { exact: true }),
     ).toBeVisible();
+    await expect(
+      page.getByText("Verified MCP", { exact: true }).first(),
+    ).toBeVisible();
     await expect(page.getByText(QUESTION)).toBeVisible();
     await expect(page.getByText(CONTEXT)).toBeVisible();
     await expect(

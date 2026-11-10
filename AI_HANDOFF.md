@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 9 November 2026
-**Current phase:** Phase 11 — Agent API testing and MCP server integration deployed and live-verified; awaiting operator acceptance
-**Status:** Phase 11 PASS / DEPLOYED / LIVE VERIFIED. Phase 10 complete. Phase 12 NOT STARTED.
+**Current phase:** Phase 12 — final UI polish and mobile readiness implemented; deployment pending
+**Status:** Phase 12 local verification passed; deployment pending. Phase 11 complete. Phase 13 NOT STARTED.
 
 ## Current deployment and wallets
 
@@ -35,6 +35,43 @@
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
 - Operator approval of final visual design: **GIVEN — Direction 1, 4 November 2026**
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false` (enabled only for the Phase 8 proof, disabled 2026-11-08 after the payouts).
+
+## Phase 12 — Final UI polish and mobile readiness (10 November 2026)
+
+**Status:** IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING.
+
+- Added a dedicated public `/agents` directory page:
+  - premium bento hero with live marketplace telemetry: registered agents, questions posted, open questions, rewards paid;
+  - `panel-glass` MCP integration card with `post_defi_consultation`, MCP setup and Agent API links;
+  - responsive agent cards with `Verified MCP`, Live/Resolved status, question counts, open questions, rewards paid, joined date, agent ID and a live-question CTA;
+  - marketplace lifecycle cards (register → deposit → post → answer) and a final agent CTA.
+- Added `AgentCard` as a shared component used by both `/agents` and the landing-page Active Agents section. The landing section now has a **View directory** action, a bento-style grid, glass accents, and the same premium agent cards.
+- Updated navigation and footer with a real **Agents** link. Updated route inventory and smoke tests for `/agents`.
+- Game / Agent Request polish:
+  - the Agent Request panel now shows the agent name in a dedicated identity card;
+  - external agent consultations show a **Verified MCP** badge in both the Agent Request header and the Agent Message card;
+  - demo sessions retain the exact “Agent Zeta (Simulated) is requesting human risk assessment.” disclosure and use a neutral **Simulated** badge;
+  - the question, agent identity, evidence and option text wrap safely at narrow widths;
+  - decision buttons remain 80px tall; consultation options enforce a 44px minimum.
+- Mobile / modal polish:
+  - Fiat off-ramp modal now uses 16px mobile edges, `max-h-[calc(100dvh-2rem)]`, a 44px close target, and safe-area bottom padding;
+  - Agent Request card is full-width within the page’s 16px gutters and was checked at 375px and 390px;
+  - header navigation, sign-in/sign-out, back links and `Button` medium controls were raised to 44px-class tap targets;
+  - `SectionLabel` supports break-safe labels for long agent references;
+  - no horizontal overflow at 320px, 375px, 390px or 1280px.
+- Visual QA:
+  - Inter and JetBrains Mono are already loaded from Google Fonts; numbers continue to use `.numeric` / `font-mono` with tabular numerals;
+  - new `panel-glass`, `panel-glow` and safe-area utilities keep the dark trading-terminal surfaces crisp;
+  - used real agent names, real live counts and real MCP copy; no fabricated metrics, stock AI sparkles, purple gradients or generic placeholder panels.
+- Tests:
+  - `pnpm lint` passed.
+  - `pnpm typecheck` passed.
+  - `pnpm build` passed.
+  - `pnpm test` passed: 46 unit tests, 50 Playwright tests, 6 deployed tests skipped.
+  - New `tests/e2e/phase12.mobile.spec.ts`: 7 tests covering landing, `/agents`, lobby, decision, Agent Request, confirmed payout + off-ramp modal, and history at 375px and 390px; asserts no horizontal overflow, 44px decision/option targets, and 16px card/modal edges.
+  - 390px screenshots generated in `test-results/phase12/`: `landing-390.png`, `agents-390.png`, `lobby-390.png`, `game-decision-390.png`, `game-agent-request-390.png`, `game-payout-modal-390.png`, `history-390.png`.
+- Deployment: **pending** for this commit. The live service currently runs the Phase 11 app code (`d8513e8`); the Phase 12 frontend will be deployed with this commit.
+- **Single next task:** deploy Phase 12, verify the live `/agents` page and 390px screens, record the final deployment, and await operator acceptance. Do not begin Phase 13.
 
 ## Phase 11 — Agent testing and MCP integration (10 November 2026)
 

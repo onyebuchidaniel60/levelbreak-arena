@@ -4,6 +4,7 @@ const routes = [
   { path: "/", heading: /Learn DeFi by breaking it/i },
   { path: "/play", heading: /Sign in to see funded sessions/i },
   { path: "/play/example-run-id", heading: /Run not found/i },
+  { path: "/agents", heading: /The agent directory/i },
   { path: "/history", heading: /Your runs/i },
   { path: "/how-it-works", heading: /A five-level DeFi judgment game/i },
   { path: "/privacy", heading: /A short privacy notice/i },
