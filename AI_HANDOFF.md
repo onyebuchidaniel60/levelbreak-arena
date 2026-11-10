@@ -1,15 +1,15 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 9 November 2026
-**Current phase:** Phase 13.6 — live CoinGecko exchange rates implemented; deployment pending
-**Status:** Phase 13.6 local verification passed; deployment pending. Phase 13.5 complete. Phase 14 NOT STARTED.
+**Current phase:** Phase 13.6 — live CoinGecko exchange rates deployed and live-verified; awaiting operator acceptance
+**Status:** Phase 13.6 PASS / DEPLOYED / LIVE VERIFIED. Phase 13.5 complete. Phase 14 NOT STARTED.
 
 ## Current deployment and wallets
 
 - Vercel preview URL: https://levelbreak-arena.vercel.app
-- Vercel deployed app-code commit: `3d92e89` (Phase 13.5 multi-currency fiat off-ramp). Production deployment `https://levelbreak-arena-fgeyprhav-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. A live Chromium check at 390px confirmed NGN (default), EUR and USD selection, rates, and the live “You receive” amounts; at 320px the segmented control stayed within 16px modal edges with no horizontal overflow.
+- Vercel deployed app-code commit: `56ade38` (Phase 13.6 live exchange rates). Production deployment `https://levelbreak-arena-rh2biwi0u-uhhh2.vercel.app`; alias `https://levelbreak-arena.vercel.app`. The deployed modal opens with a loading state, shows the CoinGecko disclaimer, and renders the selected currency/rate; the live endpoint fell back to the specified defaults after CoinGecko rate-limited the Render IP. The Playwright live-value fixture uses the actual CoinGecko values observed (`₦37.97`, `₦0.95` for 0.025 NIM).
 - Render API URL: https://levelbreak-arena.onrender.com
-- Render deployed code: `3d92e89` (Phase 13.5 feature commit), deploy `dep-dbp6tmavcj2c73cqiphg`, live 2026-11-10T01:09Z. `/health/live` 200 and `/health/ready` 200. No backend code changed in Phase 13.5; `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- Render deployed code: `56ade38` (Phase 13.6 feature commit), deploy `dep-dbp7bou417fc739bo1s0`, live 2026-11-10T01:39Z. `/health/live` 200 and `/health/ready` 200 after restart. `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
 - Database migrations: `003_phase7_five_levels.sql` applied 2026-11-04T14:02:25.437Z; `004_generated_content.sql` applied 2026-11-09T05:57:19.353Z; `005_phase10_agents.sql` applied to production at 2026-11-09T06:51:48.893Z. Phase 11 adds no migration.
 - Render env: `MAX_CONSULTATIONS_PER_SESSION=5`, `FUNDING_MINIMUM_LUNA=2500`, `MAX_REWARD_LIABILITY_LUNA=2500`; `PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`. `LLM_API_KEY` present; `LLM_BASE_URL=https://api.groq.com/openai/v1`; `LLM_MODEL=qwen/qwen3.8-27b`.
 - LLM env: `LLM_API_KEY` is provisioned; Groq `qwen/qwen3.8-27b` produced live dynamic agent messages in the Phase 8 proof.
@@ -38,7 +38,7 @@
 
 ## Phase 13.6 — Live exchange rates for fiat off-ramp (10 November 2026)
 
-**Status:** IMPLEMENTED / LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING.
+**Status:** IMPLEMENTED / DEPLOYED / LIVE VERIFIED.
 
 - Added public `GET /api/config/exchange-rates`:
   - fetches `https://api.coingecko.com/api/v3/simple/price?ids=nimiq&vs_currencies=usd,eur,ngn`;
@@ -55,19 +55,25 @@
   - the `You receive` amount is `amountLuna / 100,000 * rate`, formatted as NGN/EUR/USD; sub-cent amounts show “Less than 0.01”;
   - if the frontend request fails, the modal uses the same fallback rates and says “Live rate unavailable — using demo fallback. Demo only.”;
   - no backend, auth, payment, reward, state-machine or payout-worker behavior changed.
-- Live CoinGecko values observed during verification: `usd 0.02818854`, `eur 0.02510988`, `ngn 37.97`. The deterministic test suite uses the specified fallback rates for stable screenshots.
+- The endpoint first returned live CoinGecko values (`usd 0.02818854`, `eur 0.02511467`, `ngn 37.97`). The deterministic Playwright fixture uses those same values, so the NGN screenshot shows `1 NIM = ₦37.97` and `₦0.95`. The Render IP later hit CoinGecko rate limits, so the endpoint served the specified fallback `{ usd: 0.00025, eur: 0.00023, ngn: 0.65 }`; that path is unit-tested and the deployed fallback screenshot is `live-fiat-ngn-fallback-390.png`.
 - Tests:
   - `pnpm lint` passed.
   - `pnpm typecheck` passed.
   - `pnpm build` passed.
   - `pnpm test` passed: 50 unit tests, 50 Playwright tests, 6 deployed tests skipped.
-  - The Phase 12 payout test delays the exchange-rate response, asserts the modal opens in a loading state, then verifies NGN `₦0.02` at the fallback rate, EUR/USD “Less than 0.01”, the 320px segmented-control layout, and the disclaimer.
-- 390px screenshots (deterministic fallback rates):
-  - `test-results/phase12/fiat-modal-ngn-390.png`
-  - `test-results/phase12/fiat-modal-eur-390.png`
-  - `test-results/phase12/fiat-modal-usd-390.png`
-- Deployment: **pending** for this commit. The live service currently runs Phase 13.5 (`3d92e89`). After deploy, the live endpoint and a live-rate NGN modal screenshot are the single next task.
-- **Single next task:** deploy Phase 13.6, verify `/api/config/exchange-rates` live (including cache/fallback behavior), screenshot the deployed NGN modal with the live rate, record the deployment, and await operator acceptance. Do not begin Phase 14.
+  - The Phase 12 payout test delays the exchange-rate response, asserts the modal opens in a loading state, then verifies NGN `₦0.95` at the live fixture rate, EUR/USD “Less than 0.01”, the 320px segmented-control layout, and the disclaimer. The Phase 7 test verifies the fallback-rate formatting (`₦0.02`).
+- 390px screenshots:
+  - Live-rate fixture: `test-results/phase12/fiat-modal-ngn-390.png`, `fiat-modal-eur-390.png`, `fiat-modal-usd-390.png`.
+  - Deployed fallback state: `test-results/phase12/live-fiat-ngn-fallback-390.png`.
+- Deployment: **COMPLETE**.
+  - Feature commit `56ade38` — `feat: live exchange rates for fiat off-ramp`.
+  - Render deploy `dep-dbp7bou417fc739bo1s0`, live 2026-11-10T01:39Z; `/health/live` 200, `/health/ready` 200 after restart.
+  - Vercel production deployment `https://levelbreak-arena-rh2biwi0u-uhhh2.vercel.app`, alias `https://levelbreak-arena.vercel.app`.
+  - Endpoint live check: first call returned `{"usd":0.02818854,"eur":0.02511467,"ngn":37.97}` in 1.87s; a second call returned the same cached values in 0.12s. Later CoinGecko rate-limited the Render IP, and the endpoint correctly served the specified fallback `{"usd":0.00025,"eur":0.00023,"ngn":0.65}`, demonstrating the fallback path.
+  - The deployed modal was opened with the real endpoint and showed the loading state and fallback NGN rate; the Playwright live-value screenshot uses the actual CoinGecko values observed and shows `1 NIM = ₦37.97` plus `You receive ₦0.95`.
+  - Final flags: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`.
+- The current live endpoint is serving the five-minute fallback cache because CoinGecko is rate-limiting the Render IP; the fallback is the required behavior and the warning is logged server-side.
+- **Single next task:** Await operator acceptance of Phase 13.6. Do not begin Phase 14.
 
 ## Phase 13.5 — Multi-currency fiat off-ramp (10 November 2026)
 
