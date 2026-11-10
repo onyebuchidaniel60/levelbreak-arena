@@ -1,7 +1,9 @@
 import { config } from "../config";
 import type { NimiqService } from "../nimiq/types";
 import {
+  AUTO_REPLENISH_KEY_PREFIX,
   AUTO_REPLENISH_SESSION_TTL_MS,
+  countAutoReplenishedSessions,
   createDemoSession,
   expireStaleDemoSessions,
   listAvailableSessions,
@@ -10,6 +12,7 @@ import {
 } from "./sessions";
 
 export const REPLENISH_TARGET = 3;
+export const REPLENISH_DAILY_CAP = 5;
 export const REPLENISH_INTERVAL_MS = 5 * 60_000;
 export const REPLENISH_INITIAL_DELAY_MS = 10_000;
 export const EMPTY_LOBBY_MESSAGE =
@@ -49,6 +52,7 @@ export async function replenishSessionsOnce(input: {
   listAvailable?: () => Promise<Array<unknown>>;
   createSession?: CreateSession;
   expireStale?: () => Promise<number>;
+  countAutoReplenished?: () => Promise<number>;
 }): Promise<ReplenishOutcome> {
   const target = input.target ?? REPLENISH_TARGET;
   const enabled = input.enabled ?? config.autoReplenishSessions;
@@ -83,6 +87,21 @@ export async function replenishSessionsOnce(input: {
         source: "auto-replenisher",
         fundingDeadlineMs: AUTO_REPLENISH_SESSION_TTL_MS,
       }));
+  const countAuto =
+    input.countAutoReplenished ??
+    (input.listAvailable ? async () => 0 : countAutoReplenishedSessions);
+
+  const dailyMinted = await countAuto();
+  const dailyRemaining = Math.max(0, REPLENISH_DAILY_CAP - dailyMinted);
+  input.logger.info(
+    {
+      event: "session_replenisher_budget",
+      dailyMinted,
+      dailyCap: REPLENISH_DAILY_CAP,
+      dailyRemaining,
+    },
+    "Session replenisher daily budget checked",
+  );
 
   const availableBefore = (await listAvailable()).length;
   if (availableBefore >= target) {
@@ -98,13 +117,26 @@ export async function replenishSessionsOnce(input: {
 
   const intervalMs = input.intervalMs ?? REPLENISH_INTERVAL_MS;
   const bucket = Math.floor((input.now ?? Date.now()) / intervalMs);
-  const missing = target - availableBefore;
+  const missing = Math.min(
+    target - availableBefore,
+    dailyRemaining,
+  );
+  if (dailyRemaining === 0) {
+    input.logger.warn(
+      {
+        event: "session_replenisher_daily_cap",
+        dailyMinted,
+        dailyCap: REPLENISH_DAILY_CAP,
+      },
+      "Session replenisher daily mint cap reached",
+    );
+  }
   let created = 0;
   let pending = 0;
   let failed = 0;
 
   for (let index = 0; index < missing; index += 1) {
-    const idempotencyKey = `auto-replenish:${bucket}:${availableBefore}:${index}`;
+    const idempotencyKey = `${AUTO_REPLENISH_KEY_PREFIX}${bucket}:${availableBefore}:${index}`;
     try {
       const result = await createSession({
         idempotencyKey,
@@ -176,6 +208,7 @@ export function startSessionReplenisher(input: {
   listAvailable?: () => Promise<Array<unknown>>;
   createSession?: CreateSession;
   expireStale?: () => Promise<number>;
+  countAutoReplenished?: () => Promise<number>;
 }): () => void {
   const enabled = input.enabled ?? config.autoReplenishSessions;
   if (!enabled) {
@@ -204,6 +237,7 @@ export function startSessionReplenisher(input: {
         listAvailable: input.listAvailable,
         createSession: input.createSession,
         expireStale: input.expireStale,
+        countAutoReplenished: input.countAutoReplenished,
       });
       input.logger.info(
         {

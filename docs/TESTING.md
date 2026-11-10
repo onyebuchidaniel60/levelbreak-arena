@@ -515,3 +515,52 @@ pnpm test          61 unit passed; 60 Playwright passed; 6 deployed tests skippe
 Live verification after deployment also records the replenisher logs, at least
 three `AVAILABLE` sessions, the deployed header screenshot and the browser tab
 with the favicon.
+
+
+## Phase 17 adversarial security regression
+
+The final pre-submission pass adds
+`apps/api/src/security/adversarial.integration.test.ts`. Run it against a
+migrated test database:
+
+```bash
+LBA_INTEGRATION_DATABASE_URL=postgres://lba:lba@127.0.0.1:5432/lba_test \
+  pnpm test:integration
+```
+
+The integration suite now covers 32 tests, including seven adversarial cases:
+
+- fake, unconfirmed, mainnet, wrong-sender, wrong-recipient, low-value and
+  reused deposit hashes;
+- reuse of a session-funding hash as an agent deposit;
+- concurrent deposits of the same hash (exactly one credit, one 409);
+- ten zero-balance consultation requests (all 402 `INSUFFICIENT_BALANCE`) and
+  reward tampering (`422 INVALID_REWARD`, no rows);
+- cross-agent lookup attempts and player A/player B run and payout IDOR
+  (owner-scoped routes return 404);
+- duplicate consultation-answer idempotency (one response, one reward) and
+  concurrent session claims (exactly one run, loser 409);
+- external-agent text bypassing the LLM, with no `fetch` call;
+- no external HTTP route that can start the replenisher.
+
+Additional checks:
+
+```bash
+npm --prefix mcp-server run check
+```
+
+A local mock Agent API was used to spawn the MCP server via `verify.js`; the
+recorded request contained only `question`, `context` and `reward_luna: 500`,
+the API key was not printed to stdout, and the only discovered tool was
+`post_defi_consultation`.
+
+Local verification for the release:
+
+```text
+pnpm lint          passed
+pnpm typecheck     passed
+pnpm build         passed
+pnpm test          63 unit passed; 60 Playwright passed; 6 deployed skipped
+pnpm test:integration (with local PostgreSQL) 32 passed
+npm --prefix mcp-server run check             passed
+```

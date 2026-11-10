@@ -1440,7 +1440,7 @@ integration("Phase 3 domain integration", () => {
         context,
         rewardLuna: 500,
       }),
-    ).rejects.toMatchObject({ code: "INSUFFICIENT_AGENT_BALANCE" });
+    ).rejects.toMatchObject({ code: "INSUFFICIENT_BALANCE" });
 
     const deposit = await depositTestAgent(nimiq, registration.agent, "500");
     expect(deposit.agent.availableLuna).toBe("500");
@@ -1457,7 +1457,7 @@ integration("Phase 3 domain integration", () => {
         context,
         rewardLuna: 500,
       }),
-    ).rejects.toMatchObject({ code: "INSUFFICIENT_AGENT_BALANCE" });
+    ).rejects.toMatchObject({ code: "INSUFFICIENT_BALANCE" });
 
     const player = await makePlayer();
     const run = await claim(player, posted.consultation.sessionId);

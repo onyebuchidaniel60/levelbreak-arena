@@ -343,74 +343,84 @@ export async function depositAgentFunds(input: {
     input.logger,
   );
 
-  return withTransaction(async (client) => {
-    const locked = await client.query<AgentRow>(
-      `SELECT id, name, wallet_address, balance_luna, reserved_luna,
-              created_at, updated_at
-         FROM agents
-        WHERE id = $1
-        FOR UPDATE`,
-      [input.agentId],
-    );
-    const agent = locked.rows[0];
-    if (!agent) {
-      throw errors.unauthorized("A valid agent API key is required.");
-    }
+  try {
+    return await withTransaction(async (client) => {
+      const locked = await client.query<AgentRow>(
+        `SELECT id, name, wallet_address, balance_luna, reserved_luna,
+                created_at, updated_at
+           FROM agents
+          WHERE id = $1
+          FOR UPDATE`,
+        [input.agentId],
+      );
+      const agent = locked.rows[0];
+      if (!agent) {
+        throw errors.unauthorized("A valid agent API key is required.");
+      }
 
-    const amount = assertAgentDeposit(transaction, agent);
-    await assertTransactionUnused(client, txHash);
+      const amount = assertAgentDeposit(transaction, agent);
+      await assertTransactionUnused(client, txHash);
 
-    const depositResult = await client.query<{
-      id: string;
-      tx_hash: string;
-      amount_luna: string;
-      block_height: string | null;
-    }>(
-      `INSERT INTO agent_deposits
-         (agent_id, tx_hash, amount_luna, block_height, network_id)
-       VALUES ($1, $2, $3, $4, 'testnet')
-       RETURNING id, tx_hash, amount_luna, block_height`,
-      [agent.id, txHash, lunaString(amount), transaction.blockHeight ?? null],
-    );
-    const deposit = depositResult.rows[0];
+      const depositResult = await client.query<{
+        id: string;
+        tx_hash: string;
+        amount_luna: string;
+        block_height: string | null;
+      }>(
+        `INSERT INTO agent_deposits
+           (agent_id, tx_hash, amount_luna, block_height, network_id)
+         VALUES ($1, $2, $3, $4, 'testnet')
+         RETURNING id, tx_hash, amount_luna, block_height`,
+        [agent.id, txHash, lunaString(amount), transaction.blockHeight ?? null],
+      );
+      const deposit = depositResult.rows[0];
 
-    const updatedResult = await client.query<AgentRow>(
-      `UPDATE agents
-          SET balance_luna = balance_luna + $2,
-              updated_at = now()
-        WHERE id = $1
-        RETURNING id, name, wallet_address, balance_luna, reserved_luna,
-                  created_at, updated_at`,
-      [agent.id, lunaString(amount)],
-    );
-    const updated = updatedResult.rows[0];
+      const updatedResult = await client.query<AgentRow>(
+        `UPDATE agents
+            SET balance_luna = balance_luna + $2,
+                updated_at = now()
+          WHERE id = $1
+          RETURNING id, name, wallet_address, balance_luna, reserved_luna,
+                    created_at, updated_at`,
+        [agent.id, lunaString(amount)],
+      );
+      const updated = updatedResult.rows[0];
 
-    await recordAudit(client, {
-      actorType: "AGENT",
-      actorId: agent.id,
-      action: "agent_deposit_credited",
-      resourceType: "agent",
-      resourceId: agent.id,
-      details: {
-        depositId: deposit.id,
-        txHash,
-        amountLuna: lunaString(amount),
-        blockHeight: transaction.blockHeight ?? null,
-      },
+      await recordAudit(client, {
+        actorType: "AGENT",
+        actorId: agent.id,
+        action: "agent_deposit_credited",
+        resourceType: "agent",
+        resourceId: agent.id,
+        details: {
+          depositId: deposit.id,
+          txHash,
+          amountLuna: lunaString(amount),
+          blockHeight: transaction.blockHeight ?? null,
+        },
+      });
+
+      return {
+        deposit: {
+          depositId: deposit.id,
+          txHash: deposit.tx_hash,
+          amountLuna: lunaString(deposit.amount_luna),
+          blockHeight: deposit.block_height
+            ? Number(deposit.block_height)
+            : null,
+        },
+        agent: toAgentView(updated),
+      };
     });
-
-    return {
-      deposit: {
-        depositId: deposit.id,
-        txHash: deposit.tx_hash,
-        amountLuna: lunaString(deposit.amount_luna),
-        blockHeight: deposit.block_height
-          ? Number(deposit.block_height)
-          : null,
-      },
-      agent: toAgentView(updated),
-    };
-  });
+  } catch (error) {
+    if (isPgUniqueViolation(error)) {
+      throw errors.conflict(
+        "DEPOSIT_TX_REUSED",
+        "This transaction has already been used by LevelBreak Arena.",
+      );
+    }
+    throw error;
+  }
 }
 
 export async function createAgentConsultation(input: {
@@ -469,8 +479,8 @@ export async function createAgentConsultation(input: {
 
     const available = toLuna(agent.balance_luna) - toLuna(agent.reserved_luna);
     if (available < reward) {
-      throw errors.conflict(
-        "INSUFFICIENT_AGENT_BALANCE",
+      throw errors.paymentRequired(
+        "INSUFFICIENT_BALANCE",
         `Deposit at least ${reward} additional Luna before posting this consultation.`,
       );
     }

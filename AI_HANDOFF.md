@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 10 November 2026
-**Current phase:** Phase 16 — auto-replenishing funded lobby and professional SVG branding deployed and live-verified; awaiting operator acceptance
-**Status:** Phase 16 PASS / DEPLOYED / LIVE VERIFIED. Phase 14 complete.
+**Current phase:** Phase 17 — adversarial security regression and v1.0.0 final release; implementation and local verification complete, deployment and tag pending
+**Status:** Phase 17 LOCAL VERIFICATION PASSED / DEPLOYMENT PENDING / TAG PENDING. Phase 16 complete.
 
 ## Current deployment and wallets
 
@@ -35,6 +35,96 @@
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
 - Operator approval of final visual design: **GIVEN — Phase 14 operator references, 10 November 2026**. Direction 1 was approved on 4 November 2026 for Phases 7–13.7 and is now visually superseded.
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`, `AUTO_REPLENISH_SESSIONS=true` (the explicitly approved testnet-only replenisher).
+
+## Phase 17 — Adversarial security regression and v1.0.0 release (10 November 2026)
+
+**Status:** LOCAL VERIFICATION PASSED / DEPLOYMENT AND TAG PENDING.
+
+### Findings fixed
+
+1. **Agent consultation balance status:** unfunded consultations returned
+   `409 INSUFFICIENT_AGENT_BALANCE`, contrary to the required API contract.
+   Changed to `402 INSUFFICIENT_BALANCE` in `errors.ts` and `agents.ts`. Ten
+   consecutive zero-balance requests now all return 402 and create no rows.
+2. **Concurrent deposit-hash collision:** a unique-constraint race could escape
+   as a generic 500. `depositAgentFunds` now maps the unique violation to
+   `409 DEPOSIT_TX_REUSED`; the transaction row lock and unique index still
+   guarantee exactly one credit.
+3. **Replenisher denial-of-wallet:** added a rolling 24-hour cap of **5**
+   auto-replenished sessions, keyed with the `auto-replenish:v2:` prefix, in
+   addition to the existing **3-per-run** and **5-minute** limits. Pre-Phase-17
+   v1 sessions are not counted against the new cap. Exhaustion logs
+   `session_replenisher_daily_cap` and creates nothing.
+
+### Adversarial verification
+
+`apps/api/src/security/adversarial.integration.test.ts` (local PostgreSQL,
+migrated to `005_phase10_agents.sql`) covers:
+
+- fake, unconfirmed, mainnet, wrong-sender, wrong-recipient, low-value and
+  reused deposit hashes, plus reuse of a session-funding hash;
+- concurrent deposit races, exactly one credit and one 409;
+- ten zero-balance consultation requests (402 each) and `reward_luna: 10000`
+  (422 `INVALID_REWARD`, no consultation rows);
+- Player A cookie + Player B run/payout IDOR (both 404);
+- agent A key cannot read agent B; no `/api/agent/balance` route exists;
+- duplicate consultation-answer idempotency returns the same response and
+  rewards once; a different key on the same question returns 409;
+- concurrent session claims produce exactly one run and one 409;
+- external-agent consultation text bypasses the LLM entirely (no `fetch`),
+  so prompt-injection text is never sent to the provider;
+- `app.printRoutes()` contains no replenisher endpoint.
+
+MCP surface check:
+
+```text
+npm --prefix mcp-server run check  passed
+mock Agent API + verify.js:
+  tool: post_defi_consultation
+  reward_luna: 500
+  API key printed to stdout: false
+  payload keys: question, context, reward_luna
+```
+
+**Accepted residual risk:** agent registration still does not prove wallet
+ownership with a signed challenge. The MVP mitigates this with sender-bound
+deposits and globally single-use transaction hashes. The limitation is already
+recorded in `docs/SECURITY.md`; adding signed registration/key rotation is a
+production-marketplace change outside the approved Phase 10/17 testnet scope.
+
+### Submission and docs
+
+- `docs/SUBMISSION_DRAFT.md` now contains the final 206-word pitch covering the
+  AI-agent/RLHF concept, MCP integration, Nimiq Pay demo off-ramp and stack.
+- `README.md` now includes concrete MCP setup instructions for Claude Desktop
+  and Cursor, including the fixed 500-Luna tool and key-handling rules.
+- `docs/SECURITY.md`, `docs/OPERATIONS.md`, `docs/TESTING.md`,
+  `ARCHITECTURE.md`, `PROJECT_SPEC.md` and `AGENTS.md` record the Phase 17
+  findings and controls.
+
+### Verification
+
+```text
+pnpm lint          passed
+pnpm typecheck     passed
+pnpm build         passed
+pnpm test          63 unit passed; 60 Playwright passed; 6 deployed skipped
+pnpm test:integration (local PostgreSQL) 32 passed
+npm --prefix mcp-server run check          passed
+```
+
+### Deployment and release
+
+- Render env verified:
+  `AUTO_REPLENISH_SESSIONS=true`, `DEMO_FUNDING_ENABLED=false`,
+  `PAYOUT_WORKER_ENABLED=false`.
+- Security-fix commit will use the exact message
+  `fix: address adversarial security findings`.
+- Deployment and annotated tag `v1.0.0` are pending this commit.
+- **Single next task:** deploy the security commit, verify Render health/logs
+  and the three-session lobby under the new cap, update this handoff with the
+  deployed SHA and tag, commit the release record, create and push
+  `v1.0.0`, then stop.
 
 ## Phase 16 — Auto-replenishing lobby and professional branding (10 November 2026)
 

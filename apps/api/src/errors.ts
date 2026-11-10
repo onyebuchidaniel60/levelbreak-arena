@@ -16,6 +16,8 @@ export const errors = {
     new AppError(403, "FORBIDDEN", message),
   notFound: (message = "Resource not found.") =>
     new AppError(404, "NOT_FOUND", message),
+  paymentRequired: (code: string, message: string) =>
+    new AppError(402, code, message),
   conflict: (code: string, message: string) => new AppError(409, code, message),
   badRequest: (code: string, message: string) =>
     new AppError(400, code, message),

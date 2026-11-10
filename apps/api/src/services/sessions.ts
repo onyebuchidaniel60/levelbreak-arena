@@ -91,6 +91,7 @@ const FUNDING_DEADLINE_MS = 30 * 60 * 1000;
  * does not drain every 30 minutes while still requiring verified funding.
  */
 export const AUTO_REPLENISH_SESSION_TTL_MS = 24 * 60 * 60 * 1000;
+export const AUTO_REPLENISH_KEY_PREFIX = "auto-replenish:v2:";
 
 export function isPgUniqueViolation(error: unknown): boolean {
   return (
@@ -727,6 +728,21 @@ export async function expireStaleDemoSessions(): Promise<number> {
       RETURNING id`,
   );
   return result.rowCount ?? 0;
+}
+
+/**
+ * Rolling 24-hour mint count for the auto-replenisher. The v2 prefix
+ * separates capped replenishments from the pre-Phase-17 sessions.
+ */
+export async function countAutoReplenishedSessions(): Promise<number> {
+  const result = await query<{ count: string }>(
+    `SELECT count(*)::text AS count
+       FROM requester_sessions
+      WHERE creation_idempotency_key LIKE $1
+        AND created_at > now() - interval '24 hours'`,
+    [`${AUTO_REPLENISH_KEY_PREFIX}%`],
+  );
+  return Number(result.rows[0]?.count ?? 0);
 }
 
 export async function listAvailableSessions(): Promise<

@@ -159,7 +159,7 @@ A successful call returns:
 ```
 
 If the API rejects the call, the tool returns `isError: true` with the safe error
-code, for example `INSUFFICIENT_AGENT_BALANCE`, `INVALID_REQUEST`, or
+code, for example `INSUFFICIENT_BALANCE`, `INVALID_REQUEST`, or
 `UNAUTHORIZED`.
 
 ## Security notes

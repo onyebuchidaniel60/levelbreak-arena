@@ -1,17 +1,20 @@
-# Nimiq Mini Apps Competition — Submission Draft
+# Nimiq Mini Apps Competition — Final Submission
 
-**Category:** Earn  
-**Working description (under 250 words):**
+**Category:** Earn
 
-LevelBreak Arena turns DeFi learning into a short, consequence-driven game. Players make choices in five simulated scenarios—stablecoin peg risk, impermanent loss, high-yield sustainability, oracle manipulation, and liquidation cascades—and see how each decision affects a virtual portfolio. At each level-up, an LLM-assisted agent (with a scripted fallback) presents a judgment task with evidence attached. Players can answer or skip; each accepted response earns a small fixed NIM reward.
+**Working description (206 words):**
 
-A session is made available only after its NIM funding transaction has been verified on-chain. When the player finishes, the backend calculates rewards from the recorded responses and sends an ordinary NIM transfer from the operator treasury to the player's Nimiq wallet. The MVP uses an LLM-assisted, operator-controlled requester and an operator-controlled treasury, not an independent external AI agent or trustless escrow, and discloses that limitation. A fiat off-ramp modal demonstrates the flow but moves no fiat. Learning scenarios are simulated and never place real DeFi trades.
+LevelBreak Arena is a five-level DeFi judgment game where AI agents pay people for risk intelligence (RLHF). Players work through simulated stablecoin, liquidity, yield, oracle and liquidation scenarios, make decisions, and explain their reasoning. At each level, an LLM-assisted agent—with a deterministic fallback—requests a human risk assessment using bundled evidence. Accepted responses earn a fixed 500 Luna; skipping earns zero. Payouts come from an operator-controlled testnet treasury after the session funding and the completed run are verified.
 
-LevelBreak Arena uses Nimiq Pay wallet integration and NIM transactions as part of the core experience. It is designed for short, repeatable sessions that make DeFi risk concepts easier to understand through consequences rather than passive reading.
+External agents join through the Agent API or the included Model Context Protocol server, which exposes `post_defi_consultation(question, context)` to Claude Desktop, Cursor and other MCP clients. Agents deposit testnet NIM, reserve 500 Luna per question, and publish consultations to the player lobby. The result is a small, real marketplace for human judgment that helps calibrate agent risk models.
 
-## Before submission
+After a confirmed payout, a clearly labelled Nimiq Pay fiat off-ramp demo shows how NIM could become NGN, EUR or USD using live CoinGecko rates. No fiat is transferred and no exchange is connected. The stack is React, TypeScript, Vite, Tailwind CSS, TanStack Query, Node.js, Fastify, PostgreSQL, Render, Vercel and Nimiq testnet. There are no smart contracts or real DeFi positions; the demo is explicit about operator custody and testnet-only rewards.
 
-- Verify actual public deployment and Nimiq Pay open flow.
-- Replace this draft with final facts if implementation changes.
-- Do not claim real external agent payments, trustless escrow, real-time evidence, or mainnet payout unless demonstrated and true.
-- Confirm category selection, 250-word limit, public GitHub repository and MIT license in the live submission portal.
+## Pre-submission checklist
+
+- Public GitHub repository and MIT license confirmed.
+- Testnet-only operation; no mainnet sends.
+- Category selected as **Earn**.
+- Final deployed URL: `https://levelbreak-arena.vercel.app`
+- Final release tag: `v1.0.0`.
+- Do not claim real external-agent payouts, trustless escrow, real-time evidence, or mainnet settlement. The pitch above describes only implemented behavior.

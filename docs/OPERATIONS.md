@@ -39,6 +39,10 @@ private keys or signing material:
   Luna from the demo-agent wallet to the treasury and is only exposed after
   the chain verifies network, sender, recipient, amount, reference and
   inclusion. It never marks a session available from a returned hash alone.
+- Abuse cap: at most **5 new auto-replenished sessions per rolling 24 hours**
+  (the `auto-replenish:v2:` key prefix), at most **3 per five-minute run**, and
+  a five-minute interval. The daily cap is checked before each run; an
+  exhausted budget logs `session_replenisher_daily_cap` and creates nothing.
 - Transfers are sequential. The worker stops after a pending or failed
   transfer and retries on the next interval; it does not stack three
   transfers after a chain timeout.
@@ -49,17 +53,19 @@ private keys or signing material:
   passed from `AVAILABLE` to `EXPIRED`. External-agent sessions are untouched
   because their consultation reservation has a separate lifecycle. This keeps
   operator state counts aligned with what the lobby can actually show.
-- Idempotency keys include the five-minute bucket, observed available count
-  and slot. Restarting within the same bucket resumes the same session; the
-  database unique constraint on `creation_idempotency_key` protects against
-  duplicates.
+- Idempotency keys use the `auto-replenish:v2:` prefix and include the
+  five-minute bucket, observed available count and slot. Restarting within the
+  same bucket resumes the same session; the database unique constraint on
+  `creation_idempotency_key` protects against duplicates.
 - `AUTO_REPLENISH_SESSIONS=true` is the only path that may create demo
   sessions in production while `DEMO_FUNDING_ENABLED=false`. The protected
   operator `POST /api/operator/demo-sessions` route still requires
   `DEMO_FUNDING_ENABLED=true` and a non-production `APP_ENV`.
 - Structured logs: `session_replenisher_started`, `session_replenisher_run`,
-  `session_replenisher_created`, `session_replenisher_pending`,
-  `session_replenisher_create_failed`, `session_replenisher_error`.
+  `session_replenisher_budget`, `session_replenisher_daily_cap`,
+  `session_replenisher_expired`, `session_replenisher_created`,
+  `session_replenisher_pending`, `session_replenisher_create_failed`,
+  `session_replenisher_error`.
 - To disable immediately, set `AUTO_REPLENISH_SESSIONS=false`, redeploy and
   confirm the stop log. Existing verified sessions remain playable. Do not
   erase or manually mark pending funding rows.
@@ -170,6 +176,10 @@ Use request IDs, session/run/payout IDs, safe tx hashes and error codes. Never l
 - On an accepted answer, the backend reduces both balance and reservation by
   500 Luna. On a skip, it releases 500 Luna from the reservation. Player payouts
   still come from the treasury; do not describe agent balances as escrow.
+- A consultation request with insufficient unreserved balance returns
+  `402 INSUFFICIENT_BALANCE` and creates no session or reservation. A deposit
+  hash collision during concurrent requests returns `409 DEPOSIT_TX_REUSED`;
+  the unique constraint and row lock guarantee one credit.
 - There is no arbitrary agent payout route. The only agent financial mutations
   are inbound deposit verification, consultation reservation, answer charge and
   skip release.

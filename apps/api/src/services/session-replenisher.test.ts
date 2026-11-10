@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { NimiqService } from "../nimiq/types";
-import { isAutoReplenisherOverride } from "./sessions";
+import { AUTO_REPLENISH_KEY_PREFIX, isAutoReplenisherOverride } from "./sessions";
 import {
   EMPTY_LOBBY_MESSAGE,
+  REPLENISH_DAILY_CAP,
   REPLENISH_INTERVAL_MS,
   REPLENISH_TARGET,
   replenishSessionsOnce,
@@ -92,9 +93,9 @@ describe("session replenisher", () => {
     });
     expect(createSession).toHaveBeenCalledTimes(3);
     expect(createSession.mock.calls.map((call) => call[0].idempotencyKey)).toEqual([
-      `auto-replenish:${bucket}:0:0`,
-      `auto-replenish:${bucket}:0:1`,
-      `auto-replenish:${bucket}:0:2`,
+      `${AUTO_REPLENISH_KEY_PREFIX}${bucket}:0:0`,
+      `${AUTO_REPLENISH_KEY_PREFIX}${bucket}:0:1`,
+      `${AUTO_REPLENISH_KEY_PREFIX}${bucket}:0:2`,
     ]);
     expect(
       createSession.mock.calls.every(
@@ -105,6 +106,60 @@ describe("session replenisher", () => {
       expect.objectContaining({
         event: "session_replenisher_created",
         state: "AVAILABLE",
+      }),
+      expect.any(String),
+    );
+  });
+
+  it("caps mints at the rolling daily limit", async () => {
+    const logger = makeLogger();
+    const createSession = vi.fn(async () => ({
+      sessionId: "session-new",
+      state: "AVAILABLE",
+    }));
+
+    const outcome = await replenishSessionsOnce({
+      nimiq,
+      logger,
+      enabled: true,
+      now: 1_750_000,
+      listAvailable: async () => [],
+      createSession,
+      countAutoReplenished: async () => REPLENISH_DAILY_CAP - 1,
+    });
+
+    expect(outcome.created).toBe(1);
+    expect(createSession).toHaveBeenCalledTimes(1);
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: "session_replenisher_budget",
+        dailyMinted: REPLENISH_DAILY_CAP - 1,
+        dailyRemaining: 1,
+      }),
+      expect.any(String),
+    );
+  });
+
+  it("does not mint when the rolling daily cap is exhausted", async () => {
+    const logger = makeLogger();
+    const createSession = vi.fn();
+
+    const outcome = await replenishSessionsOnce({
+      nimiq,
+      logger,
+      enabled: true,
+      now: 1_800_000,
+      listAvailable: async () => [],
+      createSession,
+      countAutoReplenished: async () => REPLENISH_DAILY_CAP,
+    });
+
+    expect(outcome.created).toBe(0);
+    expect(createSession).not.toHaveBeenCalled();
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: "session_replenisher_daily_cap",
+        dailyMinted: REPLENISH_DAILY_CAP,
       }),
       expect.any(String),
     );

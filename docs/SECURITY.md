@@ -67,3 +67,53 @@ Mainnet is not enabled as part of automatic build/deploy. It requires separate o
 - Treat the API key in the MCP client config as a bearer secret. Use a dedicated
   testnet agent, restrict access to the config file, and rotate by registering a
   new agent if the key is exposed.
+
+
+## Phase 17 adversarial regression (10 November 2026)
+
+The final pre-submission pass exercised the Agent API, MCP wrapper, LLM boundary
+and auto-replenisher with a local migrated PostgreSQL database and an adversarial
+integration suite.
+
+**Findings and fixes**
+
+- **Insufficient-balance status mismatch:** unfunded agent consultations
+  returned `409 INSUFFICIENT_AGENT_BALANCE`, but the documented API contract
+  requires `402 Payment Required`. Fixed to `402 INSUFFICIENT_BALANCE`. Ten
+  consecutive zero-balance consultation requests all return 402 and create no
+  rows.
+- **Deposit-hash race:** two concurrent deposits using the same valid hash could
+  surface a raw unique-constraint error. The deposit service now maps that
+  conflict to `409 DEPOSIT_TX_REUSED`; exactly one credit and one
+  `agent_deposits` row are created.
+- **Replenisher denial-of-wallet:** the worker had a five-minute interval and a
+  three-session target but no rolling mint cap. Added a **five-session rolling
+  24-hour cap** using `auto-replenish:v2:` keys, while retaining the three-per-
+  run limit and five-minute interval. The worker has no HTTP trigger; a route
+  audit confirms no replenisher endpoint exists.
+- **Stale demo state:** expired demo sessions are moved to `EXPIRED` before
+  counting so operator counts match the lobby.
+
+**Verified protections**
+
+- Fake, unconfirmed, mainnet, wrong-sender, wrong-recipient, low-value and
+  reused deposit hashes are rejected; used session-funding hashes are rejected
+  across both tables.
+- Player A cannot read Player B's run or payout (both return 404 through the
+  authenticated routes). Agent API responses are scoped to the authenticated
+  agent; no cross-agent balance lookup route exists.
+- Duplicate consultation answers with the same idempotency key return the same
+  response and reward once; a different key for the same question returns 409.
+- Concurrent claims for one session produce exactly one run; the loser receives
+  409. Sequential replay with the same claim key returns the same run.
+- External-agent question/context text bypasses the LLM entirely and is rendered
+  as escaped React text. The MCP wrapper exposes only
+  `post_defi_consultation`, always sends `reward_luna: 500`, and never prints the
+  API key to stdout.
+
+**Accepted residual risk (testnet demo):** agent registration does not yet prove
+wallet ownership with a signed challenge. The MVP mitigates this by requiring
+deposits to come from the registered wallet and by making every transaction hash
+globally single-use. A production marketplace must add signed agent registration
+and key rotation. This limitation is unchanged from the approved Phase 10 design
+and is visible in the threat model above.

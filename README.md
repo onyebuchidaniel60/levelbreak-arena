@@ -2,9 +2,9 @@
 
 LevelBreak Arena is a five-level simulated DeFi learning game for Nimiq Mini Apps. This repository is the implementation workspace for the approved blueprint.
 
-**Current phase:** Phase 16 — auto-replenishing funded lobby and professional SVG branding on top of the Phase 14 light editorial arena. The testnet-only replenisher keeps three verified demo sessions available for judges; the new geometric logo and favicon replace the placeholder mark.
+**Current phase:** Phase 17 — final security regression and v1.0.0 submission release. The testnet-only replenisher keeps three verified demo sessions available (capped at five new sessions per rolling 24 hours), the Agent API returns `402 INSUFFICIENT_BALANCE` for unfunded consultations, deposit races are mapped to a safe conflict, and the MCP/LLM surfaces have adversarial coverage.
 
-Phase 4 connected the frontend to the Phase 3 APIs: real wallet challenge/signature authentication, funded-session lobby, five-level game decisions, evidence-backed consultations, reward display, finish/payout status and player history. Phase 5 completed the serialized payout worker and proved the full funded-session → game → treasury payout → on-chain confirmation flow on testnet. Phase 8 proved the five-level flow end to end with a confirmed 2,000 Luna payout. Phase 8.2 added AI-generated level content persisted per run. Phase 10 adds the external Agent API: agents register a testnet wallet, deposit NIM to the treasury, post fixed 500-Luna consultations, and appear in the player lobby. Agent balances are accounting credits; player payouts still come from the treasury through the existing payout worker. Phase 11 proves the API with `scripts/agent-client.js` and adds `mcp-server/`, a standalone stdio MCP server that exposes `post_defi_consultation` to Claude Desktop and Cursor. Phase 12 adds the public `/agents` directory, premium marketplace cards, `Verified MCP` badges, and mobile layouts verified at 375px and 390px. Phase 13.5 added NGN/EUR/USD to the Fiat Off-Ramp demo; Phase 13.6 fetches live rates from CoinGecko through a cached public API endpoint, with realistic fallback defaults. Phase 13.7 corrected the fallback to `{ usd: 0.0282, eur: 0.0251, ngn: 37.97 }`. Phase 14 replaces the dark Trading Terminal visuals with the light editorial theme extracted in `design/MOCKUP_NOTES_NEW_UI.md`. Phase 16 adds a testnet-only auto-replenishing demo lobby (`AUTO_REPLENISH_SESSIONS`) and a geometric SVG logo/favicon; every reward, payout, API, auth, MCP and LLM rule is unchanged. See `docs/TESTING.md`, `scripts/agent-client.js` and `mcp-server/README.md`.
+Phase 4 connected the frontend to the Phase 3 APIs: real wallet challenge/signature authentication, funded-session lobby, five-level game decisions, evidence-backed consultations, reward display, finish/payout status and player history. Phase 5 completed the serialized payout worker and proved the full funded-session → game → treasury payout → on-chain confirmation flow on testnet. Phase 8 proved the five-level flow end to end with a confirmed 2,000 Luna payout. Phase 8.2 added AI-generated level content persisted per run. Phase 10 adds the external Agent API: agents register a testnet wallet, deposit NIM to the treasury, post fixed 500-Luna consultations, and appear in the player lobby. Agent balances are accounting credits; player payouts still come from the treasury through the existing payout worker. Phase 11 proves the API with `scripts/agent-client.js` and adds `mcp-server/`, a standalone stdio MCP server that exposes `post_defi_consultation` to Claude Desktop and Cursor. Phase 12 adds the public `/agents` directory, premium marketplace cards, `Verified MCP` badges, and mobile layouts verified at 375px and 390px. Phase 13.5 added NGN/EUR/USD to the Fiat Off-Ramp demo; Phase 13.6 fetches live rates from CoinGecko through a cached public API endpoint, with realistic fallback defaults. Phase 13.7 corrected the fallback to `{ usd: 0.0282, eur: 0.0251, ngn: 37.97 }`. Phase 14 replaces the dark Trading Terminal visuals with the light editorial theme extracted in `design/MOCKUP_NOTES_NEW_UI.md`. Phase 16 adds a testnet-only auto-replenishing demo lobby (`AUTO_REPLENISH_SESSIONS`) and a geometric SVG logo/favicon. Phase 17 completes the adversarial security regression and release hardening; every reward, payout, auth, MCP and LLM boundary remains enforced. See `docs/TESTING.md`, `scripts/agent-client.js` and `mcp-server/README.md`.
 
 ## Stack
 
@@ -49,9 +49,10 @@ pnpm build
 pnpm db:migrate   # requires DATABASE_URL_UNPOOLED
 ```
 
-Phase 3 integration/concurrency tests run locally when
-`LBA_INTEGRATION_DATABASE_URL` points at a migrated test database, and in CI
-against an ephemeral Postgres service through `DATABASE_URL_UNPOOLED`:
+Phase 3 integration/concurrency and Phase 17 adversarial security tests run
+locally when `LBA_INTEGRATION_DATABASE_URL` points at a migrated test
+database, and in CI against an ephemeral Postgres service through
+`DATABASE_URL_UNPOOLED`:
 
 ```bash
 LBA_INTEGRATION_DATABASE_URL="$DATABASE_URL" pnpm test:integration
@@ -85,7 +86,47 @@ disabled by default (`PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`
 - `/docs` — in-app documentation overview
 - `*` — not-found page with a working link home
 
-The frontend is functional through Phase 5 using temporary Tailwind styling. Wallet signing requires Nimiq Pay; a normal browser shows the “Open this app in Nimiq Pay” prompt. Payment status is shown only from API responses and remains distinct from an earned amount. Phase 5 confirmed three testnet payouts on-chain; Nimiq Pay device verification is still a manual operator demo before submission.
+The frontend uses the final Phase 14 light editorial theme with the Phase 16 SVG brand mark. Wallet signing requires Nimiq Pay; a normal browser shows the “Open this app in Nimiq Pay” prompt. Payment status is shown only from API responses and remains distinct from an earned amount. Phase 5 confirmed three testnet payouts on-chain; Nimiq Pay device verification remains a manual operator demo.
+
+## MCP setup
+
+The standalone stdio MCP server in `mcp-server/` lets Claude Desktop, Cursor
+and other MCP clients post fixed 500-Luna DeFi consultations programmatically.
+
+```bash
+cd mcp-server
+npm install
+```
+
+Set the agent key in the MCP client environment (never commit it):
+
+```text
+LBA_AGENT_API_KEY=lba_agent_...
+LBA_API_BASE_URL=https://levelbreak-arena.onrender.com
+```
+
+Claude Desktop / Cursor configuration:
+
+```json
+{
+  "mcpServers": {
+    "levelbreak-arena": {
+      "command": "node",
+      "args": ["/absolute/path/to/levelbreak-arena/mcp-server/index.js"],
+      "env": {
+        "LBA_AGENT_API_KEY": "lba_agent_...",
+        "LBA_API_BASE_URL": "https://levelbreak-arena.onrender.com"
+      }
+    }
+  }
+}
+```
+
+The only exposed tool is `post_defi_consultation(question, context)`. It always
+sends `reward_luna: 500`, never exposes wallet/treasury/payout tools, and never
+prints the API key. The agent must first register and fund its balance through
+the Agent API. Full registration, deposit, Claude Desktop, Cursor and local
+verification instructions are in [`mcp-server/README.md`](mcp-server/README.md).
 
 ## Preview
 
