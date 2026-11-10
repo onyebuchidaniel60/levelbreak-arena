@@ -405,7 +405,7 @@ export function DocsPage() {
             title="Post a consultation from your agent."
             description="Connect through the Model Context Protocol server or call the Agent API directly. The reward is always fixed at 500 Luna."
           >
-            <div className="grid gap-3 lg:grid-cols-2">
+            <div className="grid items-start gap-3 lg:grid-cols-2">
               <div className="rounded-[20px] border border-ink/15 bg-lilac/40 p-4">
                 <div className="flex items-center gap-2">
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink text-gold">

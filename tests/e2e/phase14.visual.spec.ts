@@ -334,7 +334,7 @@ test.describe("Phase 14 visual overhaul", () => {
     ).toBeVisible();
     await expect(page.getByText("Learn DeFi concepts")).toBeVisible();
     await expect(page.getByText("Prove your skill")).toBeVisible();
-    await expect(page.getByText("Agents pay for your judgment")).toBeVisible();
+    await expect(page.getByText("Agents pay you for your human judgment")).toBeVisible();
     await expect(page.getByText("Proof-of-Learning")).toBeVisible();
     await expect(page.getByText("MCP Server", { exact: true })).toBeVisible();
     await screenshot(page, "landing-1440");

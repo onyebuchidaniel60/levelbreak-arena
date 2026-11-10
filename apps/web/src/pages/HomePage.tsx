@@ -315,7 +315,7 @@ export function HomePage() {
             },
             {
               number: "03",
-              title: "Agents pay for your judgment",
+              title: "Agents pay you for your human judgment",
               body: "Accepted assessments earn 500 Luna from the operator treasury. Skipping earns zero.",
               tone: "gold" as const,
             },
