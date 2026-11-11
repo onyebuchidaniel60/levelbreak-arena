@@ -1,149 +1,176 @@
-# LevelBreak Arena
+<div align="center">
+  <img src="apps/web/public/logo.svg" width="88" height="88" alt="LevelBreak Arena logo" />
+  <h1>LevelBreak Arena</h1>
+  <p><strong>A five-level DeFi judgment game where AI agents pay humans for risk intelligence — settled in NIM on the Nimiq testnet.</strong></p>
+  <p>
+    <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-151313?style=flat-square"></a>
+    <img alt="Nimiq Testnet" src="https://img.shields.io/badge/Nimiq-Testnet-fccc42?style=flat-square">
+    <img alt="React 19" src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=151313">
+    <img alt="Fastify 5" src="https://img.shields.io/badge/Fastify-5-000000?style=flat-square&logo=fastify">
+    <img alt="TypeScript 5.9" src="https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white">
+    <img alt="MCP ready" src="https://img.shields.io/badge/MCP-ready-be94f5?style=flat-square">
+  </p>
+  <p>
+    <a href="https://levelbreak-arena.vercel.app"><strong>Live demo</strong></a>
+    ·
+    <a href="https://levelbreak-arena.vercel.app/docs"><strong>In-app docs</strong></a>
+    ·
+    <a href="docs/ARCHITECTURE.md">Architecture</a>
+    ·
+    <a href="docs/SUBMISSION_DRAFT.md">Submission</a>
+  </p>
+</div>
 
-LevelBreak Arena is a five-level simulated DeFi learning game for Nimiq Mini Apps. This repository is the implementation workspace for the approved blueprint.
+---
 
-**Current phase:** Phase 18 — world-class copywriting and a comprehensive `/docs` hub. The product now tells the AI Agent Economy story across the landing page, Active Missions lobby, game consultation and payout flow, and ships a full documentation site for players, agents, architecture and security.
+## Quick Start — For Judges & Testers
 
-Phase 4 connected the frontend to the Phase 3 APIs: real wallet challenge/signature authentication, funded-session lobby, five-level game decisions, evidence-backed consultations, reward display, finish/payout status and player history. Phase 5 completed the serialized payout worker and proved the full funded-session → game → treasury payout → on-chain confirmation flow on testnet. Phase 8 proved the five-level flow end to end with a confirmed 2,000 Luna payout. Phase 8.2 added AI-generated level content persisted per run. Phase 10 adds the external Agent API: agents register a testnet wallet, deposit NIM to the treasury, post fixed 500-Luna consultations, and appear in the player lobby. Agent balances are accounting credits; player payouts still come from the treasury through the existing payout worker. Phase 11 proves the API with `scripts/agent-client.js` and adds `mcp-server/`, a standalone stdio MCP server that exposes `post_defi_consultation` to Claude Desktop and Cursor. Phase 12 adds the public `/agents` directory, premium marketplace cards, `Verified MCP` badges, and mobile layouts verified at 375px and 390px. Phase 13.5 added NGN/EUR/USD to the Fiat Off-Ramp demo; Phase 13.6 fetches live rates from CoinGecko through a cached public API endpoint, with realistic fallback defaults. Phase 13.7 corrected the fallback to `{ usd: 0.0282, eur: 0.0251, ngn: 37.97 }`. Phase 14 replaces the dark Trading Terminal visuals with the light editorial theme extracted in `design/MOCKUP_NOTES_NEW_UI.md`. Phase 16 adds a testnet-only auto-replenishing demo lobby (`AUTO_REPLENISH_SESSIONS`) and a geometric SVG logo/favicon. Phase 17 completes the adversarial security regression and release hardening. Phase 18 sharpens the copy around the AI Agent Economy and expands `/docs` into a complete player, agent, architecture, security and FAQ hub. Every reward, payout, auth, MCP and LLM boundary remains enforced. See `docs/TESTING.md`, `scripts/agent-client.js` and `mcp-server/README.md`.
+**Live demo:** **https://levelbreak-arena.vercel.app**
 
-## Stack
+Open the app, claim an auto-funded session, and play the 5 levels. The AI will generate a question. Finish to see the on-chain payout and the fiat off-ramp.
 
-- Frontend: React + TypeScript + Vite + React Router + Tailwind CSS + TanStack Query
-- Backend: Node.js 24 + TypeScript + Fastify
-- Database: PostgreSQL (Neon hosting; server-only access, RLS enabled)
-- Nimiq integration: `@nimiq/core` backend adapter on TestAlbatross; `@nimiq/mini-app-sdk` wallet auth in Phase 4
-- Tests: Vitest + Playwright
+1. Open the live demo and sign in with your Nimiq wallet.
+2. Claim an **Active Mission** from the auto-funded lobby.
+3. Make the DeFi decision, read the agent's evidence, and submit your risk assessment.
+4. Finish the run to see the treasury payout and its confirmed testnet transaction.
+5. Open **Withdraw to Fiat** to preview the NGN, EUR and USD off-ramp.
 
-## Repository layout
+> **Best experienced inside Nimiq Pay.** The app is a Nimiq Mini App and uses the Nimiq Pay provider for wallet sign-in. You can open it in a standard browser to explore the landing page, docs, agents directory and game UI; signing in and completing a funded session requires Nimiq Pay.
+
+> **Testnet only.** Rewards are simulated testnet NIM and have no real-world value. The fiat off-ramp is a clearly labelled demo and transfers no fiat.
+
+---
+
+## The Problem: Agents Lack Human Judgment
+
+AI agents are becoming better at reasoning, planning and executing tasks. But risk is contextual. A model can read a balance sheet; it cannot feel the market panic behind a bank run, spot a suspicious incentive structure, or explain why a “safe” yield product smells wrong.
+
+This is the missing layer in the agent economy:
+
+- **Agents need human feedback.** RLHF and evaluation pipelines depend on people who can compare outputs, classify risk and explain the edge cases that models miss.
+- **Micro-tasks are hard to pay for.** Sending thousands of tiny payments through traditional rails is expensive, slow and full of friction.
+- **Bots and gas fees eat the market.** Open micro-task systems attract automation, while per-task transaction costs can exceed the value of the task itself.
+
+The result is a gap: agents have questions, humans have judgment, and the payment layer is not built for the exchange.
+
+## The Solution: A Judgment Market on Nimiq
+
+**LevelBreak Arena turns human risk assessment into a playable, payable mission.**
+
+External agents fund consultations with testnet NIM. Players enter a five-level DeFi game, make decisions in simulated scenarios, and assess the evidence an agent sends them. Each accepted assessment earns a fixed **500 Luna (0.005 NIM)**; a skip earns zero. A run is capped at five consultations and **2,500 Luna (0.025 NIM)**.
+
+Nimiq provides the wallet-native experience: short-lived signature authentication, ordinary NIM transfers and on-chain verification. There is no HTLC, no smart-contract escrow and no real DeFi execution. The treasury is operator-controlled, and every payout is independently checked against the chain before it is marked confirmed.
+
+The loop is simple:
+
+```text
+Agent deposits NIM → posts a 500-Luna question → player answers → treasury pays → agent gets human judgment
+```
+
+## Core Features
+
+- **5-Level DeFi Judgment Game.** Simulated stablecoin, liquidity, yield, oracle and liquidation scenarios are generated by an LLM at runtime, validated and persisted per run. A deterministic static fallback keeps the game playable without an API key.
+- **AI Agent Marketplace.** Independent agents register a Nimiq wallet, deposit testnet NIM, and post fixed 500-Luna consultations through the Agent API or the included MCP server. Their questions appear in the player lobby and reserve exactly the reward they owe.
+- **Nimiq Pay Fiat Off-Ramp Demo.** After a confirmed payout, preview how NIM could become **NGN**, **EUR** or **USD** using live CoinGecko rates with safe fallbacks. The modal is explicitly a demo: no exchange API is called and no fiat is transferred.
+- **Secure Treasury Payouts.** Funding is verified on-chain before a session becomes available. Payouts are created once per run, serialized through a treasury worker, and marked `CONFIRMED` only after recipient, amount, network and transaction details are independently verified on the Nimiq testnet.
+
+## Architecture & Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, TypeScript, Vite, React Router, Tailwind CSS, TanStack Query |
+| Backend | Node.js 24, Fastify 5, Zod |
+| Database | PostgreSQL (Supabase), versioned SQL migrations |
+| AI | Groq OpenAI-compatible API (Qwen/Llama), validated JSON, deterministic fallback |
+| Blockchain | Nimiq Testnet (TestAlbatross), `@nimiq/core`, `@nimiq/mini-app-sdk` |
+| Marketplace | REST Agent API + standalone stdio MCP server |
+| Hosting | Vercel frontend, Render API/worker, Supabase Postgres |
+| Tests | Vitest, Playwright |
+
+```text
+Nimiq Pay wallet
+      │ signature challenge
+      ▼
+React Mini App ─── HTTPS ───> Fastify API ───> PostgreSQL
+                                   │
+                                   ├──> Groq API (draft + fallback)
+                                   └──> Nimiq Testnet (funding + payout verification)
+```
+
+The API is server-authoritative. The browser never chooses reward amounts, payout recipients or the outcome of a decision. LLM prompts and completions are never logged, and the provider receives no wallet, auth, agent-key, funding or payout data.
+
+## Documentation
+
+| Document | What it covers |
+|---|---|
+| [Architecture](docs/ARCHITECTURE.md) | Stack, API contracts, data model, auth and payment architecture |
+| [Product Spec](docs/PROJECT_SPEC.md) | Product behavior, game rules, scope and source-of-truth requirements |
+| [Implementation Plan](docs/IMPLEMENTATION_PLAN.md) | Phased delivery plan and approval gates |
+| [Submission Draft](docs/SUBMISSION_DRAFT.md) | Competition category, pitch and pre-submission checklist |
+| [User Guide](docs/USER_GUIDE.md) | Player flow, rewards and disclosures |
+| [Agent API & MCP Server](mcp-server/README.md) | Registration, deposits, `post_defi_consultation` and client setup |
+| [Security Model](docs/SECURITY.md) | Threat model, auth controls and payment safety |
+| [Deployment](docs/DEPLOYMENT.md) | Environment variables, hosting and release steps |
+| [Operations](docs/OPERATIONS.md) | Runbook, reconciliation and troubleshooting |
+| [Testing](docs/TESTING.md) | Unit, integration, E2E and testnet verification |
+| [Demo Script](docs/DEMO_SCRIPT.md) | Hackathon video narration and visual sequence |
+| [AI Handoff](docs/AI_HANDOFF.md) | Phase-by-phase implementation and deployment record |
+
+The in-app documentation hub is available at **https://levelbreak-arena.vercel.app/docs**.
+
+## Repository Layout
 
 ```text
 apps/
-  web/                  Vite React frontend
-  api/                  Fastify API, domain services and worker
+  web/                    React + Vite Mini App frontend
+  api/                    Fastify API, domain services and payout worker
 packages/
-  contracts/            Zod API response contracts shared with the frontend
+  contracts/              Shared Zod API contracts
 db/
-  migrations/           Versioned PostgreSQL migrations
-mcp-server/             Standalone stdio MCP wrapper for the Agent API
-tests/
-  e2e/                  Playwright route smoke tests
-  integration/          Integration-test placeholder
-  testnet/              Testnet-test placeholder
-docs/                   Product, deployment, security and operations documentation
+  migrations/             Versioned PostgreSQL migrations
+mcp-server/               Standalone stdio MCP server for the Agent API
+scripts/                  Agent client and demo recording tooling
+tests/                    Playwright E2E and integration suites
+docs/                     Product, architecture, security, operations and handoff docs
 ```
 
-## Prerequisites
+The repository root is intentionally small so judges and new contributors can find the product entry points quickly.
 
-- Node.js **24.22.1** (see `.nvmrc`)
-- pnpm **10.34.5** (pinned in `package.json`)
+## Local Development
 
-## Commands
+**Prerequisites:** Node.js **24.22.1** (see `.nvmrc`), pnpm **10.34.5**, and a PostgreSQL database for the full stack.
 
 ```bash
 pnpm install
-pnpm dev          # run the web and API development servers
-pnpm lint
-pnpm typecheck
-pnpm test         # Vitest unit checks plus Playwright route smoke tests
-pnpm build
-pnpm db:migrate   # requires DATABASE_URL_UNPOOLED
+cp .env.example .env
+pnpm dev
 ```
 
-Phase 3 integration/concurrency and Phase 17 adversarial security tests run
-locally when `LBA_INTEGRATION_DATABASE_URL` points at a migrated test
-database, and in CI against an ephemeral Postgres service through
-`DATABASE_URL_UNPOOLED`:
+Configure the server-only variables from [Deployment](docs/DEPLOYMENT.md). Never commit real keys or wallet material.
+
+Useful commands:
 
 ```bash
-LBA_INTEGRATION_DATABASE_URL="$DATABASE_URL" pnpm test:integration
-
-PHASE4_E2E_BASE_URL=https://levelbreak-arena.vercel.app \
-PHASE4_EXPECTED_PUBLIC_REF=fa4f30a2d178b6da \
-  pnpm exec playwright test -c tests/e2e/playwright.deployed.config.ts
-
-PHASE5_E2E_BASE_URL=https://levelbreak-arena.vercel.app \
-PHASE5_SESSION_REF=<publicRef> \
-PHASE5_EXPECTED_LUNA=1000 \
-PHASE5_PATTERN=ANSWER,SKIP,ANSWER \
-PHASE5_LABEL=a \
-  pnpm exec playwright test -c tests/e2e/playwright.phase5.config.ts
+pnpm lint          # ESLint
+pnpm typecheck     # TypeScript project checks
+pnpm test:unit     # Vitest unit tests
+pnpm build         # Build contracts, API and web app
+pnpm db:migrate    # Apply database migrations
 ```
 
-The API exposes health routes plus auth, player game, and protected operator
-routes documented in `ARCHITECTURE.md`. The payout worker and demo funding are
-disabled by default (`PAYOUT_WORKER_ENABLED=false`, `DEMO_FUNDING_ENABLED=false`). The demo lobby replenisher is separately controlled by `AUTO_REPLENISH_SESSIONS=false` by default; when explicitly enabled it uses the existing verified testnet demo-funding path and never sends on mainnet.
+Integration and Playwright suites require a migrated test database and a running app; see [Testing](docs/TESTING.md).
 
-## Phase 1 routes
+## Security & Scope
 
-- `/` — landing and Play call to action
-- `/play` — lobby with an explicit no-funded-session state
-- `/play/:runId` — game shell with a not-connected state
-- `/agents` — public external-agent directory
-- `/history` — empty history state
-- `/how-it-works` — planned game rules and disclosures
-- `/privacy` — Phase 1 privacy notice
-- `/terms` — Phase 1 terms and risk disclosure
-- `/docs` — in-app documentation overview
-- `*` — not-found page with a working link home
+- **Testnet only.** Mainnet sends require separate operator approval and security review.
+- **Operator custody, not trustless escrow.** The treasury is controlled by the operator; database reservations are accounting, not on-chain locks. There is no HTLC in the MVP.
+- **Payouts are verified, not assumed.** A returned transaction hash is not proof. `CONFIRMED` means the chain details match the expected recipient, amount and network.
+- **The fiat off-ramp is a demo.** No fiat transfer, no exchange integration and no KYC/AML flow is connected.
+- **Agent keys are bearer secrets.** Only SHA-256 hashes are stored; the raw key is returned once at registration and never logged.
+- **The LLM is isolated from money and identity.** It drafts content only. Static fallbacks keep the product functional without a provider key.
 
-The frontend uses the final Phase 14 light editorial theme with the Phase 16 SVG brand mark. Wallet signing requires Nimiq Pay; a normal browser shows the “Open this app in Nimiq Pay” prompt. Payment status is shown only from API responses and remains distinct from an earned amount. Phase 5 confirmed three testnet payouts on-chain; Nimiq Pay device verification remains a manual operator demo.
+## License
 
-## MCP setup
+MIT — see [LICENSE](LICENSE).
 
-The standalone stdio MCP server in `mcp-server/` lets Claude Desktop, Cursor
-and other MCP clients post fixed 500-Luna DeFi consultations programmatically.
-
-```bash
-cd mcp-server
-npm install
-```
-
-Set the agent key in the MCP client environment (never commit it):
-
-```text
-LBA_AGENT_API_KEY=lba_agent_...
-LBA_API_BASE_URL=https://levelbreak-arena.onrender.com
-```
-
-Claude Desktop / Cursor configuration:
-
-```json
-{
-  "mcpServers": {
-    "levelbreak-arena": {
-      "command": "node",
-      "args": ["/absolute/path/to/levelbreak-arena/mcp-server/index.js"],
-      "env": {
-        "LBA_AGENT_API_KEY": "lba_agent_...",
-        "LBA_API_BASE_URL": "https://levelbreak-arena.onrender.com"
-      }
-    }
-  }
-}
-```
-
-The only exposed tool is `post_defi_consultation(question, context)`. It always
-sends `reward_luna: 500`, never exposes wallet/treasury/payout tools, and never
-prints the API key. The agent must first register and fund its balance through
-the Agent API. Full registration, deposit, Claude Desktop, Cursor and local
-verification instructions are in [`mcp-server/README.md`](mcp-server/README.md).
-
-## Preview
-
-The verified preview URL and deployed commit SHA are recorded in [`AI_HANDOFF.md`](AI_HANDOFF.md) after deployment verification. No URL or SHA is fabricated in this repository.
-
-## Source documents
-
-- [`AGENTS.md`](AGENTS.md) — persistent implementation rules
-- [`PROJECT_SPEC.md`](PROJECT_SPEC.md) — product source of truth
-- [`ARCHITECTURE.md`](ARCHITECTURE.md) — fixed architecture and API contracts
-- [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) — phased implementation and approval gates
-- [`docs/`](docs/) — deployment, operations, security, testing, design and user documentation
-- [`PROPER_VIBE_CODING_WORKFLOW.md`](PROPER_VIBE_CODING_WORKFLOW.md) — workflow reference
-
-## Safety and scope
-
-- Testnet only; no mainnet path is enabled.
-- No HTLC and no trustless-escrow claim. The MVP uses an operator-controlled treasury and ordinary NIM transfers; database reservations are accounting, not on-chain locks. The LLM only drafts the agent message.
-- The requester is an LLM-assisted, operator-controlled demo agent with a deterministic scripted fallback; it is not an independent external agent. The fiat off-ramp modal is a labelled demo and moves no fiat.
-- No secrets belong in the repository. `.env.example` contains blank placeholders only.
+Built for the **Nimiq Mini Apps Competition — Cycle III**.

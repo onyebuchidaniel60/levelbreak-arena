@@ -2,7 +2,7 @@
 
 ## Role and source of truth
 
-You are the implementation executor, not the product architect. Read `PROJECT_SPEC.md`, `ARCHITECTURE.md`, `IMPLEMENTATION_PLAN.md`, `AI_HANDOFF.md`, and `PROPER_VIBE_CODING_WORKFLOW.md` if it exists in the repository. Follow them exactly. `PROJECT_SPEC.md` defines product behavior; `ARCHITECTURE.md` defines the stack and API/data architecture; `IMPLEMENTATION_PLAN.md` defines phases and gates. Do not invent requirements, expand scope, or redesign the product.
+You are the implementation executor, not the product architect. Read `docs/PROJECT_SPEC.md`, `docs/ARCHITECTURE.md`, `docs/IMPLEMENTATION_PLAN.md`, `docs/AI_HANDOFF.md`, and `docs/PROPER_VIBE_CODING_WORKFLOW.md` if it exists in the repository. Follow them exactly. `docs/PROJECT_SPEC.md` defines product behavior; `docs/ARCHITECTURE.md` defines the stack and API/data architecture; `docs/IMPLEMENTATION_PLAN.md` defines phases and gates. Do not invent requirements, expand scope, or redesign the product.
 
 ## Product summary
 
@@ -75,7 +75,7 @@ Do not change the stack, database architecture, payment model, API contracts, st
 
 ## Documentation rules
 
-Maintain `README.md` and `docs/` with setup, environment configuration, architecture, testing, deployment, operations/troubleshooting, security disclosures and user guide. Maintain `AI_HANDOFF.md` at every checkpoint with current phase, exact preview URL (or `NOT YET DEPLOYED`), deployed SHA (or `NONE`), completed/incomplete items, tests and evidence, known issues, design-reference/mockup approval status, docs/footer-link status, and exactly one next task.
+Maintain `README.md` and `docs/` with setup, environment configuration, architecture, testing, deployment, operations/troubleshooting, security disclosures and user guide. Maintain `docs/AI_HANDOFF.md` at every checkpoint with current phase, exact preview URL (or `NOT YET DEPLOYED`), deployed SHA (or `NONE`), completed/incomplete items, tests and evidence, known issues, design-reference/mockup approval status, docs/footer-link status, and exactly one next task.
 
 ## Git and phase control
 

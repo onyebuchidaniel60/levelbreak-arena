@@ -721,16 +721,16 @@ For substantial builds, use:
 ```text
 PROJECT/
 │
-├── PROJECT_SPEC.md
-├── ARCHITECTURE.md
-├── IMPLEMENTATION_PLAN.md
-├── AGENTS.md
-├── AI_HANDOFF.md
 ├── README.md
 │
 ├── src/
 ├── tests/
-├── docs/                 # Setup, user/operator guide, architecture, deployment, troubleshooting
+├── docs/                 # Product spec, architecture, plan, agent rules, handoff and guides
+│   ├── PROJECT_SPEC.md
+│   ├── ARCHITECTURE.md
+│   ├── IMPLEMENTATION_PLAN.md
+│   ├── AGENTS.md
+│   └── AI_HANDOFF.md
 └── ...
 ```
 

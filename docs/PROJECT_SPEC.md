@@ -953,12 +953,8 @@ See `ARCHITECTURE.md`. Monorepo structure:
 
 ```text
 levelbreak-arena/
-├── PROJECT_SPEC.md
-├── ARCHITECTURE.md
-├── IMPLEMENTATION_PLAN.md
-├── AGENTS.md
-├── AI_HANDOFF.md
 ├── README.md
+├── LICENSE
 ├── package.json
 ├── pnpm-workspace.yaml
 ├── apps/
@@ -969,11 +965,21 @@ levelbreak-arena/
 ├── db/
 │   ├── migrations/
 │   └── seed/                 # scripted scenarios, test fixtures only
+├── mcp-server/               # Standalone stdio MCP server
+├── scripts/                  # Agent client and demo tooling
 ├── tests/
 │   ├── e2e/
 │   ├── integration/
 │   └── testnet/
 └── docs/
+    ├── PROJECT_SPEC.md
+    ├── ARCHITECTURE.md
+    ├── IMPLEMENTATION_PLAN.md
+    ├── AGENTS.md
+    ├── AI_HANDOFF.md
+    ├── BLUEPRINT_INDEX.md
+    ├── FINAL_PREIMPLEMENTATION_AUDIT.md
+    ├── PROPER_VIBE_CODING_WORKFLOW.md
     ├── ARCHITECTURE_NOTES.md
     ├── DEPLOYMENT.md
     ├── OPERATIONS.md

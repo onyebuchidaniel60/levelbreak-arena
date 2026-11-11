@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
-**Last updated:** 10 November 2026
-**Current phase:** Phase 19 — hackathon demo video generated locally; awaiting operator review
-**Status:** Phase 19 COMPLETE (local media). Phase 18 PASS / DEPLOYED / LIVE VERIFIED. Phase 17 v1.0.0 complete.
+**Last updated:** 11 November 2026
+**Current phase:** Phase 21 — repository decluttered and public README rewritten; pushed to origin/main
+**Status:** Phase 21 COMPLETE / PUSHED. Phase 19 demo complete. Phase 18 PASS / DEPLOYED / LIVE VERIFIED. Phase 17 v1.0.0 complete.
 
 ## Current deployment and wallets
 
@@ -35,6 +35,35 @@
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
 - Operator approval of final visual design: **GIVEN — Phase 14 operator references, 10 November 2026**. Direction 1 was approved on 4 November 2026 for Phases 7–13.7 and is now visually superseded.
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`, `AUTO_REPLENISH_SESSIONS=true` (the explicitly approved testnet-only replenisher).
+
+## Phase 21 — Repository decluttering and world-class documentation (11 November 2026)
+
+**Status:** COMPLETE / PUSHED.
+
+- Moved `AGENTS.md`, `AI_HANDOFF.md`, `ARCHITECTURE.md`, `BLUEPRINT_INDEX.md`,
+  `FINAL_PREIMPLEMENTATION_AUDIT.md`, `IMPLEMENTATION_PLAN.md`,
+  `PROJECT_SPEC.md` and `PROPER_VIBE_CODING_WORKFLOW.md` into `docs/` using
+  `git mv`, preserving history.
+- Rewrote `README.md` as the public entry point: logo and badges, judge quick
+  start with the live URL, problem/solution and RLHF context, core features,
+  architecture and stack table, documentation index, local development,
+  security/scope disclosure and MIT license.
+- Updated path references in `docs/AGENTS.md`, the repository tree in
+  `docs/PROJECT_SPEC.md`, the template in `docs/PROPER_VIBE_CODING_WORKFLOW.md`
+  and `design/MOCKUP_NOTES_NEW_UI.md`.
+- Verification:
+
+```text
+pnpm lint          passed
+pnpm typecheck     passed
+pnpm build         passed
+relative Markdown links  all resolve
+```
+
+- No runtime code, API contract, database schema, auth, payment, treasury,
+  MCP or deployment behavior changed.
+- **Single next task:** Operator reviews the repository presentation. Do not
+  begin another phase.
 
 ## Phase 19 — Hackathon demo video (10 November 2026)
 

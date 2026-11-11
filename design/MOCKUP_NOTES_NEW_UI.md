@@ -97,5 +97,5 @@ Applied across `apps/web/` in Phase 14. The Tailwind v4 theme lives in
 `apps/web/src/index.css`; shared primitives are in
 `apps/web/src/components/ui.tsx`. All routes, states and modals were restyled
 without changing backend, API, schema, auth, payment/treasury, MCP/agent API or
-LLM behavior. Verification and screenshots are recorded in `AI_HANDOFF.md`,
+LLM behavior. Verification and screenshots are recorded in `../docs/AI_HANDOFF.md`,
 `docs/TESTING.md` and `test-results/phase14/`.
