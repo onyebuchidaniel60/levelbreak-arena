@@ -67,6 +67,9 @@ server.registerTool(
   },
   async ({ question, context }) => {
     try {
+      // The backend commits the session, consultation and balance reservation
+      // in one transaction before replying. Await the full response body; do not
+      // detach or fire-and-forget this request.
       const response = await fetch(`${API_BASE_URL}/api/agent/consultations`, {
         method: "POST",
         headers: {
@@ -107,6 +110,22 @@ server.registerTool(
 
       const consultation = payload?.consultation;
       const agent = payload?.agent;
+      if (
+        !consultation ||
+        typeof consultation.consultationId !== "string" ||
+        typeof consultation.sessionId !== "string" ||
+        typeof consultation.rewardLuna !== "string"
+      ) {
+        return {
+          isError: true,
+          content: [
+            {
+              type: "text",
+              text: "LevelBreak Arena returned an incomplete acknowledgement. The consultation may not have been committed. Check GET /api/agent/consultations before retrying.",
+            },
+          ],
+        };
+      }
       return {
         content: [
           {

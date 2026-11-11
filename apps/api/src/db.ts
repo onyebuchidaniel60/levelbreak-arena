@@ -24,6 +24,8 @@ export async function withTransaction<T>(
   try {
     await client.query("BEGIN");
     const result = await callback(client);
+    // Resolve only after Postgres has acknowledged COMMIT. Callers, including
+    // the Agent API, must not send a success response before this await returns.
     await client.query("COMMIT");
     return result;
   } catch (error) {

@@ -1,8 +1,8 @@
 # AI_HANDOFF.md — LevelBreak Arena
 
 **Last updated:** 11 November 2026
-**Current phase:** Phase 21 — repository decluttered and public README rewritten; pushed to origin/main
-**Status:** Phase 21 COMPLETE / PUSHED. Phase 19 demo complete. Phase 18 PASS / DEPLOYED / LIVE VERIFIED. Phase 17 v1.0.0 complete.
+**Current phase:** Phase 22 — MCP synchronous ledger acknowledgement audited and hardened; pushed to origin/main
+**Status:** Phase 22 VERIFIED / HARDENED / PUSHED. Phase 21 COMPLETE / PUSHED. Phase 19 demo complete. Phase 18 PASS / DEPLOYED / LIVE VERIFIED.
 
 ## Current deployment and wallets
 
@@ -35,6 +35,51 @@
 - Prototype deployment: Direction 1 is applied to the deployed production app; rejected prototypes are not deployed.
 - Operator approval of final visual design: **GIVEN — Phase 14 operator references, 10 November 2026**. Direction 1 was approved on 4 November 2026 for Phases 7–13.7 and is now visually superseded.
 - Feature flags on Render: `DEMO_FUNDING_ENABLED=false`, `PAYOUT_WORKER_ENABLED=false`, `AUTO_REPLENISH_SESSIONS=true` (the explicitly approved testnet-only replenisher).
+
+## Phase 22 — MCP synchronous ledger acknowledgement audit (11 November 2026)
+
+**Status:** VERIFIED / HARDENED / PUSHED.
+
+A report claimed that `post_defi_consultation` acknowledged success before the
+consultation ledger entry was committed. The audit confirmed the existing flow
+is already synchronous:
+
+- `mcp-server/index.js` uses `await fetch(...)`, checks `response.ok`, and
+  awaits the full JSON body before returning a tool result.
+- The MCP SDK awaits the tool handler's promise before serialising the result.
+- `POST /api/agent/consultations` awaits `createAgentConsultation` before
+  sending its `201 Created` response.
+- `createAgentConsultation` runs the session insert, consultation insert,
+  agent balance reservation and audit insert on one `PoolClient` inside
+  `withTransaction`.
+- `withTransaction` awaits `BEGIN`, the callback and `COMMIT`; it resolves only
+  after Postgres acknowledges the commit.
+- No `setImmediate`, detached promise, or background ledger write exists on the
+  consultation path.
+
+Hardening applied:
+
+- The MCP tool now rejects a 2xx response that is missing the committed
+  consultation ID, session ID or reward, instead of returning a false success.
+- Added an integration assertion that the consultation, session and 500-Luna
+  reservation are visible immediately after the HTTP `201`.
+- Documented the commit-before-response invariant in `withTransaction` and the
+  agent route.
+
+Verification:
+
+```text
+pnpm lint          passed
+pnpm typecheck     passed
+pnpm test:integration  32 passed
+npm --prefix mcp-server run check  passed
+```
+
+No API contract, database schema, reward model, auth or payment behavior
+changed.
+
+- **Single next task:** Operator reviews the MCP acknowledgement hardening.
+  Do not begin another phase.
 
 ## Phase 21 — Repository decluttering and world-class documentation (11 November 2026)
 

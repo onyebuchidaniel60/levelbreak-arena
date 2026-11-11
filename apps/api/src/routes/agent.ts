@@ -82,6 +82,8 @@ export async function registerAgentRoutes(
     async (request, reply) => {
       const agent = await authenticateAgent(request);
       const body = parse(ConsultationBody, request.body);
+      // createAgentConsultation resolves only after its transaction commits.
+      // Do not acknowledge the MCP client before this await completes.
       const result = await createAgentConsultation({
         agentId: agent.id,
         question: body.question,

@@ -1286,6 +1286,29 @@ integration("Phase 3 domain integration", () => {
         status: "AVAILABLE",
         rewardLuna: "500",
       });
+
+      // The HTTP 201 must only be observable after withTransaction commits.
+      // A separate pool read immediately after the response must see the
+      // consultation, session and reservation.
+      const committed = await query<{
+        consultation_status: string;
+        session_state: string;
+        reserved_luna: string;
+      }>(
+        `SELECT c.status AS consultation_status,
+                s.state AS session_state,
+                a.reserved_luna
+           FROM agent_consultations c
+           JOIN requester_sessions s ON s.id = c.requester_session_id
+           JOIN agents a ON a.id = c.agent_id
+          WHERE c.id = $1`,
+        [posted.consultation.consultationId],
+      );
+      expect(committed.rows[0]).toMatchObject({
+        consultation_status: "AVAILABLE",
+        session_state: "AVAILABLE",
+        reserved_luna: "500",
+      });
       expect(posted.agent).toMatchObject({
         balanceLuna: "1000",
         reservedLuna: "500",
